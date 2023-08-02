@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <modules>
+        <module>record-api-definitions</module>
+    </modules>
+
+    <parent>
+        <groupId>eu.europeana</groupId>
+        <artifactId>europeana-parent-pom</artifactId>
+        <version>2.4</version>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>libs-release-local</id>
+            <name>europeana-releases</name>
+            <url>https://artifactory.eanadev.org/artifactory/libs-release</url>
+        </repository>
+        <repository>
+            <id>libs-snapshots-local</id>
+            <name>europeana-snapshots</name>
+            <url>https://artifactory.eanadev.org/artifactory/libs-snapshot</url>
+        </repository>
+        <!-- repo for plugins, required to resolve git-commit-id -->
+        <repository>
+            <id>plugins-release</id>
+            <name>artifactory plugins-release</name>
+            <url>https://artifactory.eanadev.org/artifactory/plugins-release</url>
+        </repository>
+    </repositories>
+
+
+    <groupId>eu.europeana.api</groupId>
+    <artifactId>record-api</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Record API</name>
+    <description>Service for managing the records</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <aggregate.report.xml>entity-management-tests/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.xml>
+        <sonar.coverage.jacoco.xmlReportPaths>${aggregate.report.xml}</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.java.pmd.reportPaths>${project.build.directory}/pmd.xml</sonar.java.pmd.reportPaths>
+        <sonar.java.spotbugs.reportPaths>${project.build.directory}/spotbugsXml.xml</sonar.java.spotbugs.reportPaths>
+        <api.commons.version>0.3.21</api.commons.version>
+        <jackson.version>2.11.4</jackson.version>
+        <spring-boot.version>3.1.2</spring-boot.version>
+        <surefire.version>3.1.2</surefire.version>
+        <swagger.version>3.0.0</swagger.version>
+        <morphia.version>2.1.4</morphia.version>
+        <git-code-format.version>3.1</git-code-format.version>
+        <git-commit-id.version>5.0.0</git-commit-id.version>
+        <failsafe.version>3.0.0-M5</failsafe.version>
+        <jacoco-plugin.version>0.8.7</jacoco-plugin.version>
+        <pmd-plugin.version>3.21.0</pmd-plugin.version>
+        <spotbugs-plugin.version>4.7.3.5</spotbugs-plugin.version>
+    </properties>
+
+    <!-- Set asm version to be used by maven-pmd-plugin -->
+    <dependencies>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.5</version>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <!-- Import dependency management from Spring Boot (because we don't use Spring-Boot as parent pom)-->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <!--  allow Maven to manipulate resource files as a part of the build process.
+               build.properties by default is expanded by spring-boot-maven-plugin
+        -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${git-commit-id.version}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                        <configuration>
+                            <additionalProperties>
+                                <project.description>${project.description}</project.description>
+                                <!-- For some reason BuildProperties.getName() doesn't return the correct value,
+                                 so we set the name under a different property                      -->
+                                <project.name>${project.name}</project.name>
+                            </additionalProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--On commit, the hook will automatically format staged files.-->
+            <plugin>
+                <groupId>com.cosium.code</groupId>
+                <artifactId>git-code-format-maven-plugin</artifactId>
+                <version>${git-code-format.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                    <googleJavaFormatOptions>
+                        <aosp>true</aosp>
+                    </googleJavaFormatOptions>
+                </configuration>
+                <executions>
+                    <!-- Install git pre-commit hook -->
+                    <execution>
+                        <id>install-formatter-hook</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>install-hooks</goal>
+                        </goals>
+                    </execution>
+                    <!-- Format source files -->
+                    <execution>
+                        <id>format-code</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>format-code</goal>
+                        </goals>
+                    </execution>
+                    <!-- On Maven verify phase, fail if any file
+                    (including unmodified) is badly formatted -->
+                    <execution>
+                        <id>validate-code-format</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>validate-code-format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only.
+                    It has no influence on the Maven build itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.cosium.code</groupId>
+                                        <artifactId>git-code-format-maven-plugin</artifactId>
+                                        <versionRange>${git-code-format.version}</versionRange>
+                                        <goals>
+                                            <goal>install-hooks</goal>
+                                            <goal>format-code</goal>
+                                            <goal>validate-code-format</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute />
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
+                    <version>${surefire.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
