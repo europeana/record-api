@@ -227,4 +227,93 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-pmd-plugin</artifactId>
+                        <!-- Plugin has an indirect dependency on an old version os asm. This is disabled, so we
+                          can use the asm version specified above. See: https://issueexplorer.com/issue/pmd/pmd/3504#21570220 -->
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.eclipse.sisu</groupId>
+                                <artifactId>org.eclipse.sisu.plexus</artifactId>
+                                <version>0.0.0.M2a</version>
+                                <exclusions>
+                                    <exclusion>
+                                        <groupId>asm</groupId>
+                                        <artifactId>asm</artifactId>
+                                    </exclusion>
+                                </exclusions>
+                            </dependency>
+                        </dependencies>
+                        <version>${pmd-plugin.version}</version>
+                        <configuration>
+                            <rulesets>
+                                <ruleset>https://raw.githubusercontent.com/europeana/api-commons/master/misc/rulesets/europeana-pmd-ruleset.xml</ruleset>
+                            </rulesets>
+                            <printFailingErrors>true</printFailingErrors>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>aggregate</id>
+                                <goals>
+                                    <goal>pmd</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>${spotbugs-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>spotbugs</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includeFilterFile>https://raw.githubusercontent.com/europeana/api-commons/master/misc/rulesets/europeana-findbugs-ruleset.xml</includeFilterFile>
+                            <!--We just want the reports; build should still pass -->
+                            <failOnError>false</failOnError>
+                            <!-- Import additional rules from plugins -->
+                            <plugins>
+                                <plugin>
+                                    <groupId>com.h3xstream.findsecbugs</groupId>
+                                    <artifactId>findsecbugs-plugin</artifactId>
+                                    <version>1.11.0</version>
+                                </plugin>
+                                <plugin>
+                                    <groupId>com.mebigfatguy.fb-contrib</groupId>
+                                    <artifactId>fb-contrib</artifactId>
+                                    <version>7.4.3.sb</version>
+                                </plugin>
+                            </plugins>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
