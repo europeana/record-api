@@ -59,6 +59,7 @@
         <jacoco-plugin.version>0.8.7</jacoco-plugin.version>
         <pmd-plugin.version>3.21.0</pmd-plugin.version>
         <spotbugs-plugin.version>4.7.3.5</spotbugs-plugin.version>
+        <sonar-plugin.version>3.7.0.1746</sonar-plugin.version>
     </properties>
 
     <!-- Set asm version to be used by maven-pmd-plugin -->
