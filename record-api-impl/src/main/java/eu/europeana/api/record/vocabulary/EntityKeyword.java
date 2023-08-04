@@ -1,4 +1,4 @@
-package eu.europeana.recordapi.vocabulary;
+package eu.europeana.api.record.vocabulary;
 
 public interface EntityKeyword {
 

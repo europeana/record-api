@@ -1,6 +1,6 @@
-package eu.europeana.recordapi.model;
+package eu.europeana.api.record.impl;
 
-import eu.europeana.recordapi.datatypes.Literal;
+import eu.europeana.api.record.datatypes.Literal;
 
 public class EuropeanaAggregation extends EdmEntity {
 

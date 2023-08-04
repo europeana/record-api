@@ -1,4 +1,4 @@
-package eu.europeana.recordapi.datatypes;
+package eu.europeana.api.record.datatypes;
 
 public interface Literal<T> {
 

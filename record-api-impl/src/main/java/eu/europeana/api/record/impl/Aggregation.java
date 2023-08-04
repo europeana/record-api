@@ -1,10 +1,11 @@
-package eu.europeana.recordapi.model;
+package eu.europeana.api.record.impl;
 
-import eu.europeana.recordapi.datatypes.Literal;
-import eu.europeana.recordapi.datatypes.ObjectReference;
+import eu.europeana.api.record.datatypes.Literal;
+import eu.europeana.api.record.datatypes.ObjectReference;
 
 import java.util.List;
 
+// TODO make inteface
 public class Aggregation extends EdmEntity {
 
     private Literal<String> type;

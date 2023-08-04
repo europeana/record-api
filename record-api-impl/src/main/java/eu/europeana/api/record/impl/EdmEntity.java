@@ -1,4 +1,4 @@
-package eu.europeana.recordapi.model;
+package eu.europeana.api.record.impl;
 
 public class EdmEntity {
 
