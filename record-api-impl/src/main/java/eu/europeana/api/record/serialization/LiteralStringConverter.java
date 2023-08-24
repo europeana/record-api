@@ -11,8 +11,6 @@ public class LiteralStringConverter extends StdConverter<String, Literal<String>
 
     @Override
     public Literal<String> convert(String s) {
-        Literal<String> literal = new LiteralImpl<>();
-        literal.setValue(s);
-        return literal;
+        return new LiteralImpl(s);
     }
 }

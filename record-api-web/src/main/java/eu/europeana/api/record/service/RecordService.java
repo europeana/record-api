@@ -2,7 +2,7 @@ package eu.europeana.api.record.service;
 
 import eu.europeana.api.record.config.AppConfig;
 import eu.europeana.api.record.config.RecordApiConfiguration;
-import eu.europeana.api.record.Record;
+import eu.europeana.api.record.model.Record;
 import eu.europeana.api.record.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,10 @@ public class RecordService {
 
     public Record saveRecord(Record record) {
         return recordRepository.save(record);
+    }
+
+    public Record getRecord(String recordId) {
+        return recordRepository.findById(recordId);
     }
 
 }

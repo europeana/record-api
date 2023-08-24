@@ -9,9 +9,10 @@ import com.mongodb.connection.ConnectionPoolSettings;
 import java.util.concurrent.TimeUnit;
 import dev.morphia.Datastore;
 import dev.morphia.Morphia;
-import dev.morphia.mapping.MapperOptions;
+import dev.morphia.mapping.Mapper;
 import eu.europeana.api.record.codec.LiteralCodec;
-import eu.europeana.api.record.codec.LiteralMapCodec;
+import eu.europeana.api.record.codec.ObjectReferenceCodec;
+import eu.europeana.api.record.impl.*;
 import eu.europeana.api.record.vocabulary.AppConfigConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +27,6 @@ import org.springframework.context.annotation.PropertySource;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
 
 @Configuration
 @PropertySource(
@@ -51,7 +51,7 @@ public class DataSourceConfig {
         ConnectionString connectionString = new ConnectionString(hostUri);
 
         CodecRegistry myRegistry = fromRegistries(
-                CodecRegistries.fromCodecs(new LiteralMapCodec(), new LiteralCodec()),
+                CodecRegistries.fromCodecs(new LiteralCodec(), new ObjectReferenceCodec()),
                 MongoClientSettings.getDefaultCodecRegistry(),
                 fromProviders(
                         PojoCodecProvider.builder()
@@ -76,13 +76,22 @@ public class DataSourceConfig {
     @Bean(name = AppConfigConstants.BEAN_RECORD_DATA_STORE)
     public Datastore emDataStore(MongoClient mongoClient) {
         LOGGER.info("Configuring Record API database: {}", recordDatabase);
-        Datastore datastore = Morphia.createDatastore(mongoClient, recordDatabase, MapperOptions.builder().mapSubPackages(true).build());
-
-        // EA-2520: explicit package mapping required to prevent EntityDecoder error
-        // TODO switch the package to interfaces later , once ready
-        datastore.getMapper().mapPackage("eu.europeana.api.record.impl");
+        Datastore datastore=  createDatastore(mongoClient, recordDatabase);
         datastore.ensureIndexes();
         return datastore;
     }
 
+
+    private Datastore createDatastore(MongoClient mongoClient, String databaseName) {
+        Datastore morphiaDatastore = Morphia.createDatastore(mongoClient, databaseName);
+        Mapper mapper = morphiaDatastore.getMapper();
+        mapper.map(new Class[]{ProxyImpl.class});
+        mapper.map(new Class[]{EuropeanaAggregationImpl.class});
+        mapper.map(new Class[]{AggregationImpl.class});
+        mapper.map(new Class[]{AgentImpl.class});
+        mapper.map(new Class[]{WebResourceImpl.class});
+        mapper.map(new Class[]{TechMetadataImpl.class});
+        LOGGER.info("Datastore initialized");
+        return morphiaDatastore;
+    }
 }

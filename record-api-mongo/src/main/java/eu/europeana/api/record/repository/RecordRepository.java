@@ -3,7 +3,8 @@ package eu.europeana.api.record.repository;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.filters.Filter;
 import dev.morphia.query.filters.Filters;
-import eu.europeana.api.record.Record;
+import eu.europeana.api.record.impl.RecordImpl;
+import eu.europeana.api.record.model.Record;
 import eu.europeana.api.record.vocabulary.AppConfigConstants;
 import org.springframework.stereotype.Repository;
 
@@ -34,7 +35,7 @@ public class RecordRepository extends AbstractRepository {
 
     /** @return the total number of records in the database */
     public long count() {
-        return getDataStore().find(java.lang.Record.class).count();
+        return getDataStore().find(RecordImpl.class).count();
     }
 
     /**
@@ -45,7 +46,7 @@ public class RecordRepository extends AbstractRepository {
      */
     public boolean existsByRecordId(String recordId) {
         return getDataStore()
-                .find(java.lang.Record.class)
+                .find(RecordImpl.class)
                 .filter(Filters.eq("about", recordId))
                 .count()
                 > 0;
@@ -54,16 +55,15 @@ public class RecordRepository extends AbstractRepository {
     /**
      * Find Record that matches the given record id
      *
-     * @param recordId : Id of the record to be fetched
+     * @param about : Id of the record to be fetched
      * @return record matching record id
      */
-    public java.lang.Record findById(String recordId) {
-        // Get all EntityRecords that match the given entityIds
+    public Record findById(String about) {
         List<Filter> filters = new ArrayList<>();
-        filters.add(Filters.eq("about", recordId));
+        filters.add(Filters.eq("about", about));
 
         return getDataStore()
-                .find(java.lang.Record.class)
+                .find(RecordImpl.class)
                 .filter(filters.toArray(Filter[]::new))
                 .iterator(new FindOptions())
                 .tryNext();

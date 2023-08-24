@@ -10,15 +10,9 @@ import org.bson.codecs.EncoderContext;
 
 public class LiteralCodec  implements Codec<Literal> {
 
-//    @Override
-//    public void encode(final BsonWriter writer, final Literal<String> value, final EncoderContext encoderContext) {
-//        writer.writeString(value.getValue());
-//    }
-
     @Override
     public void encode(BsonWriter bsonWriter, Literal literal, EncoderContext encoderContext) {
         bsonWriter.writeString(String.valueOf(literal.getValue()));
-
     }
 
     @Override
@@ -28,9 +22,7 @@ public class LiteralCodec  implements Codec<Literal> {
 
     @Override
     public Literal<String> decode(final BsonReader reader, final DecoderContext decoderContext) {
-        Literal<String>  literal = new LiteralImpl<>();
-        literal.setValue(reader.readString());
-        return literal;
+        return new LiteralImpl(reader.readString());
     }
 
 }

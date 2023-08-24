@@ -6,10 +6,12 @@ import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.datatypes.ObjectReference;
 import eu.europeana.api.record.model.Aggregation;
+import eu.europeana.api.record.serialization.ObjectReferenceConverter;
 import eu.europeana.api.record.serialization.LiteralStringConverter;
 
 import java.util.List;
 
+@Entity(useDiscriminator = false)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AggregationImpl extends EdmEntityImpl implements Aggregation {
@@ -20,14 +22,8 @@ public class AggregationImpl extends EdmEntityImpl implements Aggregation {
     @JsonDeserialize(converter = LiteralStringConverter.class)
     private Literal<String> isShownBy;
 
-    /**
-     * Multiple object reference.
-     * For now, we can deserialize as List<Literal<string>>
-     * As has Views only contains strings and
-     * not the referenced object yet when registering a record.
-     */
-    @JsonDeserialize(converter = LiteralStringConverter.class)
-    private List<ObjectReference> hasViews;
+    @JsonDeserialize(converter = ObjectReferenceConverter.class)
+    private List<ObjectReference> hasView;
 
 
     public AggregationImpl() {
@@ -44,8 +40,8 @@ public class AggregationImpl extends EdmEntityImpl implements Aggregation {
     }
 
     @Override
-    public List<ObjectReference> getHasViews() {
-        return hasViews;
+    public List<ObjectReference> getHasView() {
+        return hasView;
     }
 
     @Override
@@ -59,7 +55,16 @@ public class AggregationImpl extends EdmEntityImpl implements Aggregation {
     }
 
     @Override
-    public void setHasViews(List<ObjectReference> hasViews) {
-        this.hasViews = hasViews;
+    public void setHasView(List<ObjectReference> hasView) {
+        this.hasView = hasView;
+    }
+
+    @Override
+    public String toString() {
+        return "AggregationImpl{" +
+                "type=" + type +
+                ", isShownBy=" + isShownBy +
+                ", hasView=" + hasView +
+                '}';
     }
 }

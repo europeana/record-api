@@ -1,99 +1,112 @@
-package eu.europeana.api.record;
+package eu.europeana.api.record.impl;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
-import eu.europeana.api.record.impl.*;
+import dev.morphia.annotations.IndexOptions;
+import dev.morphia.annotations.Indexed;
 import eu.europeana.api.record.model.*;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.europeana.api.record.model.Record;
+import org.bson.types.ObjectId;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
-@Entity
+@Entity(value = "Record", useDiscriminator = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 // TODO add custom validators later once we know field validations
-public class Record {
+public class RecordImpl implements Record {
 
     @Id
-    private String id;
+    @JsonIgnore
+    private ObjectId dbId;
 
-//    @JsonDeserialize(as = ProvidedCHOImpl.class)
-//    private ProvidedCHO providedCHO;
+    @Indexed(options = @IndexOptions(unique = true))
+    private String about;
 
     @JsonDeserialize(contentAs = ProxyImpl.class)
-    private List<? extends Proxy> proxies;
+    private List<ProxyImpl> proxies;
 
     @JsonDeserialize(as = AggregationImpl.class)
-    private Aggregation aggregation;
+    private AggregationImpl aggregation;
 
     @JsonDeserialize(contentAs = WebResourceImpl.class)
-    private List<? extends WebResource> webResources;
+    private List<WebResourceImpl> webResources;
 
     @JsonDeserialize(contentAs = AgentImpl.class)
-    private List<? extends Agent> agents;
+    private List<AgentImpl> agents;
 
-    protected  Record() {}
+    protected RecordImpl() {}
 
 
+    @Override
     @JsonGetter(CONTEXT)
     public String getContext() {
         return EDM_CONTEXT;
     }
 
+    public ObjectId getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(ObjectId dbId) {
+        this.dbId = dbId;
+    }
+
+    @Override
     @JsonGetter(ID)
-    public String getId() {
-        return id;
+    public String getAbout() {
+        return about;
     }
 
+    @Override
     @JsonSetter(ID)
-    public void setId(String id) {
-        this.id = id;
+    public void setAbout(String about) {
+        this.about = about;
     }
 
-    //    public ProvidedCHO getProvidedCHO() {
-//        return providedCHO;
-//    }
-//
-//    public void setProvidedCHO(ProvidedCHO providedCHO) {
-//        this.providedCHO = providedCHO;
-//    }
-
+    @Override
     public List<? extends Proxy> getProxies() {
         return proxies;
     }
 
+    @Override
     public void setProxies(List<? extends Proxy> proxies) {
-        this.proxies =  proxies;
+        this.proxies = (List<ProxyImpl>) proxies;
     }
 
+    @Override
+    @JsonGetter(IS_AGGREGATED_BY)
     public Aggregation getAggregation() {
         return aggregation;
     }
 
+    @Override
     public void setAggregation(Aggregation aggregation) {
-        this.aggregation =  aggregation;
+        this.aggregation = (AggregationImpl) aggregation;
     }
 
+    @Override
     public List<? extends WebResource> getWebResources() {
         return webResources;
     }
 
+    @Override
     public void setWebResources(List<? extends WebResource> webResources) {
-        this.webResources =  webResources;
+        this.webResources = (List<WebResourceImpl>) webResources;
     }
 
+    @Override
     public List<? extends Agent> getAgents() {
         return agents;
     }
 
+    @Override
     public void setAgents(List<? extends Agent> agents) {
-        this.agents = agents;
+        this.agents = (List<AgentImpl>) agents;
     }
 }

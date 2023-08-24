@@ -1,5 +1,7 @@
 package eu.europeana.api.record.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.datatypes.Literal;
@@ -7,20 +9,21 @@ import eu.europeana.api.record.model.EuropeanaAggregation;
 import eu.europeana.api.record.model.Proxy;
 import eu.europeana.api.record.serialization.LiteralStringConverter;
 import eu.europeana.api.record.serialization.LiteralMapConverter;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.FieldType;
+import static eu.europeana.api.record.vocabulary.RecordFields.NONE;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@Entity
+// It is now possible to use @Entity everywhere. If a type is only for use as an embedded value, no @Id field is necessary.
+@Entity(useDiscriminator = false)
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProxyImpl extends EdmEntityImpl implements Proxy {
 
-//    @Field(targetType = FieldType.STRING)
     @JsonDeserialize(converter = LiteralStringConverter.class)
     private Literal<String> type;
 
-//    @Field(targetType = FieldType.ARRAY)
     @JsonDeserialize(converter = LiteralMapConverter.class)
     private Map<String, List<Literal<String>>> title;
 
@@ -37,7 +40,7 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
     private Map<String, List<Literal<String>>> identifier;
 
     @JsonDeserialize(as = EuropeanaAggregationImpl.class)
-    private EuropeanaAggregation proxyIn;
+    private EuropeanaAggregationImpl proxyIn;
 
     @JsonDeserialize(converter = LiteralStringConverter.class)
     private Literal<String> proxyFor;
@@ -106,7 +109,7 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
     }
 
     public void setProxyIn(EuropeanaAggregation proxyIn) {
-        this.proxyIn =  proxyIn;
+        this.proxyIn = (EuropeanaAggregationImpl) proxyIn;
     }
 
     @Override
@@ -151,26 +154,58 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
 
     @Override
     public List<Literal<String>> getTitles() {
-        return title.get("@none");
+        if (this.title != null && this.title.containsKey(NONE)) {
+            return title.get(NONE);
+
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public List<Literal<String>> getAlternatives() {
-        return alternative.get("@none");
+        if (this.alternative != null && this.alternative.containsKey(NONE)) {
+            return alternative.get(NONE);
+
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public List<Literal<String>> getCreators() {
-        return creator.get("@none");
+        if (this.creator != null && this.creator.containsKey(NONE)) {
+            return creator.get(NONE);
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public List<Literal<String>> getDescriptions() {
-        return description.get("@none");
+        if (this.description != null && this.description.containsKey(NONE)) {
+            return description.get(NONE);
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public List<Literal<String>> getIdentifiers() {
-        return identifier.get("@none");
+        if (this.identifier != null && this.identifier.containsKey(NONE)) {
+            return identifier.get(NONE);
+
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String toString() {
+        return "ProxyImpl{" +
+                "type=" + type +
+                ", title=" + title +
+                ", alternative=" + alternative +
+                ", description=" + description +
+                ", creator=" + creator +
+                ", identifier=" + identifier +
+                ", proxyIn=" + proxyIn +
+                ", proxyFor=" + proxyFor +
+                '}';
     }
 }

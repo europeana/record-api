@@ -11,12 +11,12 @@ public interface Aggregation {
 
     Literal<String> getIsShownBy();
 
-    List<ObjectReference> getHasViews();
+    List<ObjectReference> getHasView();
 
     void setType(Literal<String> type);
 
     void setIsShownBy(Literal<String> isShownBy);
 
-    void setHasViews(List<ObjectReference> hasViews);
+    void setHasView(List<ObjectReference> hasView);
 
 }

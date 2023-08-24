@@ -5,6 +5,9 @@ public interface RecordFields {
     public static final String CONTEXT = "@context";
     public static final String EDM_CONTEXT = "http://www.europeana.eu/schemas/context/edm.jsonld";
 
+    public static final String NON_LANGUAGE_TAGGED = "def";
+    public static final String NONE = "@none";
+
 
     public static final String ID = "id";
     public static final String TYPE = "type";
@@ -16,6 +19,8 @@ public interface RecordFields {
 
     public static final String AGGREGATION = "Aggregation";
     public static final String IS_AGGREGATED_BY = "isAggregatedBy";
+
+
 
 
 }
