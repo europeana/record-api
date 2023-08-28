@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * Main application. Allows deploying as a war and logs instance data when deployed in Cloud Foundry
@@ -22,7 +23,7 @@ import org.apache.logging.log4j.Logger;
                 // DataSources are manually configured (for EM and batch DBs)
                 DataSourceAutoConfiguration.class
         })
-public class RecordApp {
+public class RecordApp extends SpringBootServletInitializer {
 
         private static final Logger LOG = LogManager.getLogger(RecordApp.class);
 

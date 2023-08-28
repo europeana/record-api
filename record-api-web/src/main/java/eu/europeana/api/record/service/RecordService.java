@@ -24,8 +24,12 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
-    public Record getRecord(String recordId) {
-        return recordRepository.findById(recordId);
+    public Record getRecord(String about) {
+        return recordRepository.findById(about);
+    }
+
+    public boolean existsByID(String about) {
+        return recordRepository.existsByRecordId(about);
     }
 
 }

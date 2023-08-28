@@ -1,11 +1,15 @@
 package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
+import eu.europeana.api.record.exception.HttpBadRequestException;
+import eu.europeana.api.record.exception.RecordAlreadyExistsException;
+import eu.europeana.api.record.exception.RecordApiException;
 import eu.europeana.api.record.impl.RecordImpl;
-import eu.europeana.api.record.model.Record;
 import eu.europeana.api.record.service.RecordService;
 import io.swagger.annotations.ApiOperation;
-import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,9 +17,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @Validated
 public class RecordController {
+
+    private static final Logger LOGGER = LogManager.getLogger(RecordController.class);
 
     private final RecordService recordService;
 
@@ -33,19 +41,23 @@ public class RecordController {
             value = "/record/",
             produces = {MediaType.APPLICATION_JSON_VALUE, HttpHeaders.CONTENT_TYPE_JSONLD})
     public ResponseEntity<String> registerRecord(
-            @RequestBody RecordImpl record, HttpServletRequest request) throws Exception {
+            @RequestBody RecordImpl record, HttpServletRequest request) throws RecordApiException {
 
-        // TODO validation for language tagged values to be single
+        // TODO request validation for language tagged values to be single
+        //  and others validation yet to be added
+        if (StringUtils.isNotEmpty(record.getAbout())) {
+            LOGGER.debug("Registering new Record={}", record.getAbout());
+        } else {
+            // id is mandatory in request body
+            throw new HttpBadRequestException("Mandatory field missing in the request body: id");
+        }
 
-        System.out.println(record.getProxies().get(0));
-        System.out.println(record.getProxies().get(1));
-
-        System.out.println(record.getAggregation());
-        System.out.println(record.getAgents().get(0));
-        System.out.println(record.getAgents().get(1));
+        // check if Record already exists
+        if (recordService.existsByID(record.getAbout())) {
+            throw new RecordAlreadyExistsException(record.getAbout());
+        }
 
         recordService.saveRecord(record);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -69,14 +81,6 @@ public class RecordController {
         String about = "http://data.europeana.eu/item/" + collectionId + "/" + recordId;
         System.out.println("about " +about);
         RecordImpl record = (RecordImpl) recordService.getRecord(about);
-
-        System.out.println(record.getProxies().get(0));
-        System.out.println(record.getProxies().get(1));
-
-        System.out.println(record.getAggregation());
-        System.out.println(record.getAgents().get(0));
-        System.out.println(record.getAgents().get(1));
-
         return new ResponseEntity(HttpStatus.OK);
     }
 
