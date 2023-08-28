@@ -5,7 +5,7 @@ import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.model.TechMetadata;
 import eu.europeana.api.record.model.WebResource;
-import eu.europeana.api.record.serialization.LiteralStringConverter;
+import eu.europeana.api.record.deserialization.LiteralStringConverter;
 
 @Entity(useDiscriminator = false)
 public class WebResourceImpl extends EdmEntityImpl implements WebResource {

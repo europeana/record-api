@@ -1,4 +1,4 @@
-package eu.europeana.api.record.serialization;
+package eu.europeana.api.record.deserialization;
 
 import com.fasterxml.jackson.databind.util.StdConverter;
 import eu.europeana.api.record.datatypes.ObjectReference;

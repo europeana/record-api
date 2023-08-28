@@ -7,8 +7,8 @@ import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.model.EuropeanaAggregation;
 import eu.europeana.api.record.model.Proxy;
-import eu.europeana.api.record.serialization.LiteralStringConverter;
-import eu.europeana.api.record.serialization.LiteralMapConverter;
+import eu.europeana.api.record.deserialization.LiteralStringConverter;
+import eu.europeana.api.record.deserialization.LiteralMapConverter;
 import static eu.europeana.api.record.vocabulary.RecordFields.NONE;
 
 import java.util.Collections;

@@ -6,8 +6,8 @@ import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.datatypes.ObjectReference;
 import eu.europeana.api.record.model.Aggregation;
-import eu.europeana.api.record.serialization.ObjectReferenceConverter;
-import eu.europeana.api.record.serialization.LiteralStringConverter;
+import eu.europeana.api.record.deserialization.ObjectReferenceConverter;
+import eu.europeana.api.record.deserialization.LiteralStringConverter;
 
 import java.util.List;
 

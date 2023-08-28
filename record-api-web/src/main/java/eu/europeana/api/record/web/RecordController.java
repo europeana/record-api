@@ -6,6 +6,7 @@ import eu.europeana.api.record.exception.RecordAlreadyExistsException;
 import eu.europeana.api.record.exception.RecordApiException;
 import eu.europeana.api.record.impl.RecordImpl;
 import eu.europeana.api.record.service.RecordService;
+import eu.europeana.api.record.utils.RecordUtils;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -78,8 +79,7 @@ public class RecordController {
             @PathVariable String recordId,
             HttpServletRequest request) throws Exception {
 
-        String about = "http://data.europeana.eu/item/" + collectionId + "/" + recordId;
-        System.out.println("about " +about);
+        String about = RecordUtils.buildRecordId(collectionId, recordId);
         RecordImpl record = (RecordImpl) recordService.getRecord(about);
         return new ResponseEntity(HttpStatus.OK);
     }

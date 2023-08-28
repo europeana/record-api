@@ -1,5 +1,10 @@
 package eu.europeana.api.record.vocabulary;
 
+/**
+ * Class to contain all the record field values of Record API
+ * @author srishti singh
+ * @since 14 August 2023
+ */
 public interface RecordFields {
 
     public static final String CONTEXT = "@context";
