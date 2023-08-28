@@ -3,6 +3,7 @@ package eu.europeana.api.record.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import eu.europeana.api.commons.error.ResponseUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
 
@@ -12,10 +13,13 @@ import java.util.List;
 @JsonPropertyOrder({"success", "status", "error", "message", "timestamp", "path"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ApiErrorResponse {
+
     private final boolean success = false;
     private final int status;
     private final String error;
+    private final String trace;
     private final String message;
+
     @JsonFormat(
             pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     )
@@ -23,10 +27,11 @@ public class ApiErrorResponse {
     private final String path;
     private final String code;
 
-    private ApiErrorResponse(int status, String error, String message, String path, String code) {
+    private ApiErrorResponse(int status, String error, String message, String trace, String path, String code) {
         this.status = status;
         this.error = error;
         this.message = message;
+        this.trace = trace;
         this.path = path;
         this.code = code;
     }
@@ -55,6 +60,10 @@ public class ApiErrorResponse {
         return this.path;
     }
 
+    public String getTrace() {
+        return this.trace;
+    }
+
     public String getCode() {
         return this.code;
     }
@@ -63,6 +72,7 @@ public class ApiErrorResponse {
         private int status;
         private String message;
         private String error;
+        private String trace;
         private final String path;
         private String code;
 
@@ -72,6 +82,10 @@ public class ApiErrorResponse {
             String profileParamString = httpRequest.getParameter("profile");
             if (StringUtils.hasLength(profileParamString)) {
                 includeErrorStack = List.of(profileParamString.split(",")).contains("debug");
+            }
+
+            if (stacktraceEnabled && includeErrorStack) {
+                this.trace = ResponseUtils.getExceptionStackTrace(e);
             }
 
         }
@@ -97,7 +111,7 @@ public class ApiErrorResponse {
         }
 
         public ApiErrorResponse build() {
-            return new ApiErrorResponse(this.status, this.error, this.message, this.path, this.code);
+            return new ApiErrorResponse(this.status, this.error, this.message, this.trace, this.path, this.code);
         }
     }
 

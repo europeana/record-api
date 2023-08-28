@@ -4,6 +4,8 @@ import eu.europeana.api.record.model.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,9 @@ class GlobalExceptionHandler {
 
     private static final Logger LOG = LogManager.getLogger(GlobalExceptionHandler.class);
 
+    @Value("${server.error.include-stacktrace:ON_PARAM}")
+    private ErrorProperties.IncludeStacktrace includeStacktraceConfig;
+
      //  with Spring boot 3 (and Spring Framework 6) require a baseline of Jakarte EE 10
     //  You cannot use it with Java EE or Jakarte EE versions below that.
     //  You have to remove the explicit dependency on jakarta.servlet-api from your pom.xml.
@@ -41,11 +46,15 @@ class GlobalExceptionHandler {
 
     }
 
+    protected boolean stackTraceEnabled() {
+        return this.includeStacktraceConfig != ErrorProperties.IncludeStacktrace.NEVER;
+    }
+
 
     @ExceptionHandler
     public ResponseEntity<ApiErrorResponse> handleBaseException(RecordApiException e, HttpServletRequest httpRequest) {
         this.logException(e);
-        ApiErrorResponse response = (new ApiErrorResponse.Builder(httpRequest, e, false)).setStatus(e.getResponseStatus().value()).setError
+        ApiErrorResponse response = (new ApiErrorResponse.Builder(httpRequest, e, this.stackTraceEnabled())).setStatus(e.getResponseStatus().value()).setError
                         (e.getResponseStatus().getReasonPhrase()).setMessage(e.doExposeMessage() ? e.getMessage() : null).setCode(e.getErrorCode()).build();
         return ResponseEntity.status(e.getResponseStatus()).headers(this.createHttpHeaders()).body(response);
     }
