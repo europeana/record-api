@@ -8,16 +8,20 @@ import eu.europeana.api.record.datatypes.ObjectReference;
 import eu.europeana.api.record.model.Aggregation;
 import eu.europeana.api.record.deserialization.ObjectReferenceConverter;
 import eu.europeana.api.record.deserialization.LiteralStringConverter;
+import eu.europeana.api.record.vocabulary.FieldTypes;
 
 import java.util.List;
+
+import static eu.europeana.api.record.vocabulary.RecordFields.ID;
+import static eu.europeana.api.record.vocabulary.RecordFields.TYPE;
 
 @Entity(useDiscriminator = false)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ID, TYPE})
 public class AggregationImpl extends EdmEntityImpl implements Aggregation {
 
-    @JsonDeserialize(converter = LiteralStringConverter.class)
-    private Literal<String> type;
+    private Literal<String> type = new LiteralImpl<>(FieldTypes.Aggregation.getFieldType());
 
     @JsonDeserialize(converter = LiteralStringConverter.class)
     private Literal<String> isShownBy;

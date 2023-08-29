@@ -6,12 +6,13 @@ import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.model.Entity;
 import eu.europeana.api.record.deserialization.LiteralListConverter;
 
-import static eu.europeana.api.record.vocabulary.RecordFields.ID;
-
 import java.util.Map;
+
+import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ID, TYPE, PREF_LABEL})
 public abstract class EntityImpl implements Entity {
 
     // ID of entity

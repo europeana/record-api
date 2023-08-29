@@ -2,6 +2,7 @@ package eu.europeana.api.record.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.datatypes.Literal;
@@ -9,20 +10,23 @@ import eu.europeana.api.record.model.EuropeanaAggregation;
 import eu.europeana.api.record.model.Proxy;
 import eu.europeana.api.record.deserialization.LiteralStringConverter;
 import eu.europeana.api.record.deserialization.LiteralMapConverter;
-import static eu.europeana.api.record.vocabulary.RecordFields.NONE;
+import eu.europeana.api.record.vocabulary.FieldTypes;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static eu.europeana.api.record.vocabulary.RecordFields.*;
+import static eu.europeana.api.record.vocabulary.RecordFields.PREF_LABEL;
+
 // It is now possible to use @Entity everywhere. If a type is only for use as an embedded value, no @Id field is necessary.
 @Entity(useDiscriminator = false)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ID, TYPE})
 public class ProxyImpl extends EdmEntityImpl implements Proxy {
 
-    @JsonDeserialize(converter = LiteralStringConverter.class)
-    private Literal<String> type;
+    private Literal<String> type = new LiteralImpl<>(FieldTypes.Proxy.getFieldType());
 
     @JsonDeserialize(converter = LiteralMapConverter.class)
     private Map<String, List<Literal<String>>> title;

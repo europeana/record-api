@@ -15,6 +15,7 @@ import org.bson.types.ObjectId;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
+@JsonPropertyOrder({CONTEXT, ID, PROXIES, IS_AGGREGATED_BY, WEB_RESOURCES, AGENTS})
 @Entity(value = "Record", useDiscriminator = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
