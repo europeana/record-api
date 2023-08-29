@@ -55,6 +55,7 @@
         <sonar.cpd.exclusions>**/model/**/*</sonar.cpd.exclusions>
         <api.commons.version>0.3.21</api.commons.version>
         <jackson.version>2.15.2</jackson.version>
+        <javax.xml.version>2.3.1</javax.xml.version>
        <!-- Spring Boot 3 is based on Spring Framework 6.0 and Jakarta EE 9. A-->
         <spring-boot.version>3.1.2</spring-boot.version>
         <spring-framework.version>6.0.11</spring-framework.version>
@@ -63,6 +64,8 @@
         <swagger.version>3.0.0</swagger.version>
 <!--        See if we can move to the latest version 2.4, alot of methods are deprecated though-->
         <morphia.version>2.3.7</morphia.version>
+        <xerial.snappy.version>1.1.10.3</xerial.snappy.version>
+
         <git-code-format.version>3.1</git-code-format.version>
         <git-commit-id.version>5.0.0</git-commit-id.version>
         <failsafe.version>3.0.0-M5</failsafe.version>
