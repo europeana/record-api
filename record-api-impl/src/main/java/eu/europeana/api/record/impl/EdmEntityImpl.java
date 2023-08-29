@@ -13,7 +13,6 @@ import static eu.europeana.api.record.vocabulary.RecordFields.ID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class EdmEntityImpl implements EdmEntity {
 
-    @Id
     private String about;
 
     @Override
