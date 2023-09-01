@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.model.Entity;
-import eu.europeana.api.record.deserialization.LiteralListConverter;
+import eu.europeana.api.record.deserialization.LiteralMapConverter;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public abstract class EntityImpl implements Entity {
     // ID of entity
     protected String about;
 
-    @JsonDeserialize(converter = LiteralListConverter.class)
+    @JsonDeserialize(converter = LiteralMapConverter.class)
     protected Map<String, Literal<String>> prefLabel;
 
     @Override

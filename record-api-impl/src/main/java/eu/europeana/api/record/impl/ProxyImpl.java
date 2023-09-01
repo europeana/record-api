@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.morphia.annotations.Entity;
+import eu.europeana.api.record.datatypes.DataValue;
 import eu.europeana.api.record.datatypes.Literal;
+import eu.europeana.api.record.deserialization.*;
 import eu.europeana.api.record.model.EuropeanaAggregation;
 import eu.europeana.api.record.model.Proxy;
-import eu.europeana.api.record.deserialization.LiteralStringConverter;
-import eu.europeana.api.record.deserialization.LiteralMapConverter;
 import eu.europeana.api.record.vocabulary.FieldTypes;
 
 import java.util.Collections;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
-import static eu.europeana.api.record.vocabulary.RecordFields.PREF_LABEL;
 
 // It is now possible to use @Entity everywhere. If a type is only for use as an embedded value, no @Id field is necessary.
 @Entity(useDiscriminator = false)
@@ -29,25 +28,26 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
     private Literal<String> type = new LiteralImpl<>(FieldTypes.Proxy.getFieldType());
 
     @JsonDeserialize(converter = LiteralMapConverter.class)
-    private Map<String, List<Literal<String>>> title;
+    private Map<String, Literal<String>> title;
 
-    @JsonDeserialize(converter = LiteralMapConverter.class)
+    @JsonDeserialize(converter = LiteralMultiValueMapConverter.class)
     private Map<String, List<Literal<String>>> alternative;
 
-    @JsonDeserialize(converter = LiteralMapConverter.class)
-    private Map<String, List<Literal<String>>> description;
+    @JsonDeserialize(converter = DataValueConverter.class)
+    private List<? extends DataValue> description;
 
-    @JsonDeserialize(converter = LiteralMapConverter.class)
-    private Map<String, List<Literal<String>>> creator;
+    @JsonDeserialize(converter = DataValueConverter.class)
+    private List<? extends DataValue> creator;
 
-    @JsonDeserialize(converter = LiteralMapConverter.class)
-    private Map<String, List<Literal<String>>> identifier;
+    @JsonDeserialize(converter = LiteralListConverter.class)
+    private List<Literal<String>> identifier;
 
     @JsonDeserialize(as = EuropeanaAggregationImpl.class)
     private EuropeanaAggregationImpl proxyIn;
 
-    @JsonDeserialize(converter = LiteralStringConverter.class)
+    @JsonDeserialize(converter = LiteralConverter.class)
     private Literal<String> proxyFor;
+
 
     public ProxyImpl() {
     }
@@ -62,12 +62,12 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
         this.type = type;
     }
 
-    public Map<String, List<Literal<String>>> getTitle() {
+    public Map<String, Literal<String>> getTitle() {
         return title;
     }
 
     @Override
-    public void setTitle(Map<String, List<Literal<String>>> title) {
+    public void setTitle(Map<String, Literal<String>> title) {
         this.title = title;
     }
 
@@ -80,30 +80,33 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
         this.alternative = alternative;
     }
 
-    public Map<String, List<Literal<String>>> getDescription() {
+    @Override
+    public List<? extends DataValue> getDescription() {
         return description;
     }
 
     @Override
-    public void setDescription(Map<String, List<Literal<String>>> description) {
-        this.description = description;
+    public void setDescription(List<? extends DataValue> description) {
+        this.description =  description;
     }
 
-    public Map<String, List<Literal<String>>> getCreator() {
+    @Override
+    public List<? extends DataValue> getCreator() {
         return creator;
     }
 
     @Override
-    public void setCreator(Map<String, List<Literal<String>>> creator) {
-        this.creator = creator;
+    public void setCreator(List<? extends DataValue> creator) {
+        this.creator =  creator;
     }
 
-    public Map<String, List<Literal<String>>> getIdentifier() {
+    @Override
+    public List<Literal<String>> getIdentifier() {
         return identifier;
     }
 
     @Override
-    public void setIdentifier(Map<String, List<Literal<String>>> identifier) {
+    public void setIdentifier(List<Literal<String>> identifier) {
         this.identifier = identifier;
     }
 
@@ -122,20 +125,13 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
     }
 
     @Override
+    public Literal<String> getTitle(String language) {
+        return this.title.get(language);
+    }
+
+    @Override
     public void setProxyFor(Literal<String> proxyFor) {
         this.proxyFor = proxyFor;
-    }
-
-    // Getters to fetch the language value
-
-    @Override
-    public Literal<String>  getTitle(String language) {
-        return title.get(language).get(0);
-    }
-
-    @Override
-    public Literal<String> getCreator(String language) {
-        return creator.get(language).get(0);
     }
 
     @Override
@@ -143,27 +139,8 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
         return alternative.get(language).get(0);
     }
 
-    @Override
-    public Literal<String> getDescription(String language) {
-        return description.get(language).get(0);
-    }
-
-    @Override
-    public Literal<String> getIdentifier(String language) {
-        return identifier.get(language).get(0);
-    }
-
 
     // Getters to fetch the non language @none values
-
-    @Override
-    public List<Literal<String>> getTitles() {
-        if (this.title != null && this.title.containsKey(NONE)) {
-            return title.get(NONE);
-
-        }
-        return Collections.emptyList();
-    }
 
     @Override
     public List<Literal<String>> getAlternatives() {
@@ -174,30 +151,6 @@ public class ProxyImpl extends EdmEntityImpl implements Proxy {
         return Collections.emptyList();
     }
 
-    @Override
-    public List<Literal<String>> getCreators() {
-        if (this.creator != null && this.creator.containsKey(NONE)) {
-            return creator.get(NONE);
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<Literal<String>> getDescriptions() {
-        if (this.description != null && this.description.containsKey(NONE)) {
-            return description.get(NONE);
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<Literal<String>> getIdentifiers() {
-        if (this.identifier != null && this.identifier.containsKey(NONE)) {
-            return identifier.get(NONE);
-
-        }
-        return Collections.emptyList();
-    }
 
     @Override
     public String toString() {

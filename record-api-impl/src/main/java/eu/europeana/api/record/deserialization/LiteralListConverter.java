@@ -4,19 +4,15 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.impl.LiteralImpl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-public class LiteralListConverter extends StdConverter<Map<String, String>, Map<String, Literal<String>>> {
+public class LiteralListConverter extends StdConverter<List<String>,  List<Literal<String>>> {
 
     @Override
-    public Map<String, Literal<String>> convert(Map<String, String> map) {
-        Map<String, Literal<String>> result = new HashMap<>();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            result.put(entry.getKey(),new LiteralImpl(entry.getValue()));
-        }
-        return result;
+    public List<Literal<String>> convert(List<String> strings) {
+        List<Literal<String>> values = new ArrayList<>();
+        strings.stream().forEach(value -> values.add(new LiteralImpl<>(value)));
+        return values;
     }
-
-
 }

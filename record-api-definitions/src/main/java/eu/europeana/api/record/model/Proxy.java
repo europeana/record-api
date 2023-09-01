@@ -1,5 +1,6 @@
 package eu.europeana.api.record.model;
 
+import eu.europeana.api.record.datatypes.DataValue;
 import eu.europeana.api.record.datatypes.Literal;
 
 import java.util.List;
@@ -15,35 +16,27 @@ public interface Proxy {
 
     Literal<String> getTitle(String language);
 
-    Literal<String> getCreator(String language);
+    List<? extends DataValue> getCreator();
 
     Literal<String> getAlternative(String language);
 
-    Literal<String> getDescription(String language);
+    List<? extends DataValue> getDescription();
 
-    Literal<String> getIdentifier(String language);
-
-    List<Literal<String>> getTitles();
+    List<Literal<String>> getIdentifier();
 
     List<Literal<String>> getAlternatives();
 
-    List<Literal<String>> getCreators();
-
-    List<Literal<String>> getIdentifiers();
-
-    List<Literal<String>> getDescriptions();
-
     void setType(Literal<String> type);
 
-    void setTitle(Map<String, List<Literal<String>>> title);
+    void setTitle(Map<String, Literal<String>> title);
 
     void setAlternative(Map<String, List<Literal<String>>> alternative);
 
-    void setDescription(Map<String, List<Literal<String>>> description);
+    void setDescription(List<? extends DataValue> description);
 
-    void setCreator(Map<String, List<Literal<String>>> creator);
+    void setCreator(List<? extends DataValue> creator);
 
-    void setIdentifier(Map<String, List<Literal<String>>> identifier);
+    void setIdentifier(List<Literal<String>> identifier);
 
     void setProxyIn(EuropeanaAggregation proxyIn);
 

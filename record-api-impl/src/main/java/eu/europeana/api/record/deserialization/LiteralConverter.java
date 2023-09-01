@@ -7,7 +7,7 @@ import eu.europeana.api.record.impl.LiteralImpl;
 /**
  * Class for converting the String values present in json request to instance Literal<T>
  */
-public class LiteralStringConverter extends StdConverter<String, Literal<String>> {
+public class LiteralConverter extends StdConverter<String, Literal<String>> {
 
     @Override
     public Literal<String> convert(String s) {

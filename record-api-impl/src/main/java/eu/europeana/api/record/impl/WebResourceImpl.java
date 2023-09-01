@@ -6,7 +6,6 @@ import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.model.TechMetadata;
 import eu.europeana.api.record.model.WebResource;
-import eu.europeana.api.record.deserialization.LiteralStringConverter;
 import eu.europeana.api.record.vocabulary.FieldTypes;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;

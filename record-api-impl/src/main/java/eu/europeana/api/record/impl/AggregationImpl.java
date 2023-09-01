@@ -7,7 +7,7 @@ import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.datatypes.ObjectReference;
 import eu.europeana.api.record.model.Aggregation;
 import eu.europeana.api.record.deserialization.ObjectReferenceConverter;
-import eu.europeana.api.record.deserialization.LiteralStringConverter;
+import eu.europeana.api.record.deserialization.LiteralConverter;
 import eu.europeana.api.record.vocabulary.FieldTypes;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class AggregationImpl extends EdmEntityImpl implements Aggregation {
 
     private Literal<String> type = new LiteralImpl<>(FieldTypes.Aggregation.getFieldType());
 
-    @JsonDeserialize(converter = LiteralStringConverter.class)
+    @JsonDeserialize(converter = LiteralConverter.class)
     private Literal<String> isShownBy;
 
     @JsonDeserialize(converter = ObjectReferenceConverter.class)

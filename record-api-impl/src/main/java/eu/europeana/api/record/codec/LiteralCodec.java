@@ -1,5 +1,6 @@
 package eu.europeana.api.record.codec;
 
+import eu.europeana.api.record.datatypes.LanguageTaggedLiteral;
 import eu.europeana.api.record.datatypes.Literal;
 import eu.europeana.api.record.impl.LiteralImpl;
 import org.bson.BsonReader;
@@ -12,6 +13,9 @@ public class LiteralCodec  implements Codec<Literal> {
 
     @Override
     public void encode(BsonWriter bsonWriter, Literal literal, EncoderContext encoderContext) {
+        if (LanguageTaggedLiteral.class.isAssignableFrom(literal.getClass())) {
+            bsonWriter.writeString(String.valueOf(((LanguageTaggedLiteral<?>) literal).getLanguage()));
+        }
         bsonWriter.writeString(String.valueOf(literal.getValue()));
     }
 

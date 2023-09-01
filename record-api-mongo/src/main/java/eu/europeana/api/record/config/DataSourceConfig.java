@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 import dev.morphia.mapping.Mapper;
+import eu.europeana.api.record.codec.DataValueCodec;
 import eu.europeana.api.record.codec.LiteralCodec;
 import eu.europeana.api.record.codec.ObjectReferenceCodec;
 import eu.europeana.api.record.impl.*;
@@ -17,6 +18,7 @@ import eu.europeana.api.record.vocabulary.AppConfigConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.bson.codecs.StringCodec;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +53,7 @@ public class DataSourceConfig {
         ConnectionString connectionString = new ConnectionString(hostUri);
 
         CodecRegistry myRegistry = fromRegistries(
-                CodecRegistries.fromCodecs(new LiteralCodec(), new ObjectReferenceCodec()),
+                CodecRegistries.fromCodecs(new LiteralCodec(), new ObjectReferenceCodec(), new DataValueCodec()),
                 MongoClientSettings.getDefaultCodecRegistry(),
                 fromProviders(
                         PojoCodecProvider.builder()

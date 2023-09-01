@@ -31,6 +31,12 @@ public interface RecordFields {
     public static final String PROXIES = "proxies";
     public static final String IS_AGGREGATED_BY = "isAggregatedBy";
 
+    // fields used to save multiple type values like craetor or description
+    public static final String VALUE = "value";
+    public static final String LANGUAGE = "language";
+    public static final String REFERENCED_OBJECT = "referencedObject";
+
+
 
 
 

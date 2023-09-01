@@ -23,4 +23,14 @@ public enum EntityTypes implements EntityKeyword {
   public String getJsonValue() {
     return getEntityType();
   }
+
+  public static EntityTypes getByEntityType(String entityType) {
+
+    for (EntityTypes entityTypeEnum : EntityTypes.values()) {
+      if (entityTypeEnum.getEntityType().equalsIgnoreCase(entityType)) return entityTypeEnum;
+    }
+
+    return null;
+  }
+
 }

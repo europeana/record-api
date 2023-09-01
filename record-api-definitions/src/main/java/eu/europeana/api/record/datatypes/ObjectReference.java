@@ -1,6 +1,6 @@
 package eu.europeana.api.record.datatypes;
 
-public interface ObjectReference {
+public interface ObjectReference extends DataValue {
 
     String getId();
 

@@ -14,6 +14,11 @@ public class ObjectReferenceImpl implements ObjectReference {
         this.id = id;
     }
 
+    public ObjectReferenceImpl(String id, Object referencedObject) {
+        this.id = id;
+        this.referencedObject = referencedObject;
+    }
+
     @Override
     public String getId() {
         return id;
