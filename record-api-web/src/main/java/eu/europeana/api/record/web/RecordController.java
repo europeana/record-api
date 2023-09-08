@@ -1,12 +1,20 @@
 package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
+import eu.europeana.api.record.datatypes.DataValue;
 import eu.europeana.api.record.exception.HttpBadRequestException;
 import eu.europeana.api.record.exception.RecordAlreadyExistsException;
 import eu.europeana.api.record.exception.RecordApiException;
+import eu.europeana.api.record.exception.RecordDoesNotExistsException;
+import eu.europeana.api.record.impl.AgentImpl;
+import eu.europeana.api.record.impl.ObjectReferenceImpl;
 import eu.europeana.api.record.impl.RecordImpl;
+import eu.europeana.api.record.model.Entity;
+import eu.europeana.api.record.model.Record;
+import eu.europeana.api.record.serialization.JsonLdSerializer;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
+import eu.europeana.api.record.vocabulary.EntityTypes;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +28,12 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.io.IOException;
+import java.lang.reflect.RecordComponent;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @Validated
 public class RecordController {
@@ -28,9 +42,12 @@ public class RecordController {
 
     private final RecordService recordService;
 
+    private final JsonLdSerializer jsonLdSerializer;
+
     @Autowired
-    public RecordController(RecordService recordService) {
+    public RecordController(RecordService recordService, JsonLdSerializer jsonLdSerializer) {
         this.recordService = recordService;
+        this.jsonLdSerializer = jsonLdSerializer;
     }
 
 
@@ -42,7 +59,10 @@ public class RecordController {
             value = "/record/",
             produces = {MediaType.APPLICATION_JSON_VALUE, HttpHeaders.CONTENT_TYPE_JSONLD})
     public ResponseEntity<String> registerRecord(
-            @RequestBody RecordImpl record, HttpServletRequest request) throws RecordApiException {
+            @RequestBody RecordImpl record, HttpServletRequest request) throws RecordApiException, IOException {
+
+        System.out.println(record.getProxies().get(0));
+        System.out.println(record.getProxies().get(1));
 
         // TODO request validation for language tagged values to be single
         //  and others validation yet to be added
@@ -58,8 +78,15 @@ public class RecordController {
             throw new RecordAlreadyExistsException(record.getAbout());
         }
 
-        recordService.saveRecord(record);
-        return new ResponseEntity<>(HttpStatus.OK);
+
+        ObjectReferenceImpl object = (ObjectReferenceImpl) record.getProxies().get(0).getDescription().get(3);
+
+        System.out.println(object);
+        System.out.println(object.getReferencedObject().getClass());
+
+        RecordImpl savedRecord = (RecordImpl) recordService.saveRecord(record);
+        String body = jsonLdSerializer.serialize(savedRecord);
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
 
@@ -77,13 +104,18 @@ public class RecordController {
     public ResponseEntity<String> retrieveRecord (
             @PathVariable String collectionId,
             @PathVariable String recordId,
-            HttpServletRequest request) throws Exception {
+            HttpServletRequest request) throws RecordApiException, IOException {
 
         String about = RecordUtils.buildRecordId(collectionId, recordId);
-        RecordImpl record = (RecordImpl) recordService.getRecord(about);
-        return new ResponseEntity(HttpStatus.OK);
+        Optional<Record> record = recordService.getRecord(about);
+
+        if (record.isEmpty()) {
+            throw new RecordDoesNotExistsException(about);
+        }
+
+        String body = jsonLdSerializer.serialize(record.get());
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+
     }
-
-
 
 }

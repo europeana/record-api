@@ -7,6 +7,8 @@ import eu.europeana.api.record.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service(AppConfig.BEAN_RECORD_SERVICE)
 public class RecordService {
 
@@ -24,8 +26,8 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
-    public Record getRecord(String about) {
-        return recordRepository.findById(about);
+    public Optional<Record> getRecord(String about) {
+        return Optional.ofNullable(recordRepository.findById(about));
     }
 
     public boolean existsByID(String about) {
