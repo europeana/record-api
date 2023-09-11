@@ -1,7 +1,7 @@
 package eu.europeana.api.record.serialization;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.europeana.api.record.model.Record;
+import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.vocabulary.AppConfigConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,8 +27,8 @@ public class JsonLdSerializer {
         mapper.setDateFormat(df);
     }
 
-    public String serialize(Record record) throws IOException {
-        return serializeToJson(mapper, record);
+    public String serialize(ProvidedCHO providedCHO) throws IOException {
+        return serializeToJson(mapper, providedCHO);
     }
 
 
@@ -40,14 +40,14 @@ public class JsonLdSerializer {
      * Serialises the List of Entity Records
      *
      * @param mapper
-     * @param record :  record
+     * @param providedCHO :  record
      * @return serialised string results
      * @throws IOException
      */
-    public static String serializeToJson(ObjectMapper mapper, Record record)
+    public static String serializeToJson(ObjectMapper mapper, ProvidedCHO providedCHO)
             throws IOException {
         final StringWriter buffer = new StringWriter();
-        mapper.writeValue(buffer, mapper.valueToTree(record));
+        mapper.writeValue(buffer, mapper.valueToTree(providedCHO));
         return buffer.toString();
     }
 }

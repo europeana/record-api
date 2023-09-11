@@ -19,7 +19,6 @@
 
     <dependencies>
 
-        <!--        switch this with interface model once ready-->
         <dependency>
             <groupId>eu.europeana.api</groupId>
             <artifactId>record-api-impl</artifactId>

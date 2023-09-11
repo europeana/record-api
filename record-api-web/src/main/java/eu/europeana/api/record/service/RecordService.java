@@ -2,7 +2,7 @@ package eu.europeana.api.record.service;
 
 import eu.europeana.api.record.config.AppConfig;
 import eu.europeana.api.record.config.RecordApiConfiguration;
-import eu.europeana.api.record.model.Record;
+import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +22,11 @@ public class RecordService {
         this.recordApiConfiguration = recordApiConfiguration;
     }
 
-    public Record saveRecord(Record record) {
-        return recordRepository.save(record);
+    public ProvidedCHO saveRecord(ProvidedCHO providedCHO) {
+        return recordRepository.save(providedCHO);
     }
 
-    public Optional<Record> getRecord(String about) {
+    public Optional<ProvidedCHO> getRecord(String about) {
         return Optional.ofNullable(recordRepository.findById(about));
     }
 

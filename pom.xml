@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>record-api-definitions</module>
+<!--        <module>record-api-definitions</module>-->
         <module>record-api-impl</module>
         <module>record-api-mongo</module>
         <module>record-api-web</module>
@@ -63,7 +63,8 @@
         <surefire.version>3.1.2</surefire.version>
         <swagger.version>3.0.0</swagger.version>
 <!--        See if we can move to the latest version 2.4, alot of methods are deprecated though-->
-        <morphia.version>2.3.7</morphia.version>
+<!--        <morphia.version>2.3.7</morphia.version>-->
+        <morphia.version>2.4.3</morphia.version>
         <xerial.snappy.version>1.1.10.3</xerial.snappy.version>
 
         <git-code-format.version>3.1</git-code-format.version>

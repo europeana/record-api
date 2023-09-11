@@ -3,8 +3,7 @@ package eu.europeana.api.record.repository;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.filters.Filter;
 import dev.morphia.query.filters.Filters;
-import eu.europeana.api.record.impl.RecordImpl;
-import eu.europeana.api.record.model.Record;
+import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.vocabulary.AppConfigConstants;
 import org.springframework.stereotype.Repository;
 
@@ -28,14 +27,14 @@ public class RecordRepository extends AbstractRepository {
      * @param record record to save
      * @return saved record
      */
-    public Record save(Record record) {
+    public ProvidedCHO save(ProvidedCHO record) {
         return getDataStore().save(record);
     }
 
 
     /** @return the total number of records in the database */
     public long count() {
-        return getDataStore().find(RecordImpl.class).count();
+        return getDataStore().find(ProvidedCHO.class).count();
     }
 
     /**
@@ -46,8 +45,8 @@ public class RecordRepository extends AbstractRepository {
      */
     public boolean existsByRecordId(String recordId) {
         return getDataStore()
-                .find(RecordImpl.class)
-                .filter(Filters.eq("about", recordId))
+                .find(ProvidedCHO.class)
+                .filter(Filters.eq("id", recordId))
                 .count()
                 > 0;
     }
@@ -58,12 +57,12 @@ public class RecordRepository extends AbstractRepository {
      * @param about : Id of the record to be fetched
      * @return record matching record id
      */
-    public Record findById(String about) {
+    public ProvidedCHO findById(String about) {
         List<Filter> filters = new ArrayList<>();
-        filters.add(Filters.eq("about", about));
+        filters.add(Filters.eq("id", about));
 
         return getDataStore()
-                .find(RecordImpl.class)
+                .find(ProvidedCHO.class)
                 .filter(filters.toArray(Filter[]::new))
                 .iterator(new FindOptions())
                 .tryNext();

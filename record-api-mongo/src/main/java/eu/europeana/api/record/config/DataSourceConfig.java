@@ -10,17 +10,13 @@ import java.util.concurrent.TimeUnit;
 import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 import dev.morphia.mapping.Mapper;
-import eu.europeana.api.record.codec.DataValueCodec;
-import eu.europeana.api.record.codec.LiteralCodec;
-import eu.europeana.api.record.codec.ObjectReferenceCodec;
-import eu.europeana.api.record.impl.*;
+import eu.europeana.api.record.codec.*;
+import eu.europeana.api.record.model.internal.LanguageMap;
 import eu.europeana.api.record.vocabulary.AppConfigConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.bson.codecs.StringCodec;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +24,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
-import org.bson.codecs.configuration.CodecRegistries;
 
 @Configuration
 @PropertySource(
@@ -52,13 +47,14 @@ public class DataSourceConfig {
     public MongoClient mongoClient() {
         ConnectionString connectionString = new ConnectionString(hostUri);
 
+       // DataValueCodecProvider provider = new DataValueCodecProvider();
+
         CodecRegistry myRegistry = fromRegistries(
-                CodecRegistries.fromCodecs(new LiteralCodec(), new ObjectReferenceCodec(), new DataValueCodec()),
+//                CodecRegistries.fromCodecs(new LiteralCodec(), new ObjectReferenceCodec(), new DataValueCodec()),
                 MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(
-                        PojoCodecProvider.builder()
-                                .automatic(true)
-                                .build()
+                fromProviders(getDataValueCodecProvider()
+                        , new LanguageMapCodecProvider<LanguageMap>()
+                        , new LanguageMapArrayCodecProvider()
                 )
         );
 
@@ -78,21 +74,34 @@ public class DataSourceConfig {
     @Bean(name = AppConfigConstants.BEAN_RECORD_DATA_STORE)
     public Datastore emDataStore(MongoClient mongoClient) {
         LOGGER.info("Configuring Record API database: {}", recordDatabase);
-        Datastore datastore=  createDatastore(mongoClient, recordDatabase);
+        Datastore datastore=  createDatastore(mongoClient, recordDatabase, getDataValueCodecProvider());
         datastore.ensureIndexes();
         return datastore;
     }
 
+    @Bean
+    public DataValueCodecProvider getDataValueCodecProvider() {
+        return new DataValueCodecProvider();
+    }
 
-    private Datastore createDatastore(MongoClient mongoClient, String databaseName) {
+    private Datastore createDatastore(MongoClient mongoClient, String databaseName, DataValueCodecProvider provider) {
         Datastore morphiaDatastore = Morphia.createDatastore(mongoClient, databaseName);
+        provider.setDatastore(morphiaDatastore);
+
         Mapper mapper = morphiaDatastore.getMapper();
-        mapper.map(new Class[]{ProxyImpl.class});
-        mapper.map(new Class[]{EuropeanaAggregationImpl.class});
-        mapper.map(new Class[]{AggregationImpl.class});
-        mapper.map(new Class[]{AgentImpl.class});
-        mapper.map(new Class[]{WebResourceImpl.class});
-        mapper.map(new Class[]{TechMetadataImpl.class});
+        mapper.mapPackage("eu.europeana.api.record.model");
+        mapper.mapPackage("eu.europeana.api.record.model.data");
+        mapper.mapPackage("eu.europeana.api.record.model.entity");
+        mapper.mapPackage("eu.europeana.api.record.model.internal");
+        mapper.mapPackage("eu.europeana.api.record.model.media");
+
+//        Mapper mapper = morphiaDatastore.getMapper();
+//        mapper.map(new Class[]{ProxyImpl.class});
+//        mapper.map(new Class[]{EuropeanaAggregationImpl.class});
+//        mapper.map(new Class[]{AggregationImpl.class});
+//        mapper.map(new Class[]{Agent.class});
+//        mapper.map(new Class[]{WebResourceImpl.class});
+//        mapper.map(new Class[]{TechnicalMetadata.class});
         LOGGER.info("Datastore initialized");
         return morphiaDatastore;
     }

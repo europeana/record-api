@@ -1,22 +1,17 @@
 package eu.europeana.api.record.model;
 
-import eu.europeana.api.record.datatypes.Literal;
-import eu.europeana.api.record.datatypes.ObjectReference;
-
 import java.util.List;
 
 public interface Aggregation {
 
-    Literal<String> getType();
+    WebResource getIsShownAt();
 
-    Literal<String> getIsShownBy();
+    WebResource getIsShownBy();
 
-    List<ObjectReference> getHasView();
+    List<? extends WebResource> getViews();
 
-    void setType(Literal<String> type);
+    void setIsShownAt(WebResource isShownAt);
 
-    void setIsShownBy(Literal<String> isShownBy);
-
-    void setHasView(List<ObjectReference> hasView);
+    void setIsShownBy(WebResource isShownBy);
 
 }
