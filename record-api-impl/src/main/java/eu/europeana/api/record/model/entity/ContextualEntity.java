@@ -1,9 +1,10 @@
-package eu.europeana.api.record.model;
+package eu.europeana.api.record.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import dev.morphia.annotations.Entity;
+import eu.europeana.api.record.model.EDMObject;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.internal.LanguageMap;
 
@@ -33,7 +34,6 @@ public abstract class ContextualEntity extends EDMObject {
     public void addPrefLabel(Literal<String> label) {
         getPrefLabel().add(label);
     }
-
 
     private LanguageMap getPrefLabel() {
         if (this.prefLabel == null) {

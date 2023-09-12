@@ -34,9 +34,6 @@ public class ProvidedCHO extends ObjectMetadata {
     private Aggregation isAggregatedBy;
 
 
-    @Property("agents")
-    private List<Agent> agents;
-
     public ProvidedCHO() {
     }
 
@@ -45,45 +42,33 @@ public class ProvidedCHO extends ObjectMetadata {
         return EDM_CONTEXT;
     }
 
-    public ObjectId getDbId() {
-        return dbId;
-    }
-
-    public void setDbId(ObjectId dbId) {
-        this.dbId = dbId;
-    }
-
-    @JsonGetter(ID)
-    public String getId() {
+    public String getID()
+    {
         return id;
     }
 
-    @JsonSetter(ID)
-    public void setId(String id) {
+    public void setID(String id)
+    {
         this.id = id;
     }
 
-    public List<Proxy> getProxies() {
-        return proxies;
+    public List<Proxy> getProxies()
+    {
+        return this.proxies;
     }
 
-    public void setProxies(List<Proxy> proxies) {
-        this.proxies = proxies;
+    public Aggregation getIsAggregatedBy()
+    {
+        return isAggregatedBy;
     }
 
-    public Aggregation getIsAggregatedBy() {
-        return this.isAggregatedBy;
+    public void setIsAggregatedBy(Aggregation aggr)
+    {
+        isAggregatedBy = aggr;
     }
 
-    public void setIsAggregatedBy(Aggregation isAggregatedBy) {
-        this.isAggregatedBy = isAggregatedBy;
-    }
-
-    public List<? extends ContextualEntity> getAgents() {
-        return agents;
-    }
-
-    public void setAgents(List<? extends ContextualEntity> agents) {
-        this.agents = (List<Agent>) agents;
+    public void addProxy(Proxy proxy) {
+        this.proxies.add(proxy);
+        proxy.setProxyFor(this);
     }
 }
