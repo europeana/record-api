@@ -1,5 +1,6 @@
 package eu.europeana.api.record.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -15,7 +16,7 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 @Entity(value = "ContextualEntity", discriminator = "ContextualEntity", discriminatorKey = "type")
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ID, TYPE, PREF_LABEL})
+@JsonPropertyOrder({ID, PREF_LABELS})
 public abstract class ContextualEntity extends EDMObject {
 
     protected LanguageMap prefLabel = null;
@@ -27,6 +28,7 @@ public abstract class ContextualEntity extends EDMObject {
         this.id = id;
     }
 
+    @JsonGetter(PREF_LABELS)
     public List<Literal<String>> getPrefLabels() {
         return getPrefLabel().getValues();
     }

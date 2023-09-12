@@ -1,6 +1,3 @@
-/**
- *
- */
 package eu.europeana.api.record.codec;
 
 import eu.europeana.api.record.model.data.LanguageTaggedLiteral;
@@ -11,6 +8,8 @@ import org.bson.BsonType;
 import org.bson.BsonWriter;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
+
+import static eu.europeana.api.record.vocabulary.RecordFields.NONE;
 
 /**
  * @author Hugo
@@ -36,7 +35,7 @@ public class LanguageMapArrayCodecProvider
             writeArray(langMap.getValues(lang), lang, bsonWriter);
         }
         if (langMap.hasNonLanguageValues()) {
-            writeArray(langMap.getNonLanguageValues(), "@none", bsonWriter);
+            writeArray(langMap.getNonLanguageValues(), NONE, bsonWriter);
         }
         bsonWriter.writeEndDocument();
     }
@@ -52,7 +51,7 @@ public class LanguageMapArrayCodecProvider
         reader.readStartDocument();
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String lang = reader.readName();
-            if (lang.equals("@none")) {
+            if (lang.equals(NONE)) {
                 loadFromArray(langMap, reader);
                 continue;
             }

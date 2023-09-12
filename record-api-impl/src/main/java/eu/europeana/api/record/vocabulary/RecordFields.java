@@ -13,31 +13,36 @@ public interface RecordFields {
     public static final String NON_LANGUAGE_TAGGED = "def";
     public static final String NONE = "@none";
 
-
     public static final String ID = "id";
     public static final String TYPE = "type";
-    public static final String PREF_LABEL = "prefLabel";
+    public static final String PREF_LABELS = "prefLabels";
     public static final String IS_SHOWN_BY = "isShownBy";
+    public static final String IS_SHOWN_AT = "isShownAt";
     public static final String HAS_VIEWS = "hasViews";
+    public static final String MIME_TYPE = "mimetype";
+    public static final String FILE_BYTE_SIZE = "fileByteSize";
 
-    public static final String PROVIDED_CHO = "providedCHO";
-
-    public static final String AGGREGATION = "Aggregation";
-
-    // fields for display
-    public static final String AGGREGATIONS = "aggregations";
-    public static final String WEB_RESOURCES = "webResources";
-    public static final String AGENTS = "agents";
-    public static final String PROXIES = "proxies";
     public static final String IS_AGGREGATED_BY = "isAggregatedBy";
 
-    // fields used to save multiple type values like craetor or description
-    public static final String VALUE = "value";
-    public static final String LANGUAGE = "language";
-    public static final String REFERENCED_OBJECT = "referencedObject";
+    public static final String PROXIES = "proxies";
+    public static final String PROXY_IN = "proxyIn";
+    public static final String PROXY_FOR = "proxyFor";
+
+    public static final String TITLES = "titles";
+    public static final String ALTERNATIVE_TITLES = "alternativeTitles";
+    public static final String DESCRIPTIONS = "descriptions";
+    public static final String CREATORS = "creators";
+    public static final String IDENTIFIERS = "identifiers";
 
 
-
-
+    // Mongo fields
+    public static final String MONGO_TITLE              = "title";
+    public static final String MONGO_ALT_TITLE          = "altTitle";
+    public static final String MONGO_DESCRIPTION        = "decsription";
+    public static final String MONGO_CREATOR            = "creator";
+    public static final String MONGO_IDENTIFIER         = "identifier";
+    public static final String MONGO_VIEWS         = "views";
+    public static final String MONGO_TECHMETA        = "techMeta";
+    public static final String MONGO_OBJECT        = "object";
 
 }

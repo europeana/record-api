@@ -1,13 +1,14 @@
-/**
- *
- */
 package eu.europeana.api.record.model.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import dev.morphia.Datastore;
 import dev.morphia.annotations.*;
 import eu.europeana.api.record.model.EDMObject;
 import org.bson.Document;
+
+import static eu.europeana.api.record.vocabulary.RecordFields.ID;
+import static eu.europeana.api.record.vocabulary.RecordFields.MONGO_OBJECT;
 
 /**
  * @author Hugo
@@ -15,10 +16,11 @@ import org.bson.Document;
  */
 @Entity(discriminator = "SharedReference", discriminatorKey = "type")
 public class SharedReference extends DataValue implements ObjectReference {
-    @Property(value = "id")
+
+    @Property(value = ID)
     protected String id;
 
-    @Reference(value = "object", lazy = false)
+    @Reference(value = MONGO_OBJECT, lazy = false)
     protected EDMObject object;
 
 
@@ -39,14 +41,17 @@ public class SharedReference extends DataValue implements ObjectReference {
         return this.id;
     }
 
+    @JsonIgnore
     public boolean isLocal() {
         return (this.id.startsWith("#") || this.id.startsWith("\\"));
     }
 
+    @JsonIgnore
     public boolean isDereferenced() {
         return this.object != null;
     }
 
+    @JsonUnwrapped
     public EDMObject getDereferencedObject() {
         return (EDMObject) this.object;
     }

@@ -1,5 +1,6 @@
 package eu.europeana.api.record.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -13,15 +14,16 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 @Entity(discriminator = "Proxy", discriminatorKey = "type")
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ID, TYPE})
+@JsonPropertyOrder({TITLES, ALTERNATIVE_TITLES, CREATORS, DESCRIPTIONS, IDENTIFIERS, PROXY_IN, PROXY_FOR})
 public class Proxy extends ObjectMetadata {
 
     @Transient
     private ProvidedCHO proxyFor;
 
-    @Property("proxyIn")
+    @Property(PROXY_IN)
     private Aggregation proxyIn;
 
+    @JsonGetter(PROXY_FOR)
     public ProvidedCHO getProxyFor()
     {
         return (ProvidedCHO) proxyFor;
@@ -32,7 +34,7 @@ public class Proxy extends ObjectMetadata {
         this.proxyFor = (ProvidedCHO) cho;
     }
 
-
+    @JsonGetter(PROXY_IN)
     public Aggregation getProxyIn()
     {
         return (Aggregation) proxyIn;
@@ -42,6 +44,5 @@ public class Proxy extends ObjectMetadata {
     {
         this.proxyIn = (Aggregation) aggr;
     }
-
 
 }

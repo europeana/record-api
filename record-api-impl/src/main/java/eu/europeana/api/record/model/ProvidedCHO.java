@@ -6,13 +6,14 @@ import dev.morphia.annotations.*;
 import dev.morphia.annotations.Entity;
 import eu.europeana.api.record.model.entity.Agent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
-@JsonPropertyOrder({CONTEXT, ID, PROXIES, IS_AGGREGATED_BY, WEB_RESOURCES, AGENTS})
+@JsonPropertyOrder({CONTEXT, ID, PROXIES, IS_AGGREGATED_BY})
 @Entity(value = "Record", discriminator = "ProvidedCHO", discriminatorKey = "type")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
@@ -24,13 +25,13 @@ public class ProvidedCHO extends ObjectMetadata {
     private ObjectId dbId;
 
     @Indexed(options = @IndexOptions(unique = true))
-    @Property("id")
+    @Property(ID)
     private String id;
 
-    @Property("proxies")
+    @Property(PROXIES)
     private List<Proxy> proxies;
 
-    @Property("isAggregatedBy")
+    @Property(IS_AGGREGATED_BY)
     private Aggregation isAggregatedBy;
 
 
@@ -52,11 +53,13 @@ public class ProvidedCHO extends ObjectMetadata {
         this.id = id;
     }
 
+    @JsonGetter(PROXIES)
     public List<Proxy> getProxies()
     {
         return this.proxies;
     }
 
+    @JsonGetter(IS_AGGREGATED_BY)
     public Aggregation getIsAggregatedBy()
     {
         return isAggregatedBy;
@@ -68,6 +71,9 @@ public class ProvidedCHO extends ObjectMetadata {
     }
 
     public void addProxy(Proxy proxy) {
+        if (this.proxies == null) {
+            this.proxies = new ArrayList<>();
+        }
         this.proxies.add(proxy);
         proxy.setProxyFor(this);
     }
