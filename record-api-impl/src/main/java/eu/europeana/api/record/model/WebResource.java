@@ -1,9 +1,6 @@
 package eu.europeana.api.record.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.*;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
 import eu.europeana.api.record.model.media.TechnicalMetadata;
@@ -11,14 +8,17 @@ import static eu.europeana.api.record.vocabulary.RecordFields.MONGO_TECHMETA;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
-@Entity(useDiscriminator = false)
-@JsonPropertyOrder({ID, TYPE, MIME_TYPE, FILE_BYTE_SIZE})
+@Entity(discriminator = "WebResource", discriminatorKey = "type")
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-public class WebResource {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "type")
+@JsonPropertyOrder({ID, TYPE })
+public class WebResource implements EDMClass {
 
+    @JsonProperty(ID)
     @Property(ID)
     private String            id;
 
+    @JsonUnwrapped
     @Property(MONGO_TECHMETA)
     private TechnicalMetadata techMeta;
 
@@ -34,12 +34,12 @@ public class WebResource {
         return this.id;
     }
 
-    @JsonGetter(TYPE)
+    @Override
     public String getType() {
-        return "WebResource";
+       return "WebResource";
     }
 
-    @JsonUnwrapped
+
     public TechnicalMetadata getTechnicalMetadata()
     {
         return techMeta;

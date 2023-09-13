@@ -1,14 +1,11 @@
 package eu.europeana.api.record.model.data;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.*;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.PostLoad;
 import dev.morphia.annotations.PostPersist;
 import dev.morphia.annotations.Property;
-import eu.europeana.api.record.model.EDMObject;
+import eu.europeana.api.record.model.EDMClass;
 import org.bson.Document;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
@@ -21,11 +18,13 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 @JsonPropertyOrder({ID, TYPE})
 public class LocalReference extends DataValue implements ObjectReference {
 
+    @JsonProperty(ID)
     @Property(ID)
     protected String id;
 
+    @JsonUnwrapped
     @Property(MONGO_OBJECT)
-    protected EDMObject object;
+    protected EDMClass object;
 
     public LocalReference() {
     }
@@ -35,7 +34,7 @@ public class LocalReference extends DataValue implements ObjectReference {
         this.object = null;
     }
 
-    public LocalReference(EDMObject object) {
+    public LocalReference(EDMClass object) {
         this.id = object.getID();
         this.object = object;
     }
@@ -45,30 +44,22 @@ public class LocalReference extends DataValue implements ObjectReference {
         return this.id;
     }
 
-    @JsonIgnore
     public boolean isLocal() {
         return true;
     }
 
-    @JsonIgnore
     public boolean isDereferenced() {
         return this.object != null;
     }
 
-    @JsonUnwrapped
-    public EDMObject getDereferencedObject() {
-        return (EDMObject) this.object;
-    }
-
-    @JsonGetter(TYPE)
-    public String getType() {
-        return "LocalReference";
+    public EDMClass getDereferencedObject() {
+        return (EDMClass) this.object;
     }
 
     @PostPersist
     public void postPersist(Document doc) {
         if (this.object != null) {
-            doc.remove("id");
+            doc.remove(ID);
         }
     }
 

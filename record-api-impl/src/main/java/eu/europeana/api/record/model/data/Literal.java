@@ -1,12 +1,15 @@
 package eu.europeana.api.record.model.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
 
+import static eu.europeana.api.record.vocabulary.RecordFields.VALUE;
 @Entity(discriminatorKey = "type", useDiscriminator = false)
 public class Literal<T> extends DataValue {
 
-    @Property("value")
+    @JsonProperty(VALUE)
+    @Property(VALUE)
     protected T value;
 
 

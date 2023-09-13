@@ -12,6 +12,11 @@ public interface RecordFields {
 
     public static final String NON_LANGUAGE_TAGGED = "def";
     public static final String NONE = "@none";
+    public static final String LANGUAGE = "language";
+    public static final String LANG = "lang";
+    public static final String DATATYPE = "datatype";
+    public static final String VALUE = "value";
+
 
     public static final String ID = "id";
     public static final String TYPE = "type";
@@ -29,7 +34,7 @@ public interface RecordFields {
     public static final String PROXY_FOR = "proxyFor";
 
     public static final String TITLE = "title";
-    public static final String ALTERNATIVE_TITLE = "alternativeTitle";
+    public static final String ALTERNATIVE_TITLE = "altTitle";
     public static final String DESCRIPTION = "description";
     public static final String CREATOR = "creator";
     public static final String IDENTIFIER = "identifier";

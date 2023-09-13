@@ -1,5 +1,6 @@
 package eu.europeana.api.record.config;
 
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +29,16 @@ public class SerializationConfig {
                         .featuresToEnable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                         .serializationInclusion(JsonInclude.Include.NON_NULL)
                         .build();
+
+        mapper.setVisibility(
+                mapper.getVisibilityChecker()
+                        .withCreatorVisibility(NONE)
+                        .withFieldVisibility(NONE)
+                        .withGetterVisibility(NONE)
+                        .withIsGetterVisibility(NONE)
+                        .withSetterVisibility(NONE));
         mapper.findAndRegisterModules();
+
         return mapper;
     }
 

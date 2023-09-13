@@ -1,12 +1,17 @@
 package eu.europeana.api.record.model.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
+import static eu.europeana.api.record.vocabulary.RecordFields.LANGUAGE;
+import static eu.europeana.api.record.vocabulary.RecordFields.LANG;
+
 
 @Entity(useDiscriminator = false)
 public class LanguageTaggedLiteral extends Literal<String> {
 
-    @Property("lang")
+    @JsonProperty(LANGUAGE)
+    @Property(LANG)
     protected String lang;
 
     public LanguageTaggedLiteral() {

@@ -12,30 +12,51 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
 @Entity(discriminator = "Aggregation", discriminatorKey = "type")
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({TYPE, IS_SHOWN_BY, IS_SHOWN_AT, VIEWS})
-public class Aggregation {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "type")
+@JsonPropertyOrder({ID, TYPE, IS_SHOWN_BY, IS_SHOWN_AT, VIEWS})
+public class Aggregation implements EDMClass {
 
+    @JsonProperty(ID)
+    @Property(ID)
+    private String      id;
+
+    @JsonProperty(IS_SHOWN_AT)
     @Property(IS_SHOWN_AT)
     private WebResource isShownAt;
 
+    @JsonProperty(IS_SHOWN_BY)
     @Property(IS_SHOWN_BY)
     private WebResource isShownBy;
 
+    @JsonProperty(VIEWS)
     @Property(VIEWS)
     private List<WebResource> hasViews = new ArrayList();
 
-    @JsonGetter(IS_SHOWN_AT)
+    public Aggregation() {
+    }
+
+    public Aggregation(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getID() {
+        return this.id;
+    }
+
+    @Override
+    public String getType() {
+        return "Aggregation";
+    }
+
     public WebResource getIsShownAt() {
         return isShownAt;
     }
 
-    @JsonGetter(IS_SHOWN_BY)
     public WebResource getIsShownBy() {
         return isShownBy;
     }
 
-    @JsonGetter(VIEWS)
     public List<WebResource> getViews() {
         return hasViews;
     }
@@ -48,8 +69,5 @@ public class Aggregation {
         this.isShownBy = isShownBy;
     }
 
-//    @JsonGetter(TYPE)
-//    public String getType() {
-//        return "Aggregation";
-//    }
+
 }

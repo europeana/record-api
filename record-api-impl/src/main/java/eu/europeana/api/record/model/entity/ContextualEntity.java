@@ -1,46 +1,62 @@
 package eu.europeana.api.record.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import dev.morphia.annotations.Entity;
-import eu.europeana.api.record.model.EDMObject;
+import com.fasterxml.jackson.annotation.*;
+import dev.morphia.annotations.*;
+import eu.europeana.api.record.model.EDMClass;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.internal.LanguageMap;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
-import static eu.europeana.api.record.vocabulary.RecordFields.*;
+import static eu.europeana.api.record.vocabulary.RecordFields.ID;
+import static eu.europeana.api.record.vocabulary.RecordFields.PREF_LABELS;
 
 @Entity(value = "ContextualEntity", discriminator = "ContextualEntity", discriminatorKey = "type")
-@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ID, PREF_LABELS})
-public abstract class ContextualEntity extends EDMObject {
+public abstract class ContextualEntity implements EDMClass {
+    @Id
+    protected ObjectId    objID;
 
+    @JsonProperty(ID)
+    @Indexed(options = @IndexOptions(name="idx_id", unique = true))
+    @Property(ID)
+    protected String id;
+
+    @JsonProperty(PREF_LABELS)
     protected LanguageMap prefLabel = null;
 
-    public ContextualEntity() {
-    }
+    public ContextualEntity() {}
 
-    public ContextualEntity(String id) {
+    public ContextualEntity(String id)
+    {
         this.id = id;
     }
 
-    @JsonGetter(PREF_LABELS)
-    public List<Literal<String>> getPrefLabels() {
+    public ObjectId getObjectID()
+    {
+        return objID;
+    }
+
+    public String getID()
+    {
+        return id;
+    }
+
+    public List<Literal<String>> getPrefLabels()
+    {
         return getPrefLabel().getValues();
     }
 
-    public void addPrefLabel(Literal<String> label) {
+    public void addPrefLabel(Literal<String> label)
+    {
         getPrefLabel().add(label);
     }
 
-    private LanguageMap getPrefLabel() {
-        if (this.prefLabel == null) {
-            this.prefLabel = new LanguageMap();
-        }
+
+    private LanguageMap getPrefLabel()
+    {
+        if ( this.prefLabel == null ) { this.prefLabel = new LanguageMap(); }
         return this.prefLabel;
     }
 }
+

@@ -1,5 +1,7 @@
 package eu.europeana.api.record.model.internal;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import eu.europeana.api.record.json.LanguageMapSerializer;
 import eu.europeana.api.record.model.data.LanguageTaggedLiteral;
 import eu.europeana.api.record.model.data.Literal;
 
@@ -12,6 +14,7 @@ import java.util.List;
  * @author Hugo
  * @since 7 Sep 2023
  */
+@JsonSerialize(using = LanguageMapSerializer.class)
 public class LanguageMap 
 {
     protected List<Literal<String>> list = new ArrayList<>();

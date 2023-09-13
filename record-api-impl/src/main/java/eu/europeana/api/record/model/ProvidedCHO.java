@@ -1,10 +1,9 @@
 package eu.europeana.api.record.model;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import dev.morphia.annotations.*;
 import dev.morphia.annotations.Entity;
-import eu.europeana.api.record.model.entity.Agent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,24 +12,27 @@ import org.bson.types.ObjectId;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
-@JsonPropertyOrder({CONTEXT, ID, TYPE, PROXIES, IS_AGGREGATED_BY})
 @Entity(value = "Record", discriminator = "ProvidedCHO", discriminatorKey = "type")
-@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+@JsonAppend(prepend = true, attrs = { @JsonAppend.Attr(value = CONTEXT) })
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "type")
+@JsonPropertyOrder({CONTEXT, ID, TYPE, PROXIES, IS_AGGREGATED_BY})
 // TODO add custom validators later once we know field validations
-public class ProvidedCHO extends ObjectMetadata {
+public class ProvidedCHO extends ObjectMetadata implements EDMClass {
 
     @Id
-    @JsonIgnore
     private ObjectId dbId;
 
+    @JsonProperty(ID)
     @Indexed(options = @IndexOptions(unique = true))
     @Property(ID)
     private String id;
 
+    @JsonProperty(PROXIES)
     @Property(PROXIES)
     private List<Proxy> proxies;
 
+    @JsonProperty(IS_AGGREGATED_BY)
     @Property(IS_AGGREGATED_BY)
     private Aggregation isAggregatedBy;
 
@@ -38,16 +40,7 @@ public class ProvidedCHO extends ObjectMetadata {
     public ProvidedCHO() {
     }
 
-    @JsonGetter(CONTEXT)
-    public String getContext() {
-        return EDM_CONTEXT;
-    }
-
-    @JsonGetter(TYPE)
-    public String getType() {
-        return "ProvidedCHO";
-    }
-
+    public String getType() { return "ProvidedCHO"; }
 
     public String getID()
     {
@@ -59,13 +52,10 @@ public class ProvidedCHO extends ObjectMetadata {
         this.id = id;
     }
 
-    @JsonGetter(PROXIES)
-    public List<Proxy> getProxies()
-    {
+    public List<Proxy> getProxies() {
         return this.proxies;
     }
 
-    @JsonGetter(IS_AGGREGATED_BY)
     public Aggregation getIsAggregatedBy()
     {
         return isAggregatedBy;
