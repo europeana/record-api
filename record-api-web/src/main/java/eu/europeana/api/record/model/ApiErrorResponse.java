@@ -1,8 +1,6 @@
 package eu.europeana.api.record.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import eu.europeana.api.commons.error.ResponseUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
@@ -14,10 +12,19 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ApiErrorResponse {
 
+    @JsonProperty("success")
     private final boolean success = false;
+
+    @JsonProperty("status")
     private final int status;
+
+    @JsonProperty("error")
     private final String error;
+
+    @JsonProperty("trace")
     private final String trace;
+
+    @JsonProperty("message")
     private final String message;
 
     @JsonFormat(
