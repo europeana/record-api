@@ -2,12 +2,14 @@ package eu.europeana.api.record.model;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import dev.morphia.Datastore;
 import dev.morphia.annotations.*;
 import dev.morphia.annotations.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
@@ -72,5 +74,10 @@ public class ProvidedCHO extends ObjectMetadata implements EDMClass {
         }
         this.proxies.add(proxy);
         proxy.setProxyFor(this);
+    }
+
+    @PostLoad
+    public void postLoad(Document document, Datastore ds) {
+        for ( Proxy proxy : getProxies() ) { proxy.setProxyFor(this); }
     }
 }
