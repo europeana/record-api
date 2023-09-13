@@ -14,7 +14,7 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 @Entity(discriminator = "Proxy", discriminatorKey = "type")
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({TITLES, ALTERNATIVE_TITLES, CREATORS, DESCRIPTIONS, IDENTIFIERS, PROXY_IN, PROXY_FOR})
+@JsonPropertyOrder({TYPE, TITLE, ALTERNATIVE_TITLE, CREATOR, DESCRIPTION, IDENTIFIER, PROXY_IN, PROXY_FOR})
 public class Proxy extends ObjectMetadata {
 
     @Transient
@@ -44,5 +44,10 @@ public class Proxy extends ObjectMetadata {
     {
         this.proxyIn = (Aggregation) aggr;
     }
+
+//    @JsonGetter(TYPE)
+//    public String getType() {
+//        return "Proxy";
+//    }
 
 }

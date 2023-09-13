@@ -3,7 +3,7 @@ package eu.europeana.api.record.model;
 import com.fasterxml.jackson.annotation.*;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
-import static eu.europeana.api.record.vocabulary.RecordFields.MONGO_VIEWS;
+import static eu.europeana.api.record.vocabulary.RecordFields.VIEWS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 @Entity(discriminator = "Aggregation", discriminatorKey = "type")
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({IS_SHOWN_BY, IS_SHOWN_AT, HAS_VIEWS})
+@JsonPropertyOrder({TYPE, IS_SHOWN_BY, IS_SHOWN_AT, VIEWS})
 public class Aggregation {
 
     @Property(IS_SHOWN_AT)
@@ -22,7 +22,7 @@ public class Aggregation {
     @Property(IS_SHOWN_BY)
     private WebResource isShownBy;
 
-    @Property(MONGO_VIEWS)
+    @Property(VIEWS)
     private List<WebResource> hasViews = new ArrayList();
 
     @JsonGetter(IS_SHOWN_AT)
@@ -35,7 +35,7 @@ public class Aggregation {
         return isShownBy;
     }
 
-    @JsonGetter(HAS_VIEWS)
+    @JsonGetter(VIEWS)
     public List<WebResource> getViews() {
         return hasViews;
     }
@@ -47,4 +47,9 @@ public class Aggregation {
     public void setIsShownBy(WebResource isShownBy) {
         this.isShownBy = isShownBy;
     }
+
+//    @JsonGetter(TYPE)
+//    public String getType() {
+//        return "Aggregation";
+//    }
 }

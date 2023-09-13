@@ -1,6 +1,8 @@
 package eu.europeana.api.record.model.data;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.PostLoad;
@@ -9,14 +11,14 @@ import dev.morphia.annotations.Property;
 import eu.europeana.api.record.model.EDMObject;
 import org.bson.Document;
 
-import static eu.europeana.api.record.vocabulary.RecordFields.ID;
-import static eu.europeana.api.record.vocabulary.RecordFields.MONGO_OBJECT;
+import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
 /**
  * @author Hugo
  * @since 8 Aug 2023
  */
 @Entity(discriminator = "LocalReference", discriminatorKey = "type")
+@JsonPropertyOrder({ID, TYPE})
 public class LocalReference extends DataValue implements ObjectReference {
 
     @Property(ID)
@@ -56,6 +58,11 @@ public class LocalReference extends DataValue implements ObjectReference {
     @JsonUnwrapped
     public EDMObject getDereferencedObject() {
         return (EDMObject) this.object;
+    }
+
+    @JsonGetter(TYPE)
+    public String getType() {
+        return "LocalReference";
     }
 
     @PostPersist

@@ -13,7 +13,7 @@ import org.bson.types.ObjectId;
 
 import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
-@JsonPropertyOrder({CONTEXT, ID, PROXIES, IS_AGGREGATED_BY})
+@JsonPropertyOrder({CONTEXT, ID, TYPE, PROXIES, IS_AGGREGATED_BY})
 @Entity(value = "Record", discriminator = "ProvidedCHO", discriminatorKey = "type")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
@@ -42,6 +42,12 @@ public class ProvidedCHO extends ObjectMetadata {
     public String getContext() {
         return EDM_CONTEXT;
     }
+
+    @JsonGetter(TYPE)
+    public String getType() {
+        return "ProvidedCHO";
+    }
+
 
     public String getID()
     {

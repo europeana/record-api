@@ -20,22 +20,22 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 @Entity
 public class ObjectMetadata {
 
-    @Property(MONGO_TITLE)
+    @Property(TITLE)
     private LanguageMap title = null;
 
-    @Property(MONGO_ALT_TITLE)
+    @Property("altTitle")
     private LanguageMapArray altTitle = null;
 
-    @Property(MONGO_DESCRIPTION)
+    @Property(DESCRIPTION)
     private List<DataValue> description = null;
 
-    @Property(MONGO_CREATOR)
+    @Property(CREATOR)
     private List<DataValue> creator = new ArrayList();
 
-    @Property(MONGO_IDENTIFIER)
+    @Property(IDENTIFIER)
     private List<Literal<String>> identifier = new ArrayList();
 
-    @JsonGetter(TITLES)
+    @JsonGetter(TITLE)
     public List<Literal<String>> getTitles() {
         return getTitle().getValues();
     }
@@ -44,7 +44,7 @@ public class ObjectMetadata {
         getTitle().add(title);
     }
 
-    @JsonGetter(ALTERNATIVE_TITLES)
+    @JsonGetter(ALTERNATIVE_TITLE)
     public List<Literal<String>> getAlternativeTitles() {
         return getAlternativeTitle().getValues();
     }
@@ -53,7 +53,7 @@ public class ObjectMetadata {
         getAlternativeTitle().add(title);
     }
 
-    @JsonGetter(DESCRIPTIONS)
+    @JsonGetter(DESCRIPTION)
     public List<DataValue> getDescriptions() {
         return getDescription();
     }
@@ -62,7 +62,7 @@ public class ObjectMetadata {
         getDescription().add(description);
     }
 
-    @JsonGetter(CREATORS)
+    @JsonGetter(CREATOR)
     public List<DataValue> getCreators() {
         return creator;
     }
@@ -71,7 +71,7 @@ public class ObjectMetadata {
         this.creator.add(creator);
     }
 
-    @JsonGetter(IDENTIFIERS)
+    @JsonGetter(IDENTIFIER)
     public List<Literal<String>> getIdentifiers() {
         return identifier;
     }
