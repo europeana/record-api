@@ -9,8 +9,7 @@ import org.bson.types.ObjectId;
 
 import java.util.List;
 
-import static eu.europeana.api.record.vocabulary.RecordFields.ID;
-import static eu.europeana.api.record.vocabulary.RecordFields.PREF_LABELS;
+import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
 @Entity(value = "ContextualEntity", discriminator = "ContextualEntity", discriminatorKey = "type")
 public abstract class ContextualEntity implements EDMClass {
@@ -22,7 +21,7 @@ public abstract class ContextualEntity implements EDMClass {
     @Property(ID)
     protected String id;
 
-    @JsonProperty(PREF_LABELS)
+    @JsonProperty(PREF_LABEL)
     protected LanguageMap prefLabel = null;
 
     public ContextualEntity() {}

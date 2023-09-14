@@ -9,7 +9,7 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
 
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "type")
-@JsonPropertyOrder({ ID, TYPE, PREF_LABELS })
+@JsonPropertyOrder({ ID, TYPE, PREF_LABEL })
 @Entity(value = "ContextualEntity", discriminator = "Place", discriminatorKey = "type")
 public class Place extends ContextualEntity {
     public Place() {}

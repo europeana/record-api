@@ -20,7 +20,7 @@ public interface RecordFields {
 
     public static final String ID = "id";
     public static final String TYPE = "type";
-    public static final String PREF_LABELS = "prefLabels";
+    public static final String PREF_LABEL = "prefLabel";
     public static final String IS_SHOWN_BY = "isShownBy";
     public static final String IS_SHOWN_AT = "isShownAt";
     public static final String VIEWS = "views";

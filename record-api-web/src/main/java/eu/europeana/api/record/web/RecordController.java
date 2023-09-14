@@ -6,7 +6,6 @@ import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.serialization.JsonLdSerializer;
 import eu.europeana.api.record.service.RecordService;
-import eu.europeana.api.record.test.TestDataBuilder;
 import eu.europeana.api.record.utils.RecordUtils;
 import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
