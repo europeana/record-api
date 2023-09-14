@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package eu.europeana.api.record.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;

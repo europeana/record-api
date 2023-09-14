@@ -18,7 +18,7 @@ import static eu.europeana.api.record.vocabulary.RecordFields.*;
  * @since 4 Aug 2023
  */
 @Entity
-public class ObjectMetadata {
+public abstract class ObjectMetadata {
 
     @JsonProperty(TITLE)
     @Property(TITLE)

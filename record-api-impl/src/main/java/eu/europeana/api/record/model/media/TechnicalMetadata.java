@@ -10,10 +10,7 @@ import eu.europeana.api.record.model.data.Literal;
 import static eu.europeana.api.record.vocabulary.RecordFields.FILE_BYTE_SIZE;
 import static eu.europeana.api.record.vocabulary.RecordFields.MIME_TYPE;
 
-/**
- * @author Hugo
- * @since 8 Aug 2023
- */
+
 @Entity(discriminatorKey = "type")
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 public abstract class TechnicalMetadata {

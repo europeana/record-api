@@ -20,7 +20,6 @@ public class SharedReference extends DataValue implements ObjectReference {
     @Property(ID)
     protected String id;
 
-    // with lazy we don't get the objects
     @Reference(value = MONGO_OBJECT, lazy = false)
     protected EDMClass      object;
 
