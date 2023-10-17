@@ -104,14 +104,18 @@ public class RecordController {
             value = {
                     "/v3/record/{datasetId}/{localId}",
             },
-            headers = { ACCEPT_HEADER_JSONLD, ACCEPT_HEADER_JSON, ACCEPT_HEADER_APPLICATION_RDF_XML, ACCEPT_HEADER_RDF_XML, ACCEPT_HEADER_APPLICATION_XML},
-            produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8, MediaType.TEXT_XML_VALUE,
-                    MediaType.APPLICATION_XML_VALUE, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, HttpHeaders.CONTENT_TYPE_RDF_XML})
+            headers = { ACCEPT_HEADER_JSONLD, ACCEPT_HEADER_JSON,
+                    ACCEPT_HEADER_APPLICATION_TEXT_XML, ACCEPT_HEADER_RDF_XML, ACCEPT_HEADER_APPLICATION_RDF_XML, ACCEPT_HEADER_APPLICATION_XML,
+                    ACCEPT_HEADER_APPLICATION_TURTLE_TEXT, ACCEPT_HEADER_APPLICATION_TURTLE, ACCEPT_HEADER_APPLICATION_TURTLE_X
+            },
+            produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8,
+                    MediaType.TEXT_XML_VALUE, HttpHeaders.CONTENT_TYPE_RDF_XML, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, MediaType.APPLICATION_XML_VALUE,
+                    MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
     public ResponseEntity<String> retrieveRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
             HttpServletRequest request) {
-        LOGGER.info("retrieve Header Record");
+        LOGGER.info("retrieve Header Record {} , {}", datasetId, localId);
         return null;
 
     }
