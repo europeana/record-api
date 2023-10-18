@@ -6,6 +6,7 @@
         <module>record-api-impl</module>
         <module>record-api-mongo</module>
         <module>record-api-web</module>
+        <module>record-api-common</module>
     </modules>
 
     <parent>
