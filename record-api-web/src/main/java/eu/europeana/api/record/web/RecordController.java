@@ -1,6 +1,7 @@
 package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
+import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.exception.RecordApiException;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.model.ProvidedCHO;
@@ -41,60 +42,6 @@ public class RecordController {
         this.jsonLdSerializer = jsonLdSerializer;
     }
 
-    @ApiOperation(
-            value = "Retrieve a record",
-            nickname = "retrieveRecord",
-            response = java.lang.Void.class)
-    @GetMapping(
-            value = {
-                    "/v3/record/{datasetId}/{localId}.jsonld",
-                    "/v3/record/{datasetId}/{localId}.json"
-            },
-            produces = {HttpHeaders.CONTENT_TYPE_JSONLD, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> retrieveJsonRecord(
-            @PathVariable String datasetId,
-            @PathVariable String localId,
-            HttpServletRequest request) throws RecordApiException, IOException {
-        return createResponse(datasetId, localId);
-    }
-
-
-    @ApiOperation(
-            value = "Retrieve a record",
-            nickname = "retrieveRecord",
-            response = java.lang.Void.class)
-    @GetMapping(
-            value = {
-                    "/v3/record/{datasetId}/{localId}.xml",
-                    "/v3/record/{datasetId}/{localId}.rdf"
-            },
-            produces = {MediaType.TEXT_XML_VALUE, MediaType.APPLICATION_XML_VALUE, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, HttpHeaders.CONTENT_TYPE_RDF_XML})
-    public ResponseEntity<String> retrieveXmlRecord(
-            @PathVariable String datasetId,
-            @PathVariable String localId,
-            HttpServletRequest request) {
-        LOGGER.info("retrieveXmlRecord");
-        return null;
-
-    }
-
-    @ApiOperation(
-            value = "Retrieve a record",
-            nickname = "retrieveRecord",
-            response = java.lang.Void.class)
-    @GetMapping(
-            value = {
-                    "/v3/record/{datasetId}/{localId}.ttl",
-            },
-            produces = {MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
-    public ResponseEntity<String> retrieveTurtleRecord(
-            @PathVariable String datasetId,
-            @PathVariable String localId,
-            HttpServletRequest request) {
-        LOGGER.info("retrieveTurtleRecord");
-        return null;
-    }
-
 
     @ApiOperation(
             value = "Retrieve a record",
@@ -111,13 +58,12 @@ public class RecordController {
             produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8,
                     MediaType.TEXT_XML_VALUE, HttpHeaders.CONTENT_TYPE_RDF_XML, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, MediaType.APPLICATION_XML_VALUE,
                     MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
-    public ResponseEntity<String> retrieveRecord(
+    public ResponseEntity<String> retrieveJsonRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
-            HttpServletRequest request) {
-        LOGGER.info("retrieve Header Record {} , {}", datasetId, localId);
-        return null;
-
+            HttpServletRequest request) throws RecordApiException, IOException {
+        RdfFormat format = RecordUtils.getRDFFormat.apply(localId, request);
+        return createResponse(datasetId, localId);
     }
 
 
