@@ -63,6 +63,7 @@ public class RecordController {
             @PathVariable String localId,
             HttpServletRequest request) throws RecordApiException, IOException {
         RdfFormat format = RecordUtils.getRDFFormat.apply(localId, request);
+        localId = RecordUtils.getIdWithoutExtension(localId);
         return createResponse(datasetId, localId);
     }
 

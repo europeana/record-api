@@ -9,6 +9,10 @@ import java.util.function.BiFunction;
 import static eu.europeana.api.record.utils.RecordConstants.BASE_URL;
 public class RecordUtils {
 
+    private RecordUtils(){
+
+    }
+
     public static String buildRecordId(String collectionId, String recordId) {
         return BASE_URL + collectionId + "/" + recordId;
     }
@@ -17,8 +21,9 @@ public class RecordUtils {
         RdfFormat format = null;
         if (StringUtils.contains(localId, ".")) {
             format = RdfFormat.getFormatByExtension(StringUtils.substringAfterLast(localId, "."));
-        } else {
-            // check for Accept Header
+        }
+        // if format is still empty check for Accept header.
+        if (format == null && request.getHeader("Accept") != null) {
             format = RdfFormat.getFormatByMediaType(request.getHeader("Accept"));
         }
         // if format is still null -> no .extension and no Accept header, default it to JsonLD format
@@ -27,5 +32,15 @@ public class RecordUtils {
         }
         return format;
     };
+
+
+    public static String getIdWithoutExtension(String localId) {
+        if (StringUtils.contains(localId, ".") &&
+                RdfFormat.isValidExtension(StringUtils.substringAfterLast(localId, "."))) {
+            return StringUtils.substringBeforeLast(localId, ".");
+        }
+        return localId;
+    }
+
 }
 

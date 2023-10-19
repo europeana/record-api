@@ -17,6 +17,15 @@ public enum RdfFormat {
         this.mediaTypes = mediaTypes;
     }
 
+    public static boolean isValidExtension(String extension) {
+        for (RdfFormat format : RdfFormat.values()) {
+            if (format.acceptsExtension(extension)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static RdfFormat getFormatByExtension(String extension) {
         for (RdfFormat format : RdfFormat.values()) {
             if (format.acceptsExtension(extension)) {
@@ -47,12 +56,12 @@ public enum RdfFormat {
         return mediaTypes[0];
     }
 
-    public boolean acceptsExtension(String extension) {
+    private boolean acceptsExtension(String extension) {
         return (this.extension.equals(extension)
                 || (this.alternative != null && this.alternative.equals(extension)));
     }
 
-    public boolean acceptsMediaType(String mediaType) {
+    private boolean acceptsMediaType(String mediaType) {
         for (String mType : mediaTypes) {
             if (mType.equals(mediaType)) {
                 return true;
