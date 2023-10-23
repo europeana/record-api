@@ -10,30 +10,23 @@ import java.time.OffsetDateTime;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
+import static eu.europeana.api.error.EuropeanaErrorConstants.*;
 
 /**
  * This class contains fields to be returned by APIs when an error occurs within the application.
  *
  */
-@JsonPropertyOrder({"@context", "type", "success", "status", "error", "message", "seeAlso", "timestamp", "path"})
+@JsonPropertyOrder({CONTEXT, TYPE, SUCCESS, STATUS, ERROR, MESSAGE, SEE_ALSO, TIMESTAMP, PATH})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class EuropeanaApiErrorResponse {
 
-    public static final String QUERY_PARAM_PROFILE = "profile";
-    public static final String QUERY_PARAM_PROFILE_SEPARATOR = ",";
-    public static final String PROFILE_DEBUG = "debug";
-
-
-    private final String context = "http://www.europeana.eu/schemas/context/api.jsonld";
-    private final  String type= "ErrorResponse";
+    private final String context = ERROR_CONTEXT;
+    private final  String type= ERROR_TYPE;
     private final boolean success = false;
-
     private final int status;
     private final String error;
-
     private final String message;
-
-    private final String seeAlso ="https://pro.europeana.eu/page/apis";
+    private final String seeAlso = SEE_ALSO_VALUE;
 
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
     private final OffsetDateTime timestamp = OffsetDateTime.now();
@@ -85,7 +78,7 @@ public class EuropeanaApiErrorResponse {
         return code;
     }
 
-    @JsonGetter("@context")
+    @JsonGetter(CONTEXT)
     public String getContext() {
         return context;
     }

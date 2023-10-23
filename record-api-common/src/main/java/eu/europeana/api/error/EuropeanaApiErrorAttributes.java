@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static eu.europeana.api.error.EuropeanaErrorConstants.*;
+
 @Component
 public class EuropeanaApiErrorAttributes extends DefaultErrorAttributes {
 
@@ -26,11 +28,11 @@ public class EuropeanaApiErrorAttributes extends DefaultErrorAttributes {
 
         // use LinkedHashMap to guarantee display order
         LinkedHashMap<String, Object> europeanaErrorAttributes = new LinkedHashMap<>();
-        europeanaErrorAttributes.put("success", false);
-        europeanaErrorAttributes.put("status", defaultErrorAttributes.get("status"));
-        europeanaErrorAttributes.put("error", defaultErrorAttributes.get("error"));
+        europeanaErrorAttributes.put(SUCCESS, false);
+        europeanaErrorAttributes.put(STATUS, defaultErrorAttributes.get(STATUS));
+        europeanaErrorAttributes.put(ERROR, defaultErrorAttributes.get(ERROR));
         // message not shown
-        europeanaErrorAttributes.put("timestamp", OffsetDateTime.now());
+        europeanaErrorAttributes.put(TIMESTAMP, OffsetDateTime.now());
         addPathRequestParameters(europeanaErrorAttributes, webRequest);
         return europeanaErrorAttributes;
     }
@@ -58,7 +60,7 @@ public class EuropeanaApiErrorAttributes extends DefaultErrorAttributes {
         }
 
         if (s.length() > 0) {
-            errorAttributes.put("path", errorAttributes.get("path") + s.toString());
+            errorAttributes.put(PATH, errorAttributes.get(PATH) + s.toString());
         }
     }
 }
