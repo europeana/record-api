@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: record-api-v3-deployment
+spec:
+  # selector.matchLabels is provided via Kustomize
+  template:
+    spec:
+      containers:
+        - name: record-api-v3
+          image: europeana/record-api-v3
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/info
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/info
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          volumeMounts:
+            - name: secret
+              mountPath: "/opt/app/config/record-api.user.properties"
+              readOnly: true
+              subPath: record-api.user.properties
+          env:
+            - name: SPRING_CONFIG_ADDITIONAL_LOCATION
+              value: "file:/opt/app/config/record-api.user.properties"
+      volumes:
+        - name: secret
+          secret:
+            secretName: record-api-secret
