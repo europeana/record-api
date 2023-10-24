@@ -1,7 +1,7 @@
 package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
-import eu.europeana.api.record.exception.RecordApiException;
+import eu.europeana.api.error.EuropeanaApiException;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.serialization.JsonLdSerializer;
@@ -52,7 +52,7 @@ public class RecordController {
     public ResponseEntity<String> retrieveRecord (
             @PathVariable String collectionId,
             @PathVariable String recordId,
-            HttpServletRequest request) throws RecordApiException, IOException {
+            HttpServletRequest request) throws EuropeanaApiException, IOException {
 
         String about = RecordUtils.buildRecordId(collectionId, recordId);
 
