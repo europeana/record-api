@@ -11,18 +11,19 @@ spec:
           image: europeana/record-api-v3
           ports:
             - containerPort: 8080
-          livenessProbe:
-            httpGet:
-              port: 8080
-              path: /actuator/info
-            initialDelaySeconds: 30
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              port: 8080
-              path: /actuator/info
-            initialDelaySeconds: 30
-            periodSeconds: 30
+## Need to add actuator or swagger configuration
+#          livenessProbe:
+#            httpGet:
+#              port: 8080
+#              path: /actuator/info
+#            initialDelaySeconds: 30
+#            periodSeconds: 30
+#          readinessProbe:
+#            httpGet:
+#              port: 8080
+#              path: /actuator/info
+#            initialDelaySeconds: 30
+#            periodSeconds: 30
           volumeMounts:
             - name: secret
               mountPath: "/opt/app/config/record-api.user.properties"
