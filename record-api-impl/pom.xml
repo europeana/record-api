@@ -43,12 +43,14 @@
             <version>${morphia.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.smallrye.config/smallrye-config -->
+        <!-- https://mvnrepository.com/artifact/io.smallrye.config/smallrye-config-parent -->
         <dependency>
             <groupId>io.smallrye.config</groupId>
-            <artifactId>smallrye-config</artifactId>
+            <artifactId>smallrye-config-parent</artifactId>
             <version>3.2.1</version>
+            <type>pom</type>
         </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb -->
         <dependency>
