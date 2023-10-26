@@ -1,4 +1,4 @@
-package eu.europeana.api.config;
+package eu.europeana.api.model;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
