@@ -16,6 +16,7 @@ import eu.europeana.jena.encoder.codec.CodecRegistry;
 import eu.europeana.jena.encoder.library.DefaultUriNormalizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.text.SimpleDateFormat;
 
@@ -49,6 +50,7 @@ public class RecordIOConfig {
     }
 
     // JsonLdWriter bean
+    @Primary
     @Bean(AppConfigConstants.BEAN_JSON_MAPPER)
     public ObjectMapper mapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -85,5 +87,18 @@ public class RecordIOConfig {
     }
 
     // JenaBasedFormatWriter beans based on formats
+    @Bean(AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_TURTLE)
+    public JenaBasedFormatWriter getJenaBasedTurtleWriter() {
+        return new JenaBasedFormatWriter("TURTLE");
+    }
 
+    @Bean(AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_N3)
+    public JenaBasedFormatWriter getJenaBasedN3Writer() {
+        return new JenaBasedFormatWriter("N3");
+    }
+
+    @Bean(AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_NT)
+    public JenaBasedFormatWriter getJenaBasedNTWriter() {
+        return new JenaBasedFormatWriter("NT");
+    }
 }

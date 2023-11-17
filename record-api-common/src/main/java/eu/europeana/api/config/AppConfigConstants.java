@@ -19,6 +19,10 @@ public class AppConfigConstants {
     public static final String BEAN_NAMESPACE_RESOLVER= "namespaceResolver";
     public static final String BEAN_DEFAULT_URI_RESOLVER= "defaultUriResolver";
     public static final String BEAN_RECORD_TEMPLATE_LIBRARY = "recordApiTemplateLibrary";
+    public static final String BEAN_JENA_FORAMAT_WRITER_TURTLE = "jenaFormatWriterTurtle";
+    public static final String BEAN_JENA_FORAMAT_WRITER_N3 = "jenaFormatWriterN3";
+    public static final String BEAN_JENA_FORAMAT_WRITER_NT = "jenaFormatWriterNt";
+
 
     // media config beans
     public static final String BEAN_MEDIA_TYPES = "msMediaTypes";

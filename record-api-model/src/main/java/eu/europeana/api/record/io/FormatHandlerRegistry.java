@@ -1,8 +1,6 @@
-/**
- * 
- */
 package eu.europeana.api.record.io;
 
+import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.format.FormatWriter;
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.io.json.JsonLdWriter;
@@ -10,6 +8,7 @@ import eu.europeana.api.record.io.xml.XmlRecordWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 
 /**
@@ -23,26 +22,24 @@ public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter> {
     @Autowired
     JsonLdWriter jsonLdWriter;
 
-//    @Autowired
-//    XmlRecordWriter xmlRecordWriter;
-//
-//    @Resource(name = "ttl")
-//    JenaBasedFormatWriter Turtle_jenaBasedFormatWriter;
-//
-//    @Resource(name = "N3")
-//    JenaBasedFormatWriter N3_jenaBasedFormatWriter;
-//
-//    @Resource(name = "NT")
-//    JenaBasedFormatWriter NT_jenaBasedFormatWriter;
+    @Autowired
+    XmlRecordWriter xmlRecordWriter;
 
+    @Resource(name = AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_TURTLE)
+    JenaBasedFormatWriter jenaBasedTurtleWriter;
 
+    @Resource(name = AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_N3)
+    JenaBasedFormatWriter JenaBasedN3Writer;
+
+    @Resource(name = AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_NT)
+    JenaBasedFormatWriter JenaBasedNTWriter;
 
     public FormatHandlerRegistry() {
         put(RdfFormat.JSONLD, jsonLdWriter);
-        put(RdfFormat.XML   , new XmlRecordWriter());
-        put(RdfFormat.TURTLE, new JenaBasedFormatWriter("TURTLE"));
-        put(RdfFormat.N3    , new JenaBasedFormatWriter("N3"));
-        put(RdfFormat.NT    , new JenaBasedFormatWriter("NT"));
+        put(RdfFormat.XML, xmlRecordWriter);
+        put(RdfFormat.TURTLE, jenaBasedTurtleWriter);
+        put(RdfFormat.N3, JenaBasedN3Writer);
+        put(RdfFormat.NT, JenaBasedNTWriter);
     }
 }
 
