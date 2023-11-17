@@ -64,6 +64,7 @@ public class RecordController {
             HttpServletRequest request) throws EuropeanaApiException, IOException {
         RdfFormat rdfFormat = RecordUtils.getRDFFormat.apply(localId, request);
         localId = RecordUtils.getIdWithoutExtension(localId);
+        LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, localId, rdfFormat);
         return createResponse(datasetId, localId, rdfFormat);
     }
 
@@ -75,7 +76,6 @@ public class RecordController {
 //        LOGGER.info("saved Data");
 
         Optional<ProvidedCHO> record = recordService.getRecord(about);
-
         if (record.isEmpty()) {
             throw new RecordDoesNotExistsException(about);
         }
@@ -83,6 +83,5 @@ public class RecordController {
         OutputStream stream = new ByteArrayOutputStream();
         formatHandlerRegistry.get(rdfFormat).write(record.get(), stream );
         return ResponseEntity.status(HttpStatus.OK).body(stream.toString());
-
     }
 }

@@ -10,7 +10,6 @@ import static eu.europeana.api.record.utils.RecordConstants.BASE_URL;
 public class RecordUtils {
 
     private RecordUtils(){
-
     }
 
     public static String buildRecordId(String collectionId, String recordId) {
