@@ -28,7 +28,7 @@ public class ObjectReferenceSerializer<T extends ObjectReference>
     {
         String id = ref.getID();
         if ( ref.isDereferenced() ) {
-            Stack<String> stack = JsonLdSerializer.stack.get();
+            Stack<String> stack = JsonLdWriter.stack.get();
             if ( !stack.contains(id) ) {
                 stack.push(id);
                 jgen.writeObject(ref.getDereferencedObject());

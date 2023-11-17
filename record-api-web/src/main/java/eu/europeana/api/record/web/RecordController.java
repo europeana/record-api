@@ -4,7 +4,7 @@ import eu.europeana.api.commons.web.http.HttpHeaders;
 import eu.europeana.api.error.EuropeanaApiException;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.model.ProvidedCHO;
-import eu.europeana.api.record.io.json.JsonLdSerializer;
+import eu.europeana.api.record.io.json.JsonLdWriter;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
 import io.swagger.annotations.ApiOperation;
@@ -30,10 +30,10 @@ public class RecordController {
 
     private final RecordService recordService;
 
-    private final JsonLdSerializer jsonLdWriter;
+    private final JsonLdWriter jsonLdWriter;
 
     @Autowired
-    public RecordController(RecordService recordService, JsonLdSerializer jsonLdWriter) {
+    public RecordController(RecordService recordService, JsonLdWriter jsonLdWriter) {
         this.recordService = recordService;
         this.jsonLdWriter = jsonLdWriter;
     }
