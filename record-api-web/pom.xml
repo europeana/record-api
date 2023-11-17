@@ -117,6 +117,7 @@
             <artifactId>jena-core</artifactId>
             <version>4.10.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-arq</artifactId>
