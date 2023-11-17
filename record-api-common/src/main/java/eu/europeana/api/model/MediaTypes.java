@@ -42,6 +42,19 @@ public class MediaTypes {
         return map.containsKey(mimeType);
     }
 
+//    /**
+//     * Gets the configured media Type for the given entity mime type
+//     *
+//     * @param mimetype entity ID
+//     * @return Matching media Type, or empty Optional if none found
+//     */
+//    public Optional<MediaType> getMediaType(String mimetype) {
+//        if (StringUtils.isNotEmpty(mimetype)) {
+//            return Optional.ofNullable(map.get(mimetype));
+//        }
+//        return Optional.empty();
+//    }
+
     /**
      * Gets the configured media Type for the given entity mime type
      *
@@ -49,10 +62,19 @@ public class MediaTypes {
      * @return Matching media Type, or empty Optional if none found
      */
     public Optional<MediaType> getMediaType(String mimetype) {
-        if (StringUtils.isNotEmpty(mimetype)) {
-            return Optional.ofNullable(map.get(mimetype));
+        if (StringUtils.isEmpty(mimetype)) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        mimetype = getMimetype(mimetype);
+        return Optional.ofNullable(map.get(mimetype));
+    }
+
+    /**
+     * Removes any parameter that is part of the mimetype definition
+     */
+    private String getMimetype(String mimetype) {
+        int i = mimetype.indexOf(';');
+        return ( i < 0 ? mimetype : mimetype.substring(0,i) );
     }
 
     public Optional<MediaType> getEUScreenType(String edmType) {
