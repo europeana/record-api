@@ -1,6 +1,5 @@
 package eu.europeana.api.record.utils;
 
-import eu.europeana.api.format.RdfFormat;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 

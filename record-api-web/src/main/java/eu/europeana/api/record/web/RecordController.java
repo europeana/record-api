@@ -1,7 +1,6 @@
 package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
-import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.exception.RecordApiException;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.model.ProvidedCHO;
@@ -49,7 +48,7 @@ public class RecordController {
             response = java.lang.Void.class)
     @GetMapping(
             value = {
-                    "/v3/record/{datasetId}/{localId}",
+                    "/record/v3/{datasetId}/{localId}",
             },
             headers = { ACCEPT_HEADER_JSONLD, ACCEPT_HEADER_JSON,
                     ACCEPT_HEADER_APPLICATION_TEXT_XML, ACCEPT_HEADER_RDF_XML, ACCEPT_HEADER_APPLICATION_RDF_XML, ACCEPT_HEADER_APPLICATION_XML,
@@ -62,7 +61,7 @@ public class RecordController {
             @PathVariable String datasetId,
             @PathVariable String localId,
             HttpServletRequest request) throws RecordApiException, IOException {
-        RdfFormat format = RecordUtils.getRDFFormat.apply(localId, request);
+       // RdfFormat format = RecordUtils.getRDFFormat.apply(localId, request);
         localId = RecordUtils.getIdWithoutExtension(localId);
         return createResponse(datasetId, localId);
     }
