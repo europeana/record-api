@@ -16,23 +16,28 @@ import eu.europeana.jena.encoder.codec.CodecRegistry;
 import eu.europeana.jena.encoder.library.DefaultUriNormalizer;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-
 
 /**
  * @author Hugo
  * @since 17 Oct 2023
+ * @refractored Srishti Singh on 17 November 2023
  */
 @Configuration
+@Import(MediaTypeConfig.class)
 public class RecordApiTemplateLibrary extends TemplateLibrary {
+
+    private static final Logger LOG = LogManager.getLogger(RecordApiTemplateLibrary.class);
 
     public static RecordApiTemplateLibrary INSTANCE = new RecordApiTemplateLibrary();
 
-//    @Resource(name = AppConfigConstants.BEAN_MEDIA_TYPES)
-    private MediaTypeConfig mediaTypeConfig = new MediaTypeConfig();
+    @Resource(name = AppConfigConstants.BEAN_MEDIA_TYPES)
+    private MediaTypes mediaTypes;
 
 
 //    @Bean(AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
@@ -42,17 +47,9 @@ public class RecordApiTemplateLibrary extends TemplateLibrary {
 
     // TODO add a comment for this method and class what it does
     public RecordApiTemplateLibrary() {
+
         super(new CodecRegistry(), Namespaces.getNamespaceResolver()
             , DefaultUriNormalizer.INSTANCE);
-
-        // TODO fix it in better way
-        MediaTypes mediaTypes = null;
-        try {
-            mediaTypes = mediaTypeConfig.getMediaTypes();
-            System.out.println("here media types");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         CodecRegistry registry = getCodecRegistry();
         registry.addCodec(EdmTypeCodec.INSTANCE);
