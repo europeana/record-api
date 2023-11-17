@@ -77,6 +77,10 @@
                     <groupId>xml-apis</groupId>
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>eu.europeana.api.commons</groupId>
+                    <artifactId>commons-error</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
