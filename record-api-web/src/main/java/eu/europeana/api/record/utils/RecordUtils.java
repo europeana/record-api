@@ -1,5 +1,6 @@
 package eu.europeana.api.record.utils;
 
+import eu.europeana.api.format.RdfFormat;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,7 +36,7 @@ public class RecordUtils {
 
     public static String getIdWithoutExtension(String localId) {
         if (StringUtils.contains(localId, ".") &&
-                RdfFormat.isValidExtension(StringUtils.substringAfterLast(localId, "."))) {
+                RdfFormat.getFormatByExtension(StringUtils.substringAfterLast(localId, ".")) != null) {
             return StringUtils.substringBeforeLast(localId, ".");
         }
         return localId;

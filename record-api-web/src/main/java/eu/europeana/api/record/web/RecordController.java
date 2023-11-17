@@ -2,13 +2,16 @@ package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
 import eu.europeana.api.error.EuropeanaApiException;
+import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
+import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.io.json.JsonLdWriter;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
 import io.swagger.annotations.ApiOperation;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.jena.riot.RDFWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +36,12 @@ public class RecordController {
 
     private final RecordService recordService;
 
-    private final JsonLdWriter jsonLdWriter;
+    private final FormatHandlerRegistry formatHandlerRegistry;
 
     @Autowired
-    public RecordController(RecordService recordService, JsonLdWriter jsonLdWriter) {
+    public RecordController(RecordService recordService, FormatHandlerRegistry formatHandlerRegistry) {
         this.recordService = recordService;
-        this.jsonLdWriter = jsonLdWriter;
+        this.formatHandlerRegistry = formatHandlerRegistry;
     }
 
 
@@ -60,14 +63,14 @@ public class RecordController {
     public ResponseEntity<String> retrieveJsonRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
-            HttpServletRequest request) throws RecordApiException, IOException {
-       // RdfFormat format = RecordUtils.getRDFFormat.apply(localId, request);
+            HttpServletRequest request) throws EuropeanaApiException, IOException {
+        RdfFormat rdfFormat = RecordUtils.getRDFFormat.apply(localId, request);
         localId = RecordUtils.getIdWithoutExtension(localId);
-        return createResponse(datasetId, localId);
+        return createResponse(datasetId, localId, rdfFormat);
     }
 
 
-    private ResponseEntity<String> createResponse(String collectionId, String recordId) throws RecordApiException, IOException {
+    private ResponseEntity<String> createResponse(String collectionId, String recordId, RdfFormat rdfFormat) throws EuropeanaApiException, IOException {
         String about = RecordUtils.buildRecordId(collectionId, recordId);
 //        ProvidedCHO testRecord = new TestDataBuilder().newRecord();
 //        recordService.saveRecord(testRecord);
@@ -79,11 +82,8 @@ public class RecordController {
             throw new RecordDoesNotExistsException(about);
         }
 
-        String body = jsonLdSerializer.serialize(record.get());
-        return ResponseEntity.status(HttpStatus.OK).body(body);
-
         OutputStream stream = new ByteArrayOutputStream();
-        jsonLdWriter.write(record.get(), stream );
+        formatHandlerRegistry.get(rdfFormat).write(record.get(), stream );
         return ResponseEntity.status(HttpStatus.OK).body(stream.toString());
 
     }
