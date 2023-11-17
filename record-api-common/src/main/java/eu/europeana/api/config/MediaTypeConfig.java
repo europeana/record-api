@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,11 +27,12 @@ public class MediaTypeConfig {
 
     private static final Logger LOG = LogManager.getLogger(MediaTypeConfig.class);
 
-    @Resource(name = "msXmlMapper")
-    private XmlMapper xmlMapper;
+    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
+//    @Resource(name = "msXmlMapper")
+//    private XmlMapper xmlMapper;
 
-    @Bean(name = "msMediaTypes")
+    @Bean(name = AppConfigConstants.BEAN_MEDIA_TYPES)
     public MediaTypes getMediaTypes() throws IOException {
 
         MediaTypes mediaTypes;
@@ -37,15 +40,23 @@ public class MediaTypeConfig {
             assert inputStream != null;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String contents = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-                mediaTypes = xmlMapper.readValue(contents, MediaTypes.class);
+                mediaTypes = xmlMapper().readValue(contents, MediaTypes.class);
             }
         }
 
         if (!mediaTypes.mediaTypeCategories.isEmpty()) {
             mediaTypes.getMap().putAll(mediaTypes.mediaTypeCategories.stream().filter(media -> !media.isEuScreen()).collect(Collectors.toMap(MediaType::getMimeType, e-> e)));
+            LOG.info("Media Types configured at start up..... ");
         } else {
             LOG.error("media Categories not configured at startup. mediacategories.xml file not added or is empty");
         }
         return mediaTypes;
+    }
+
+    @Bean("msXmlMapper")
+    public XmlMapper xmlMapper() {
+        XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.setDateFormat(dateFormat);
+        return xmlMapper;
     }
 }

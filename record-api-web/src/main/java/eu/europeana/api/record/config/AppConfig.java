@@ -1,6 +1,6 @@
 package eu.europeana.api.record.config;
 
-import eu.europeana.api.record.vocabulary.AppConfigConstants;
+import eu.europeana.api.config.AppConfigConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Configuration;
@@ -31,5 +31,4 @@ public class AppConfig extends AppConfigConstants {
             }
         }
     }
-
 }

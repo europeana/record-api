@@ -4,7 +4,7 @@ import eu.europeana.api.commons.web.http.HttpHeaders;
 import eu.europeana.api.error.EuropeanaApiException;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.model.ProvidedCHO;
-import eu.europeana.api.record.serialization.JsonLdSerializer;
+import eu.europeana.api.record.io.json.JsonLdSerializer;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Optional;
 
 @RestController
@@ -30,12 +30,12 @@ public class RecordController {
 
     private final RecordService recordService;
 
-    private final JsonLdSerializer jsonLdSerializer;
+    private final JsonLdSerializer jsonLdWriter;
 
     @Autowired
-    public RecordController(RecordService recordService, JsonLdSerializer jsonLdSerializer) {
+    public RecordController(RecordService recordService, JsonLdSerializer jsonLdWriter) {
         this.recordService = recordService;
-        this.jsonLdSerializer = jsonLdSerializer;
+        this.jsonLdWriter = jsonLdWriter;
     }
 
     @ApiOperation(
@@ -67,8 +67,9 @@ public class RecordController {
             throw new RecordDoesNotExistsException(about);
         }
 
-        String body = jsonLdSerializer.serialize(record.get());
-        return ResponseEntity.status(HttpStatus.OK).body(body);
+        OutputStream stream = new ByteArrayOutputStream();
+        jsonLdWriter.write(record.get(), stream );
+        return ResponseEntity.status(HttpStatus.OK).body(stream.toString());
 
     }
 
