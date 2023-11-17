@@ -10,9 +10,9 @@ import java.util.Map;
 public class CodecRegistry {
     private final Map<Class<?>, JenaCodec<?>> codecs = new HashMap<>();
 
-//    public CodecRegistry() {
-//        addCodecs();
-//    }
+    public CodecRegistry() {
+        addCodecs();
+    }
 
     public void addCodec(final JenaCodec<?> codec) {
         codecs.put(codec.getSupportedClass(), codec);

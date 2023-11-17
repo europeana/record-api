@@ -1,10 +1,8 @@
-/**
- * 
- */
 package eu.europeana.api.record.io.jena;
+
 import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.config.MediaTypeConfig;
-import eu.europeana.api.edm.Namespaces;
+import eu.europeana.api.edm.NamespaceResolver;
 import eu.europeana.api.model.MediaTypes;
 import eu.europeana.api.record.model.Aggregation;
 import eu.europeana.api.record.model.EuropeanaAggregation;
@@ -15,11 +13,11 @@ import eu.europeana.api.record.model.media.*;
 import eu.europeana.jena.encoder.codec.CodecRegistry;
 import eu.europeana.jena.encoder.library.DefaultUriNormalizer;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
@@ -28,39 +26,29 @@ import javax.annotation.Resource;
  * @since 17 Oct 2023
  * @refractored Srishti Singh on 17 November 2023
  */
-@Configuration
+@Component(AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
 @Import(MediaTypeConfig.class)
 public class RecordApiTemplateLibrary extends TemplateLibrary {
 
     private static final Logger LOG = LogManager.getLogger(RecordApiTemplateLibrary.class);
 
-    public static RecordApiTemplateLibrary INSTANCE = new RecordApiTemplateLibrary();
-
     @Resource(name = AppConfigConstants.BEAN_MEDIA_TYPES)
     private MediaTypes mediaTypes;
 
-
-//    @Bean(AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
-//    public RecordApiTemplateLibrary getRecordApiTemplateLibrary() {
-//        return new RecordApiTemplateLibrary();
-//    }
-
     // TODO add a comment for this method and class what it does
-    public RecordApiTemplateLibrary() {
+    @Autowired
+    public RecordApiTemplateLibrary(CodecRegistry codecRegistry, NamespaceResolver namespaceResolver, DefaultUriNormalizer defaultUriNormalizer) {
+        super(codecRegistry, namespaceResolver, defaultUriNormalizer);
 
-        super(new CodecRegistry(), Namespaces.getNamespaceResolver()
-            , DefaultUriNormalizer.INSTANCE);
-
-        CodecRegistry registry = getCodecRegistry();
-        registry.addCodec(EdmTypeCodec.INSTANCE);
-        registry.addCodec(DatatypeLiteralCodec.INSTANCE);
-        registry.addCodec(LiteralCodec.INSTANCE);
-        registry.addCodec(ObjectReferenceCodec.INSTANCE);
-        registry.addCodec(DataValueCodec.INSTANCE);
-        registry.addCodec(LanguageLiteralCodec.INSTANCE);
-        registry.addCodec(LanguageMapCodec.INSTANCE);
-        registry.addCodec(LanguageMapArrayCodec.INSTANCE);
-        registry.addCodec(new TechnicalMetadataCodec(mediaTypes));
+        codecRegistry.addCodec(EdmTypeCodec.INSTANCE);
+        codecRegistry.addCodec(DatatypeLiteralCodec.INSTANCE);
+        codecRegistry.addCodec(LiteralCodec.INSTANCE);
+        codecRegistry.addCodec(ObjectReferenceCodec.INSTANCE);
+        codecRegistry.addCodec(DataValueCodec.INSTANCE);
+        codecRegistry.addCodec(LanguageLiteralCodec.INSTANCE);
+        codecRegistry.addCodec(LanguageMapCodec.INSTANCE);
+        codecRegistry.addCodec(LanguageMapArrayCodec.INSTANCE);
+        codecRegistry.addCodec(new TechnicalMetadataCodec(mediaTypes));
 
         importClass(Aggregation.class);
         importClass(EuropeanaAggregation.class);
@@ -84,5 +72,7 @@ public class RecordApiTemplateLibrary extends TemplateLibrary {
         importClass(TextMetadata.class);
         importClass(VideoMetadata.class);
         importClass(Service.class);
+
+        LOG.info("RecordApiTemplateLibrary configuration added ....");
     }
 }

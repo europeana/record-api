@@ -13,6 +13,11 @@ public class AppConfigConstants {
     // serialiser beans
     public static final String BEAN_JSON_MAPPER = "recordJsonMapper";
 
+
+    // jena beans
+    public static final String BEAN_CODEC_REGISTRY = "codecRegistry";
+    public static final String BEAN_NAMESPACE_RESOLVER= "namespaceResolver";
+    public static final String BEAN_DEFAULT_URI_RESOLVER= "defaultUriResolver";
     public static final String BEAN_RECORD_TEMPLATE_LIBRARY = "recordApiTemplateLibrary";
 
     // media config beans

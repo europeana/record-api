@@ -1,11 +1,7 @@
-/**
- * 
- */
 package eu.europeana.api.record.io.xml;
 
 import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.format.FormatWriter;
-import eu.europeana.api.record.io.jena.RecordApiTemplateLibrary;
 import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.jena.encoder.JenaObjectEncoder;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
@@ -24,12 +20,8 @@ import java.io.OutputStream;
 @Component(AppConfigConstants.BEAN_RECORD_XML_SERIALIZER)
 public class XmlRecordWriter extends EdmXmlStreamWriter implements FormatWriter<ProvidedCHO> {
 
-   //@Resource(name = AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
-    private RecordApiTemplateLibrary library;
-
-    public XmlRecordWriter() {
-        library = RecordApiTemplateLibrary.INSTANCE;
-    }
+   @Resource(name = AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
+    private TemplateLibrary library;
 
     @Override
     public void write(ProvidedCHO cho, OutputStream out) throws IOException {
