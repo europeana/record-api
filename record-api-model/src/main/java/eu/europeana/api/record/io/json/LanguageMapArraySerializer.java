@@ -1,6 +1,3 @@
-/**
- * 
- */
 package eu.europeana.api.record.io.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;

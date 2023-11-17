@@ -1,6 +1,3 @@
-/**
- * 
- */
 package eu.europeana.api.record.io.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -19,8 +16,6 @@ import java.util.Collection;
  * @since 12 Sep 2023
  */
 public class CompactSerializer extends JsonSerializer<Object> {
-
-    public static final CompactSerializer INSTANCE = new CompactSerializer();
 
     public boolean isEmpty(SerializerProvider provider, Object value) {
         if (value == null ) { return true; }

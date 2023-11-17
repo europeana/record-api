@@ -1,14 +1,10 @@
-/**
- * 
- */
 package eu.europeana.api.record.io.json;
 
 /**
  * @author Hugo
  * @since 15 Sep 2023
  */
-public class Context
-{
+public class Context {
     private String base;
 
     public Context(String uri) { base = uri; }
