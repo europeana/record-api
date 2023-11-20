@@ -63,22 +63,21 @@
         </dependency>
 
         <!--         Jena dependencies-->
-
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
-            <version>4.10.0</version>
+            <version>${jena.version}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-core</artifactId>
-            <version>4.10.0</version>
+            <version>${jena.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-arq</artifactId>
-            <version>4.10.0</version>
+            <version>${jena.version}</version>
         </dependency>
 
         <!--        jackson time module-->

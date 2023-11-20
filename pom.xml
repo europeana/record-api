@@ -74,6 +74,7 @@
         <spotbugs-plugin.version>4.7.3.5</spotbugs-plugin.version>
         <sonar-plugin.version>3.7.0.1746</sonar-plugin.version>
         <apache.commomLang3.version>3.13.0</apache.commomLang3.version>
+        <jena.version>4.10.0</jena.version>
     </properties>
 
     <!-- Set asm version to be used by maven-pmd-plugin -->

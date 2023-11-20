@@ -79,8 +79,6 @@
             <version>${xerial.snappy.version}</version>
         </dependency>
 
-
-
     </dependencies>
 
 </project>

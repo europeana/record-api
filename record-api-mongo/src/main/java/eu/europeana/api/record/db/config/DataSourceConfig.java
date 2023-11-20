@@ -93,6 +93,7 @@ public class DataSourceConfig {
         mapper.mapPackage("eu.europeana.api.record.model.media");
         mapper.mapPackage("eu.europeana.api.record.model.data");
         mapper.mapPackage("eu.europeana.api.record.model.internal");
+        mapper.mapPackage("eu.europeana.api.record.model.entity");
 
         LOGGER.info("Datastore initialized");
         return datastore;
