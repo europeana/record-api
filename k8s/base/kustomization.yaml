@@ -1,0 +1,11 @@
+resources:
+  - deployment.yaml
+
+commonLabels:
+  app: record-api-v3
+
+# expects files to be in the same directory
+secretGenerator:
+  - name: record-api-secret
+    files:
+      - record-api.user.properties
