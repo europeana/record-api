@@ -25,16 +25,21 @@ public class JenaObjectDecoder
 {
     private HashMap<String,Object> cache;
     private TemplateLibrary        library;
+    protected DataValueFactory       factory;
     private String                 base;
     private boolean                makeRelative;
 
-    public JenaObjectDecoder(TemplateLibrary library, boolean makeRelative) {
+    public JenaObjectDecoder(TemplateLibrary library
+            , DataValueFactory factory, boolean makeRelative) {
         this.library      = library;
+        this.factory      = factory;
         this.makeRelative = makeRelative;
         cache = new HashMap<String,Object>();
     }
 
-    public JenaObjectDecoder(TemplateLibrary library) { this(library, true); }
+    public JenaObjectDecoder(TemplateLibrary library, DataValueFactory factory) {
+        this(library, factory, true);
+    }
 
     public Object decode(Resource r) {
         return decode(r, makeRelative ? r.getURI() : null);
@@ -45,7 +50,7 @@ public class JenaObjectDecoder
             this.base = base;
             return decodeResource(r);
         }
-        finally { 
+        finally {
             cache.clear();
         }
     }
@@ -70,17 +75,16 @@ public class JenaObjectDecoder
             }
             return ret;
         }
-        finally { 
-            cache.clear(); 
-            iter.close(); 
+        finally {
+            cache.clear();
+            iter.close();
         }
     }
-    
 
     /*
      * Decodes an object out of a rdf:Resource.
-     * 
-     * The rdf:type of the resource will dictacte which class template will be 
+     *
+     * The rdf:type of the resource will dictacte which class template will be
      * used to decode the object.
      */
     protected Object decodeResource(Resource r) {
@@ -89,10 +93,10 @@ public class JenaObjectDecoder
             while ( iter.hasNext() ) {
                 RDFNode node = iter.next().getObject();
                 if ( !node.isResource() ) { continue; }
-    
+
                 ClassTemplate template = library.getTemplateByType(node.asResource());
                 if ( template == null ) { continue; }
-    
+
                 return decodeByTemplate(template, new DecoderContext(r));
             }
             return null;
@@ -105,19 +109,19 @@ public class JenaObjectDecoder
     /*
      * The value in the argument vs the context.resource may not match especially
      * in transitive cases
-     * 
+     *
 
     needs to cover both cases of a List<Proxy> or  List<DataValue>
-    
+
      */
 
     protected Object decodeByAny(RDFNode value, Class<?> clazz
-                               , DecoderContext context) {
+            , DecoderContext context) {
         if ( value.isResource() ) {
             Resource r = value.asResource();
 
             ClassTemplate template = getTemplateForResource(r);
-            if ( template == null || !clazz.isAssignableFrom(template.getClass()) ) {
+            if ( template == null || !template.acceptsClass(clazz) ) {
                 return decodeByClass(value, clazz, context, false);
             }
 
@@ -130,13 +134,13 @@ public class JenaObjectDecoder
     /*
      * Decodes a RDFNode value based on a object class
      */
-    // to avoid having to create multiple nesting of contexts, 
+    // to avoid having to create multiple nesting of contexts,
     // the function needs to receive the value
     // this is important when there is a chain of java classes
     protected Object decodeByClass(RDFNode value, Class<?> clazz
-                           , DecoderContext context, boolean recursively) {
-        JenaCodec<?> codec = ( recursively ? library.getCodecRecursively(clazz) 
-                                           : library.getCodec(clazz) );
+            , DecoderContext context, boolean recursively) {
+        JenaCodec<?> codec = ( recursively ? library.getCodecRecursively(clazz)
+                : library.getCodec(clazz) );
         if ( codec != null ) { return codec.decode(value, context); }
 
         if ( value.isResource() ) {
@@ -148,9 +152,9 @@ public class JenaObjectDecoder
     }
 
     /*
-     * Decodes an object based on a class template. 
-     * 
-     * A class template is obtained from all classes that are annotated 
+     * Decodes an object based on a class template.
+     *
+     * A class template is obtained from all classes that are annotated
      * with @JenaResource.
      */
     protected Object decodeByTemplate(ClassTemplate template, DecoderContext context) {
@@ -170,7 +174,7 @@ public class JenaObjectDecoder
         else { o = template.newObject(); }
 
         for ( FieldDefinition field : template.getFields() ) {
-            context.field        = field;
+            context.field       = field;
             context.currentType = field.getField().getGenericType();
             Object value = decodeField(context);
             if ( value != null ) { setValue(field.getField(), o, value); }
@@ -188,7 +192,7 @@ public class JenaObjectDecoder
             while ( iter.hasNext() ) {
                 RDFNode node = iter.next().getObject();
                 if ( !node.isResource() ) { continue; }
-    
+
                 return library.getTemplateByType(node.asResource());
             }
             return null;
@@ -201,10 +205,10 @@ public class JenaObjectDecoder
     private Object decodeField(DecoderContext context)
     {
         FieldDefinition field = context.field;
-        context.property = ( field.hasPropertyDefinition() ? 
-                             field.getPropertyDefinition().getProperty() : null );
+        context.property = ( field.hasPropertyDefinition() ?
+                field.getPropertyDefinition().getProperty() : null );
 
-        if (field.isCollection()) { 
+        if (field.isCollection()) {
             JenaCodec codec = getCodecForField(field);
             return ( codec == null ? null : codec.decode(null, context) );
         }
@@ -219,14 +223,14 @@ public class JenaObjectDecoder
 
             return null;
         }
-        
+
         StmtIterator iter = context.getResource().listProperties(property);
         try {
             if ( !iter.hasNext() ) { return null; }
-    
+
             RDFNode value = iter.next().getObject();
             if ( value.isResource() ) { context = context.newContext(value.asResource()); }
-    
+
             JenaCodec codec = getCodecForField(field);
             if ( codec != null ) { return codec.decode(value, context); }
 
@@ -262,10 +266,10 @@ public class JenaObjectDecoder
             throw new JenaDecoderException(e);
         }
     }
-    
+
 
     /*
-     * 
+     *
      */
     public class DecoderContext extends AbsContext
     {
@@ -275,6 +279,9 @@ public class JenaObjectDecoder
 
         protected DecoderContext(Resource resource) { super(resource); }
 
+        public DataValueFactory getFactory() {
+            return JenaObjectDecoder.this.factory;
+        }
 
         public DecoderContext newContext(Resource r) {
 //            if ( this.resource.equals(r) ) { System.out.println("equal"); }
@@ -283,9 +290,9 @@ public class JenaObjectDecoder
         }
 
         public Type getCurrentType() { return currentType; }
-        
-        public <T> Class<T> getCurrentTypeAsClass() { 
-            return (Class<T>)( currentType instanceof ParameterizedType ? 
+
+        public <T> Class<T> getCurrentTypeAsClass() {
+            return (Class<T>)( currentType instanceof ParameterizedType ?
                     ((ParameterizedType)currentType).getRawType()
                     : currentType );
         }

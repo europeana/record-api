@@ -16,6 +16,7 @@ import eu.europeana.api.record.io.json.EDMClassReferenceSerializer;
 import eu.europeana.api.record.model.data.DataValue;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.ObjectReference;
+import eu.europeana.api.record.model.entity.QualityAnnotation;
 import eu.europeana.api.record.model.media.WebResource;
 import eu.europeana.jena.encoder.annotation.JenaId;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
@@ -125,7 +126,7 @@ public class Aggregation implements EDMClass
     @JenaProperty(ns = DQV.NS, localName = DQV.hasQualityAnnotation)
     @Property(DQV.hasQualityAnnotation)
     @JsonProperty(DQV.hasQualityAnnotation)
-    private List<ObjectReference> hasQualityAnnotation;
+    private List<QualityAnnotation> hasQualityAnnotation;
 
     @JenaProperty(ns = EDM.NS, localName = EDM.aggregatedCHO)
     @JsonProperty(EDM.aggregatedCHO)
@@ -251,13 +252,13 @@ public class Aggregation implements EDMClass
 
     //quality
 
-    public List<ObjectReference> getHasQualityAnnotations() {
+    public List<QualityAnnotation> getHasQualityAnnotations() {
         return ( hasQualityAnnotation != null
                 ? hasQualityAnnotation
-                : (hasQualityAnnotation = new ArrayList<ObjectReference>(2)) );
+                : (hasQualityAnnotation = new ArrayList<QualityAnnotation>(2)) );
     }
 
-    public void addHasQualityAnnotation(ObjectReference hasQualityAnnotation) {
+    public void addHasQualityAnnotation(QualityAnnotation hasQualityAnnotation) {
         getHasQualityAnnotations().add(hasQualityAnnotation);
     }
 

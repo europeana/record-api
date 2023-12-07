@@ -4,6 +4,7 @@
 package eu.europeana.jena.utils;
 
 import eu.europeana.api.edm.NamespaceDeclaration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.lang.ReaderRIOTRDFXML;
@@ -53,6 +54,10 @@ public class JenaUtils {
 
     public static boolean hasDatatype(RDFDatatype dt) {
         return ( dt != null && !ignoredDatatypes.contains(dt.getURI())); 
+    }
+
+    public static boolean hasLanguage(Literal literal) {
+        return ( !StringUtils.isBlank(literal.getLanguage()) );
     }
 
     public static <T extends Collection<Statement>> T copy(StmtIterator iter

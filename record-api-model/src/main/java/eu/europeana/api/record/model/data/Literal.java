@@ -7,11 +7,11 @@ import eu.europeana.api.edm.RDF;
 
 import static eu.europeana.api.record.model.ModelConstants.VALUE;
 
-@Entity(discriminatorKey = RDF.type, useDiscriminator = false)
+//@Entity(discriminatorKey = RDF.type, useDiscriminator = false)
 public class Literal<T> implements DataValue
 {
     @JsonProperty(VALUE)
-    @Property(VALUE)
+//    @Property(VALUE)
     protected T value;
 
 

@@ -49,7 +49,6 @@ public class LiteralCodec implements JenaCodec<Literal>
         }
         if ( JenaUtils.hasDatatype(literal.getDatatype()) ) {
             Datatype dt = DatatypeUtils.getDatatypeByUri(literal.getDatatypeURI());
-            System.err.println("dt = " + dt + " | " + literal.getDatatypeURI());
             return new DatatypeLiteral(value, dt);
         }
 

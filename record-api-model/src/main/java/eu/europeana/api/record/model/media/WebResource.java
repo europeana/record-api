@@ -105,7 +105,6 @@ public class WebResource implements EDMClass
     @JenaProperty(ns = EDM.NS, localName = EDM.rights)
     @Property(EDM.rights)
     @JsonProperty(EDM.rights)
-    @JsonSerialize(using = CompactSerializer.class)
     private ObjectReference rights;
 
     @JenaProperty(ns = DC.NS, localName = DC.rights)

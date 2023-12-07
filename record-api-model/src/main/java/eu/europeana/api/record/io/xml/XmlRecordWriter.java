@@ -9,6 +9,7 @@ import org.apache.jena.rdf.model.Model;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,7 +21,13 @@ import java.io.OutputStream;
 @Component(AppConfigConstants.BEAN_RECORD_XML_SERIALIZER)
 public class XmlRecordWriter extends EdmXmlStreamWriter implements FormatWriter<ProvidedCHO> {
 
-   @Resource(name = AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
+    // TODO not thread safe
+    private JenaObjectEncoder encoder;
+
+    // TODO later
+    // encoder = new JenaObjectEncoder(RecordApiTemplateLibrary.INSTANCE);
+
+    @Resource(name = AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
     private TemplateLibrary library;
 
     @Override

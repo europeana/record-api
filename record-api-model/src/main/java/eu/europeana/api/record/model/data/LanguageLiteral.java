@@ -7,7 +7,7 @@ import static eu.europeana.api.record.model.ModelConstants.LANGUAGE;
 import static eu.europeana.api.record.model.ModelConstants.LANG;
 
 
-@Entity(useDiscriminator = false)
+//@Entity(useDiscriminator = false)
 public class LanguageLiteral extends Literal<String> {
 
     @JsonProperty(LANGUAGE)

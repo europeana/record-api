@@ -84,6 +84,7 @@ public class ClassTemplate {
         public Resource             getResource()  { return this.resource;  }
     }
 
+    protected Class<?>           clazz;
     protected Constructor<?>     contructor;
     protected JenaCodec          codec;
     protected Field              id;
@@ -103,6 +104,14 @@ public class ClassTemplate {
              | InvocationTargetException e) {
             throw new JenaDecoderException(e);
         }
+    }
+
+    public boolean acceptsClass(Class<?> clazz) {
+        return clazz.isAssignableFrom(this.clazz);
+    }
+
+    public String toString() {
+        return ("Template<" + this.clazz.getName() + ">");
     }
 
 }

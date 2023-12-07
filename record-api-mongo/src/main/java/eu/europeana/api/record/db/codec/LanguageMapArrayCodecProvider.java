@@ -3,14 +3,15 @@
  */
 package eu.europeana.api.record.db.codec;
 
-import eu.europeana.api.record.model.data.LanguageLiteral;
-import eu.europeana.api.record.model.internal.LanguageMap;
-import eu.europeana.api.record.model.internal.LanguageMapArray;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
+
+import eu.europeana.api.record.model.data.LanguageLiteral;
+import eu.europeana.api.record.model.internal.LanguageMap;
+import eu.europeana.api.record.model.internal.LanguageMapArray;
 
 /**
  * @author Hugo
@@ -19,15 +20,17 @@ import org.bson.codecs.EncoderContext;
 public class LanguageMapArrayCodecProvider 
        extends LanguageMapCodecProvider<LanguageMapArray>  {
 
+    public static LanguageMapArrayCodecProvider INSTANCE 
+        = new LanguageMapArrayCodecProvider();
+
     public LanguageMapArrayCodecProvider() {}
 
-    public Class<LanguageMapArray> getEncoderClass()
-    {
+    public Class<LanguageMapArray> getEncoderClass() {
         return LanguageMapArray.class;
     }
 
-    public void encode(BsonWriter bsonWriter, LanguageMapArray langMap, EncoderContext encoderContext)
-    {
+    public void encode(BsonWriter bsonWriter, LanguageMapArray langMap
+                     , EncoderContext encoderContext) {
         if ( langMap == null ) { return; }
 
         bsonWriter.writeStartDocument();
@@ -42,8 +45,9 @@ public class LanguageMapArrayCodecProvider
         bsonWriter.writeEndDocument();
     }
 
-    public LanguageMapArray decode(final BsonReader reader, final DecoderContext decoderContext)
-    {
+    public LanguageMapArray decode(BsonReader reader
+                                 , DecoderContext decoderContext) {
+
         BsonType bsonType = reader.getCurrentBsonType();
         if (bsonType != BsonType.DOCUMENT) { return null; }
 
@@ -62,8 +66,9 @@ public class LanguageMapArrayCodecProvider
         return langMap;
     }
 
-    protected void loadFromArray(String lang, LanguageMap langMap, BsonReader reader)
-    {
+    protected void loadFromArray(String lang, LanguageMap langMap
+                               , BsonReader reader) {
+
         if (reader.getCurrentBsonType() != BsonType.ARRAY) { return; }
 
         reader.readStartArray();

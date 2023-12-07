@@ -3,13 +3,20 @@
  */
 package eu.europeana.api.record.db.codec;
 
-import eu.europeana.api.record.model.data.Datatype;
-import eu.europeana.api.record.model.data.DatatypeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.BsonReader;
 import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
+import org.bson.codecs.configuration.CodecProvider;
+import org.bson.codecs.configuration.CodecRegistry;
+
+import eu.europeana.api.record.model.ModelConstants;
+import eu.europeana.api.record.model.data.Datatype;
+import eu.europeana.api.record.model.data.DatatypeLiteral;
+import eu.europeana.api.record.model.data.DatatypeUtils;
+import eu.europeana.api.record.model.data.EdmType;
 
 /**
  * @author Hugo
@@ -18,6 +25,8 @@ import org.bson.codecs.EncoderContext;
  * NOT BEING USED
 */
 public class DatatypeCodec implements Codec<Datatype> {
+
+    public static DatatypeCodec INSTANCE = new DatatypeCodec();
 
     public DatatypeCodec() {}
 

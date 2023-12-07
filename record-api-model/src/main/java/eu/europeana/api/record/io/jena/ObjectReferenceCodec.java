@@ -1,8 +1,6 @@
-/**
- * 
- */
 package eu.europeana.api.record.io.jena;
 
+import dev.morphia.mapping.codec.references.MorphiaProxy;
 import eu.europeana.api.record.model.EDMClass;
 import eu.europeana.api.record.model.data.LocalReference;
 import eu.europeana.api.record.model.data.ObjectReference;
@@ -31,11 +29,17 @@ public class ObjectReferenceCodec implements JenaCodec<ObjectReference> {
         if ( !ref.isDereferenced() ) {
             String uri = context.expandUri(ref.getID());
             context.getResource().addProperty(context.getProperty()
-                                            , m.createResource(uri));
+                    , m.createResource(uri));
             return;
         }
 
-        context.process(ref.getDereferencedObject());
+        //TODO: review how to best work with lazy loading
+        EDMClass o = ref.getDereferencedObject();
+        if ( o instanceof MorphiaProxy) {
+            o = ((MorphiaProxy)o).unwrap();
+        }
+
+        context.process(o);
     }
 
     @Override
@@ -44,19 +48,13 @@ public class ObjectReferenceCodec implements JenaCodec<ObjectReference> {
 
         Resource r   = node.asResource();
         String   uri = context.compactUri(r.getURI());
-        if ( !r.hasProperty(RDF.type) ) { return new LocalReference(uri); }
+        if ( !r.hasProperty(RDF.type) ) { return context.getFactory().newReference(uri); }
 
         Object   obj    = context.decodeResource(r);
-        EDMClass edmObj = (obj != null && obj instanceof EDMClass ? (EDMClass)obj
-                                                                  : null);
-
-        if ( isLocal(uri) ) {
-            return (edmObj == null ? new LocalReference(uri)
-                                   : new LocalReference(edmObj));
+        if ( obj != null && obj instanceof EDMClass ) {
+            return context.getFactory().newReference((EDMClass)obj);
         }
-
-        return (edmObj == null ? new SharedReference(uri)
-                               : new SharedReference(edmObj));
+        return context.getFactory().newReference(uri);
     }
 
     private boolean isLocal(String uri) {

@@ -54,7 +54,7 @@ public class QualityAnnotation implements EDMClass {
     @Property(OA.hasTarget)
     @JsonProperty(OA.hasTarget)
     @JsonSerialize(using = CompactSerializer.class)
-    private List<Aggregation> hasTarget;
+    private List<ObjectReference> hasTarget;
 
     @JenaProperty(ns = DCTerms.NS, localName = DCTerms.created)
     @Property(DCTerms.created)
@@ -82,12 +82,12 @@ public class QualityAnnotation implements EDMClass {
     }
 
 
-    public List<Aggregation> getHasTargets() {
+    public List<ObjectReference> getHasTargets() {
         return ( hasTarget != null ? hasTarget
-                : (hasTarget = new ArrayList<Aggregation>()) );
+                : (hasTarget = new ArrayList<ObjectReference>()) );
     }
 
-    public void addHasTarget(Aggregation hasTarget) {
+    public void addHasTarget(ObjectReference hasTarget) {
         getHasTargets().add(hasTarget);
     }
 

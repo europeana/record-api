@@ -3,14 +3,13 @@
  */
 package eu.europeana.api.record.db.codec;
 
-import eu.europeana.api.record.model.data.EdmType;
 import org.bson.BsonReader;
 import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
-import org.bson.codecs.configuration.CodecProvider;
-import org.bson.codecs.configuration.CodecRegistry;
+
+import eu.europeana.api.record.model.data.EdmType;
 
 /**
  * @author Hugo
@@ -18,14 +17,11 @@ import org.bson.codecs.configuration.CodecRegistry;
 
  * NOT BEING USED
 */
-public class EdmTypeCodec implements Codec<EdmType>, CodecProvider {
+public class EdmTypeCodec implements Codec<EdmType> {
+
+    public static EdmTypeCodec INSTANCE = new EdmTypeCodec();
 
     public EdmTypeCodec() {}
-
-    @Override
-    public Codec<EdmType> get(Class clazz, CodecRegistry registry) {
-        return ( clazz == EdmType.class ? this : null );
-    }
 
     @Override
     public Class<EdmType> getEncoderClass() { return EdmType.class; }

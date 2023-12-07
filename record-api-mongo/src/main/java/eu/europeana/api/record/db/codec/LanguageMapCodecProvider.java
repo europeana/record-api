@@ -3,40 +3,34 @@
  */
 package eu.europeana.api.record.db.codec;
 
-import eu.europeana.api.record.model.data.LanguageLiteral;
-import eu.europeana.api.record.model.data.Literal;
-import eu.europeana.api.record.model.internal.LanguageMap;
+import java.util.List;
+
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
-import org.bson.codecs.configuration.CodecProvider;
-import org.bson.codecs.configuration.CodecRegistry;
 
-import java.util.List;
+import eu.europeana.api.record.model.data.LanguageLiteral;
+import eu.europeana.api.record.model.data.Literal;
+import eu.europeana.api.record.model.internal.LanguageMap;
 
 /**
  * @author Hugo
  * @since 1 Sep 2023
  */
-public class LanguageMapCodecProvider<T extends LanguageMap> 
-       implements CodecProvider, Codec<T> {
+public class LanguageMapCodecProvider<T extends LanguageMap> implements Codec<T> {
+
+    public static LanguageMapCodecProvider INSTANCE 
+        = new LanguageMapCodecProvider();
 
     public LanguageMapCodecProvider() {}
 
-    public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry)
-    {
-        if ( clazz == this.getEncoderClass() ) { return (Codec<T>)this; }
-        return null;
-    }
+    @Override
+    public Class<T> getEncoderClass() { return (Class<T>)LanguageMap.class; }
 
-    public Class<T> getEncoderClass()
-    {
-        return (Class<T>)LanguageMap.class;
-    }
-
+    @Override
     public void encode(BsonWriter bsonWriter, LanguageMap langMap, EncoderContext encoderContext)
     {
         if ( langMap == null ) { return; }
@@ -53,8 +47,9 @@ public class LanguageMapCodecProvider<T extends LanguageMap>
         bsonWriter.writeEndDocument();
     }
 
-    public T decode(final BsonReader reader, final DecoderContext decoderContext)
-    {
+    @Override
+    public T decode(BsonReader reader, DecoderContext decoderContext) {
+
         BsonType bsonType = reader.getCurrentBsonType();
         if (bsonType != BsonType.DOCUMENT) { return null; }
 
@@ -73,8 +68,8 @@ public class LanguageMapCodecProvider<T extends LanguageMap>
         return (T)langMap;
     }
 
-    protected void writeArray(List<? extends Literal<String>> literals, String label, BsonWriter bsonWriter)
-    {
+    protected void writeArray(List<? extends Literal<String>> literals
+                            , String label, BsonWriter bsonWriter) {
         bsonWriter.writeStartArray(label);
         for ( Literal<String> literal : literals )
         {
@@ -83,8 +78,8 @@ public class LanguageMapCodecProvider<T extends LanguageMap>
         bsonWriter.writeEndArray();
     }
 
-    protected void loadFromArray(LanguageMap langMap, BsonReader reader)
-    {
+    protected void loadFromArray(LanguageMap langMap, BsonReader reader) {
+
         if (reader.getCurrentBsonType() != BsonType.ARRAY) { return; }
 
         reader.readStartArray();

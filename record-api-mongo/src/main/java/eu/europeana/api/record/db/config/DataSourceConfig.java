@@ -8,14 +8,19 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.connection.ConnectionPoolSettings;
 import java.util.concurrent.TimeUnit;
 import dev.morphia.Datastore;
+import dev.morphia.DatastoreImpl;
 import dev.morphia.Morphia;
+import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.mapping.Mapper;
+import dev.morphia.mapping.codec.CodecUtils;
+import dev.morphia.mapping.codec.MorphiaCodecProvider;
 import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.record.db.codec.*;
 import eu.europeana.api.record.model.internal.LanguageMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -80,14 +85,22 @@ public class DataSourceConfig {
     }
 
     @Bean
-    public DataValueCodecProvider getDataValueCodecProvider() {
-        return new DataValueCodecProvider();
+    public RecordApiCodecProvider getDataValueCodecProvider() {
+        return new RecordApiCodecProvider();
     }
 
-    private Datastore createDatastore(MongoClient mongoClient, String recordDatabase, DataValueCodecProvider provider) {
+    private Datastore createDatastore(MongoClient mongoClient, String recordDatabase, RecordApiCodecProvider provider) {
         Datastore datastore = Morphia.createDatastore(mongoClient, recordDatabase);
-        provider.setDatastore(datastore);
+       // provider.setDatastore(datastore);
 
+        DatastoreHolder.holder.set(datastore);
+
+        // hack in order to inject our own PropertyCodecProvider
+        for ( CodecProvider p : ((DatastoreImpl)datastore).morphiaCodecProviders ) {
+            if ( p instanceof MorphiaCodecProvider) {
+                CodecUtils.register((MorphiaCodecProvider)p, provider);
+            }
+        }
         Mapper mapper = datastore.getMapper();
         mapper.mapPackage("eu.europeana.api.record.model");
         mapper.mapPackage("eu.europeana.api.record.model.media");
@@ -97,6 +110,7 @@ public class DataSourceConfig {
 
         LOGGER.info("Datastore initialized");
         return datastore;
+
     }
 
 }

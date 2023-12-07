@@ -101,9 +101,13 @@ public class ProvidedCHO extends ObjectMetadata implements EDMClass
 
     @PostLoad
     public void postLoad(Document document, Datastore ds) {
-        Proxy last = null; 
-        for ( Proxy proxy : getProxies() ) { 
+        Proxy last = null;
+        for ( Proxy proxy : getProxies() ) {
+
             proxy.setProxyFor(this);
+            Aggregation aggr = proxy.getProxyIn();
+            if ( aggr != null ) { aggr.setAggregatedCHO(this); }
+
             if ( last != null ) { last.addLineage(proxy); }
             last = proxy;
         }

@@ -14,7 +14,7 @@ import static eu.europeana.api.record.model.ModelConstants.DATATYPE;
  * @author Hugo
  * @since 7 Aug 2023
  */
-@Entity(useDiscriminator = false)
+//@Entity(useDiscriminator = false)
 public class DatatypeLiteral<T> extends Literal<T> {
 
     @JsonProperty(DATATYPE)

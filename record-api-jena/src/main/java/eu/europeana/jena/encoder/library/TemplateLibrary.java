@@ -61,6 +61,22 @@ public class TemplateLibrary {
         return this.templatePerClass.get(clazz);
     }
 
+    public ClassTemplate getTemplateByClassRecursively(Class<?> clazz) {
+
+        ClassTemplate template = this.templatePerClass.get(clazz);
+        if ( template != null ) { return template; }
+
+        for ( Class c : clazz.getInterfaces() )
+        {
+            template = this.templatePerClass.get(c);
+            if ( template != null ) { return template; }
+        }
+
+        Class parent = clazz.getSuperclass();
+        return ( parent == null ? null : getTemplateByClassRecursively(parent) );
+
+    }
+
     public ClassTemplate getTemplateByType(Resource type) {
         return this.templatePerType.get(type.getURI());
     }
@@ -99,6 +115,7 @@ public class TemplateLibrary {
 
     public void importClass(Class<?> clazz) {
         ClassTemplate template = new ClassTemplate();
+        template.clazz = clazz;
         template.contructor = getConstructor(clazz);
         templatePerClass.put(clazz, template);
 

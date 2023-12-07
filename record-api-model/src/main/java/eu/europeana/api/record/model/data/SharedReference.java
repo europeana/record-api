@@ -75,6 +75,9 @@ public class SharedReference implements ObjectReference {
     @PostLoad
     public void postLoad(Document document, Datastore ds)
     {
+        // when lazy loading the object still comes with an "artificial" value, for which,
+        // the check against null passes and the call to getID() forces the effective load of the object
+        // which effectively breaks the lazy loading. We need to find a better way to do this!
         if ( this.object != null ) { this.id = this.object.getID(); }
     }
 }

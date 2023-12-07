@@ -36,6 +36,8 @@ public class EDM
     public static final Resource Event                = createResource(NS + "Event");
     public static final Resource PhysicalThing        = createResource(NS + "PhysicalThing");
     public static final Resource NonInformationResource = createResource(NS + "NonInformationResource");
+    public static final Resource FullTextResource       = createResource(NS + "FullTextResource");
+
 
     public static final Property about                = createProperty(RDF.getURI(), "about");
     public static final Property aggregatedCHO        = createProperty(NS, "aggregatedCHO");
