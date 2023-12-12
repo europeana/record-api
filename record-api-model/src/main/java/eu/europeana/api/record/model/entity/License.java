@@ -10,6 +10,7 @@ import eu.europeana.api.edm.CC;
 import eu.europeana.api.edm.ODRL;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.jena.encoder.annotation.JenaId;
@@ -17,7 +18,6 @@ import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
 
 import java.time.LocalDate;
-import static eu.europeana.api.record.model.ModelConstants.ID;
 
 /**
  * @author Hugo
@@ -25,14 +25,14 @@ import static eu.europeana.api.record.model.ModelConstants.ID;
  */
 @JenaResource(ns = CC.NS, localName = CC.License)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type
+@JsonPropertyOrder({ ModelConstants.id, RDF.type
         , ODRL.inheritFrom, CC.deprecatedOn })
 @Entity(discriminator = CC.License, discriminatorKey = RDF.type)
 public class License implements EDMClass {
 
     @JenaId
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     protected String id;
 
     @JenaProperty(ns = ODRL.NS, localName = ODRL.inheritFrom)

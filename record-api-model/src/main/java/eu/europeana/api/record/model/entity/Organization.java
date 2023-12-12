@@ -9,8 +9,8 @@ import eu.europeana.api.edm.RDF;
 import eu.europeana.api.edm.SKOS;
 import eu.europeana.jena.encoder.annotation.JenaResource;
 
-import static eu.europeana.api.record.model.ModelConstants.ID;
-import static eu.europeana.api.record.model.ModelConstants.CONTEXTUALENTITY;
+import static eu.europeana.api.record.model.ModelConstants.id;
+import static eu.europeana.api.record.model.ModelConstants.ContextualEntity;
 
 /**
  * @author Hugo
@@ -18,8 +18,8 @@ import static eu.europeana.api.record.model.ModelConstants.CONTEXTUALENTITY;
  */
 @JenaResource(ns = FOAF.NS, localName = FOAF.Organization)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ID, RDF.type, SKOS.prefLabel, SKOS.altLabel })
-@Entity(value = CONTEXTUALENTITY, discriminator = FOAF.Organization
+@JsonPropertyOrder({id, RDF.type, SKOS.prefLabel, SKOS.altLabel })
+@Entity(value = ContextualEntity, discriminator = FOAF.Organization
         , discriminatorKey = RDF.type)
 public class Organization extends ContextualEntity {
 

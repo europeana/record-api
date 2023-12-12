@@ -29,13 +29,13 @@ import static eu.europeana.api.record.model.ModelConstants.*;
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY
             , visible = true, property = RDF.type)
-@JsonPropertyOrder({ID, RDF.type
+@JsonPropertyOrder({id, RDF.type
                    , DC.title, DCTerms.alternative, DC.description
-                   , DCTerms.tableOfContents, EDMTYPE, DC.language
+                   , DCTerms.tableOfContents, edmType, DC.language
                    , DC.creator, DC.contributor, DC.publisher
                    , DCTerms.created, DCTerms.issued, DCTerms.temporal, DC.date, EDM.year
                    , DCTerms.spatial, EDM.currentLocation, DC.coverage
-                   , DC.subject, DCTYPE, DC.format, DCTerms.medium
+                   , DC.subject, dcType, DC.format, DCTerms.medium
                    , DCTerms.conformsTo, DCTerms.extent, EDM.hasType, EDM.hasMet
                    , EDM.isRelatedTo, DC.rights, DCTerms.provenance, EDM.realizes
                    , DC.source, DC.relation, DCTerms.isPartOf, DCTerms.hasPart
@@ -50,8 +50,8 @@ import static eu.europeana.api.record.model.ModelConstants.*;
 public class Proxy extends ObjectMetadata implements EDMClass
 {
     @JenaId
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     private String      id;
 
     @JenaProperty(ns = ORE.NS, localName = ORE.proxyIn)

@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class DatatypeUtils {
 
-    private static Map<String,Datatype> abbrv2dt = new HashMap();
+    private static Map<String, Datatype> abbrv2dt = new HashMap();
     private static Map<String,Datatype> uri2dt   = new HashMap();
 
     public static final Datatype xbyte              = createDatatype(XSD.NS, XSD.PREFIX, XSD.xbyte);

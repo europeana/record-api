@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import static eu.europeana.api.record.model.ModelConstants.ID;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.ObjectReference;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class ObjectReferenceSerializer<T extends ObjectReference>
             }
         }
         jgen.writeStartObject();
-        jgen.writeStringField(ID, id);
+        jgen.writeStringField(ModelConstants.id, id);
         jgen.writeEndObject();
     }
 

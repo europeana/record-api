@@ -1,6 +1,3 @@
-/**
- * 
- */
 package eu.europeana.jena.edm;
 
 import org.apache.jena.rdf.model.Property;

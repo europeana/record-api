@@ -9,7 +9,6 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 
 import eu.europeana.api.record.model.data.DataValue;
-import eu.europeana.api.record.model.data.Literal;
 
 /**
  * @author Hugo

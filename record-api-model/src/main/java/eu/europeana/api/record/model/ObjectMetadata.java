@@ -58,8 +58,8 @@ public class ObjectMetadata
     // type & language
 
     @JenaProperty(ns = EDM.NS, localName = EDM.type)
-    @JsonProperty(ModelConstants.EDMTYPE)
-    @Property(ModelConstants.EDMTYPE)
+    @JsonProperty(ModelConstants.edmType)
+    @Property(ModelConstants.edmType)
     private EdmType edmType;
 
     @JenaProperty(ns = DC.NS, localName = DC.language)
@@ -134,8 +134,8 @@ public class ObjectMetadata
     private List<DataValue> subject;
 
     @JenaProperty(ns = DC.NS, localName = DC.type)
-    @JsonProperty(ModelConstants.DCTYPE)
-    @Property(ModelConstants.DCTYPE)
+    @JsonProperty(ModelConstants.dcType)
+    @Property(ModelConstants.dcType)
     private List<DataValue> dcType;
 
     @JenaProperty(ns = DC.NS, localName = DC.format)
@@ -176,8 +176,8 @@ public class ObjectMetadata
     // rights and provenance
 
     @JenaProperty(ns = DC.NS, localName = DC.rights)
-    @Property(ModelConstants.DCRIGHTS)
-    @JsonProperty(ModelConstants.DCRIGHTS)
+    @Property(ModelConstants.dcRights)
+    @JsonProperty(ModelConstants.dcRights)
     private List<DataValue> dcRights;
 
     @JenaProperty(ns = DCTerms.NS, localName = DCTerms.provenance)

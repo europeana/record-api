@@ -4,15 +4,11 @@
 package eu.europeana.api.record.db.codec;
 
 import java.lang.reflect.Type;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bson.BsonType;
-import org.bson.codecs.BsonTypeClassMap;
 import org.bson.codecs.Codec;
 import org.bson.codecs.CustomTypeClassMap;
 import org.bson.codecs.configuration.CodecProvider;
@@ -23,8 +19,6 @@ import org.bson.codecs.pojo.TypeWithTypeParameters;
 
 import dev.morphia.Datastore;
 import dev.morphia.internal.DatastoreHolder;
-import dev.morphia.mapping.codec.MorphiaPropertyCodecProvider;
-import dev.morphia.mapping.codec.pojo.TypeData;
 import eu.europeana.api.record.model.data.DataValue;
 import eu.europeana.api.record.model.data.DatatypeLiteral;
 import eu.europeana.api.record.model.data.LanguageLiteral;
@@ -64,17 +58,15 @@ public class RecordApiCodecProvider implements CodecProvider, PropertyCodecProvi
         return codecs.get(clazz);
     }
 
-    @Override
+    //@Override
     public <T> Codec<T> get(Class<T> clazz, List<Type> typeArguments
                           , CodecRegistry registry) {
-        System.out.println("codec for = " + clazz + ", args=" + typeArguments);
         return codecs.get(clazz);
     }
 
     @Override
     public <T> Codec<T> get(TypeWithTypeParameters<T> type,
                             PropertyCodecRegistry registry) {
-        System.out.println("codec for = " + type.getType() + ", args=" + type.getTypeParameters());
         Codec<T> codec = codecs.get(type.getType());
         return ( codec == null ? null 
                                : ((AbsDataValueCodec)codec).parameterize(type, registry) );

@@ -13,6 +13,7 @@ import dev.morphia.annotations.Property;
 import eu.europeana.api.edm.*;
 import eu.europeana.api.record.io.json.CompactSerializer;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.DataValue;
 import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.jena.encoder.annotation.JenaId;
@@ -23,7 +24,8 @@ import eu.europeana.jena.encoder.annotation.JenaTransitive;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.europeana.api.record.model.ModelConstants.*;
+import static eu.europeana.api.record.model.ModelConstants.id;
+import static eu.europeana.api.record.model.ModelConstants.additionalType;
 
 
 /**
@@ -33,7 +35,7 @@ import static eu.europeana.api.record.model.ModelConstants.*;
 @JenaResource(ns = EDM.NS, localName = EDM.WebResource)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 //@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, visible = true, property = "type")
-@JsonPropertyOrder({ ID, RDF.type, ADDITIONALTYPE
+@JsonPropertyOrder({ id, RDF.type, additionalType
                    , DC.description, DC.creator, DCTerms.created, DCTerms.issued
                    , DC.type, DC.format, DCTerms.conformsTo, DCTerms.extent
                    , EDM.rights, DC.rights
@@ -50,8 +52,8 @@ import static eu.europeana.api.record.model.ModelConstants.*;
 public class WebResource implements EDMClass
 {
     @JenaId
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     private String id;
 
     // description
@@ -81,8 +83,8 @@ public class WebResource implements EDMClass
     // categorisation of the resource
 
     @JenaProperty(ns = DC.NS, localName = DC.type)
-    @Property(DCTYPE)
-    @JsonProperty(DCTYPE)
+    @Property(ModelConstants.dcType)
+    @JsonProperty(ModelConstants.dcType)
     private List<DataValue> dcType;
 
     @JenaProperty(ns = DC.NS, localName = DC.format)
@@ -108,8 +110,8 @@ public class WebResource implements EDMClass
     private ObjectReference rights;
 
     @JenaProperty(ns = DC.NS, localName = DC.rights)
-    @Property(DCRIGHTS)
-    @JsonProperty(DCRIGHTS)
+    @Property(ModelConstants.dcRights)
+    @JsonProperty(ModelConstants.dcRights)
     private List<DataValue> dcRights;
 
     //relations
@@ -151,7 +153,7 @@ public class WebResource implements EDMClass
 
     @JenaTransitive
     @JsonUnwrapped
-    @Property(TECHMETA)
+    @Property(ModelConstants.techMeta)
     private TechnicalMetadata techMeta;
 
     // service

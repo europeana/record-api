@@ -20,20 +20,20 @@ import eu.europeana.jena.encoder.annotation.JenaResource;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.europeana.api.record.model.ModelConstants.CONTEXTUALENTITY;
-import static eu.europeana.api.record.model.ModelConstants.ID;
+import static eu.europeana.api.record.model.ModelConstants.ContextualEntity;
+import static eu.europeana.api.record.model.ModelConstants.id;
 
 @JenaResource(ns = EDM.NS, localName = EDM.Agent)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = RDF.type)
-@JsonPropertyOrder({ ID, RDF.type, SKOS.prefLabel, SKOS.altLabel, FOAF.name
+@JsonPropertyOrder({ id, RDF.type, SKOS.prefLabel, SKOS.altLabel, FOAF.name
         , EDM.begin, RDAGR2.dateOfBirth, RDAGR2.dateOfEstablishment
         , EDM.end, RDAGR2.dateOfDeath, RDAGR2.dateOfTermination
         , RDAGR2.placeOfBirth, RDAGR2.placeOfDeath
         , RDAGR2.professionOrOccupation, RDAGR2.gender, RDAGR2.biographicalInformation
         , DCTerms.isPartOf, DCTerms.hasPart, EDM.isRelatedTo, EDM.hasMet
         , DC.identifier, OWL.sameAs })
-@Entity(value = CONTEXTUALENTITY, discriminator = EDM.Agent, discriminatorKey = RDF.type)
+@Entity(value = ContextualEntity, discriminator = EDM.Agent, discriminatorKey = RDF.type)
 public class Agent extends ContextualEntity {
 
     @JenaProperty(ns = FOAF.NS, localName = FOAF.name)

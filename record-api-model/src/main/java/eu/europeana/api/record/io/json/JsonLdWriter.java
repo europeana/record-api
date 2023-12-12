@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.util.Stack;
 
 import static eu.europeana.api.config.AppConfigConstants.BEAN_JSON_MAPPER;
-import static eu.europeana.api.record.model.ModelConstants.CONTEXT;
+import static eu.europeana.api.record.model.ModelConstants.context;
 
 @Component(AppConfigConstants.BEAN_RECORD_JSONLD_SERIALIZER)
 public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
@@ -32,7 +32,7 @@ public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
     @Override
     public void write(ProvidedCHO providedCHO, OutputStream out) throws IOException {
         ContextAttributes attrs = ContextAttributes.getEmpty()
-                .withSharedAttribute(CONTEXT, new Context(providedCHO.getID()));
+                .withSharedAttribute(context, new Context(providedCHO.getID()));
         mapper.setDefaultAttributes(attrs);
 
         Stack stack = new Stack<String>();

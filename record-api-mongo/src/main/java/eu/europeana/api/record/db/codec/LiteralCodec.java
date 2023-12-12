@@ -13,7 +13,6 @@ import org.bson.codecs.EncoderContext;
 import org.bson.codecs.pojo.PropertyCodecRegistry;
 import org.bson.codecs.pojo.TypeWithTypeParameters;
 
-import eu.europeana.api.record.model.data.DataValue;
 import eu.europeana.api.record.model.data.Literal;
 
 /**

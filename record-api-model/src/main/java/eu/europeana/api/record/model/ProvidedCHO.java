@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.europeana.api.record.model.ModelConstants.*;
-import static eu.europeana.api.record.model.ModelConstants.CONTEXT;
 
 /**
  * @author Hugo
@@ -28,14 +27,14 @@ import static eu.europeana.api.record.model.ModelConstants.CONTEXT;
  */
 @JenaResource(ns = EDM.NS, localName = EDM.ProvidedCHO)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonAppend(prepend = true, attrs = { @JsonAppend.Attr(value = CONTEXT) })
-@JsonPropertyOrder({ ID, RDF.type
+@JsonAppend(prepend = true, attrs = { @JsonAppend.Attr(value = context) })
+@JsonPropertyOrder({ id, RDF.type
                    , DC.title, DCTerms.alternative, DC.description
-                   , DCTerms.tableOfContents, EDMTYPE, DC.language
+                   , DCTerms.tableOfContents, edmType, DC.language
                    , DC.creator, DC.contributor, DC.publisher
                    , DCTerms.created, DCTerms.issued, DCTerms.temporal, DC.date, EDM.year
                    , DCTerms.spatial, EDM.currentLocation, DC.coverage
-                   , DC.subject, DCTYPE, DC.format, DCTerms.medium
+                   , DC.subject, dcType, DC.format, DCTerms.medium
                    , DCTerms.conformsTo, DCTerms.extent, EDM.hasType, EDM.hasMet
                    , EDM.isRelatedTo, DC.rights, DCTerms.provenance, EDM.realizes
                    , DC.source, DC.relation, DCTerms.isPartOf, DCTerms.hasPart
@@ -45,23 +44,23 @@ import static eu.europeana.api.record.model.ModelConstants.CONTEXT;
                    , DCTerms.isRequiredBy, DCTerms.requires, EDM.incorporates
                    , EDM.isDerivativeOf, EDM.isRepresentationOf, EDM.isSimilarTo
                    , EDM.isSuccessorOf, DC.identifier, OWL.sameAs
-                   , PROXIES, ORE.isAggregatedBy })
-@Entity(value = RECORD, discriminator = EDM.ProvidedCHO, discriminatorKey = RDF.type)
+                   , proxies, ORE.isAggregatedBy })
+@Entity(value = Record, discriminator = EDM.ProvidedCHO, discriminatorKey = RDF.type)
 public class ProvidedCHO extends ObjectMetadata implements EDMClass
 {
     @Id
     private ObjectId    objID;
 
     @JenaId
-    @JsonProperty(ID)
+    @JsonProperty(ModelConstants.id)
     @Indexed(options = @IndexOptions(name="idx_id", unique = true))
-    @Property(ID)
+    @Property(ModelConstants.id)
     private String      id;
 
     @JenaProperty(ns = ORE.NS, localName = ORE.proxyFor, inverse = true)
 //    @JsonManagedReference
-    @JsonProperty(PROXIES)
-    @Property(PROXIES)
+    @JsonProperty(ModelConstants.proxies)
+    @Property(ModelConstants.proxies)
     private List<Proxy> proxies = new ArrayList();
 
     @JenaProperty(ns = ORE.NS, localName = ORE.isAggregatedBy)

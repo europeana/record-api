@@ -11,13 +11,12 @@ import eu.europeana.api.edm.RDF;
 import eu.europeana.api.edm.VCARD;
 import eu.europeana.api.record.io.json.CompactSerializer;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.jena.encoder.annotation.JenaId;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
-
-import static eu.europeana.api.record.model.ModelConstants.ID;
 
 /**
  * @author Hugo
@@ -25,15 +24,15 @@ import static eu.europeana.api.record.model.ModelConstants.ID;
  */
 @JenaResource(ns = VCARD.NS, localName = VCARD.Address)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type
+@JsonPropertyOrder({ModelConstants.id, RDF.type
         , VCARD.streetAddress, VCARD.postalCode, VCARD.locality
         , VCARD.countryName, VCARD.hasGeo })
 @Entity(discriminator = VCARD.Address, discriminatorKey = RDF.type)
 public class Address implements EDMClass {
 
     @JenaId
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     protected String id;
 
     @JenaProperty(ns = VCARD.NS, localName = VCARD.rdfStreetAddress)

@@ -5,10 +5,9 @@ package eu.europeana.api.record.model.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
 import eu.europeana.api.record.io.json.DatatypeSerializer;
-import static eu.europeana.api.record.model.ModelConstants.DATATYPE;
+import eu.europeana.api.record.model.ModelConstants;
 
 /**
  * @author Hugo
@@ -17,9 +16,9 @@ import static eu.europeana.api.record.model.ModelConstants.DATATYPE;
 //@Entity(useDiscriminator = false)
 public class DatatypeLiteral<T> extends Literal<T> {
 
-    @JsonProperty(DATATYPE)
+    @JsonProperty(ModelConstants.datatype)
     @JsonSerialize(using = DatatypeSerializer.class)
-    @Property(DATATYPE)
+    @Property(ModelConstants.datatype)
     protected Datatype datatype;
 
     public DatatypeLiteral() {}

@@ -25,8 +25,8 @@ import eu.europeana.jena.encoder.annotation.JenaResource;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import static eu.europeana.api.record.model.ModelConstants.ID;
-import static eu.europeana.api.record.model.ModelConstants.DCRIGHTS;
+
+import static eu.europeana.api.record.model.ModelConstants.*;
 
 
 /**
@@ -35,18 +35,18 @@ import static eu.europeana.api.record.model.ModelConstants.DCRIGHTS;
  */
 @JenaResource(ns = ORE.NS, localName = ORE.Aggregation)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type
+@JsonPropertyOrder({ id, RDF.type
                    , EDM.dataProvider, EDM.intermediateProvider, EDM.provider
                    , EDM.object, EDM.isShownAt, EDM.isShownBy, EDM.hasView
-                   , EDM.rights, DCRIGHTS, EDM.ugc
+                   , EDM.rights, dcRights, EDM.ugc
                    , DCTerms.created, DCTerms.modified
                    , DQV.hasQualityAnnotation, EDM.aggregatedCHO })
 @Entity(discriminator = ORE.Aggregation, discriminatorKey = RDF.type)
 public class Aggregation implements EDMClass
 {
     @JenaId
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     protected String id;
 
     //providers
@@ -97,8 +97,8 @@ public class Aggregation implements EDMClass
     private ObjectReference rights;
 
     @JenaProperty(ns = DC.NS, localName = DC.rights)
-    @Property(DCRIGHTS)
-    @JsonProperty(DCRIGHTS)
+    @Property(ModelConstants.dcRights)
+    @JsonProperty(ModelConstants.dcRights)
     private List<DataValue> dcRights;
 
     @JenaProperty(ns = EDM.NS, localName = EDM.ugc)

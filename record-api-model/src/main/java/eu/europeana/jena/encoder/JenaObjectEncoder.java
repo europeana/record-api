@@ -6,7 +6,7 @@ import eu.europeana.jena.encoder.library.ClassTemplate.FieldDefinition;
 import eu.europeana.jena.encoder.library.ClassTemplate.PropertyDefinition;
 import eu.europeana.jena.encoder.library.ClassTemplate.ResourceDefinition;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
-import eu.europeana.jena.utils.JenaUtils;
+import eu.europeana.jena.encoder.utils.JenaUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;

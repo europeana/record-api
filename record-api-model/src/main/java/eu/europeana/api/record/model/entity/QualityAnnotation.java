@@ -11,18 +11,14 @@ import eu.europeana.api.edm.DCTerms;
 import eu.europeana.api.edm.DQV;
 import eu.europeana.api.edm.OA;
 import eu.europeana.api.edm.RDF;
-import eu.europeana.api.record.io.json.EDMClassReferenceSerializer;
 import eu.europeana.api.record.io.json.CompactSerializer;
-import eu.europeana.api.record.model.Aggregation;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.jena.encoder.annotation.JenaId;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
-
-import static eu.europeana.api.record.model.ModelConstants.ID;
-
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,14 +30,14 @@ import java.util.List;
  */
 @JenaResource(ns = DQV.NS, localName = DQV.QualityAnnotation)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type
+@JsonPropertyOrder({ ModelConstants.id, RDF.type
         , OA.hasBody, OA.hasTarget, DCTerms.created })
 @Entity(discriminator = DQV.QualityAnnotation, discriminatorKey = RDF.type)
 public class QualityAnnotation implements EDMClass {
 
     @JenaId
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     protected String id;
 
     @JenaProperty(ns = OA.NS, localName = OA.hasBody)

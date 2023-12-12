@@ -38,7 +38,7 @@ import eu.europeana.jena.edm.CC;
 import eu.europeana.jena.edm.DQV;
 import eu.europeana.jena.edm.EDM;
 import eu.europeana.jena.edm.ORE;
-import eu.europeana.jena.utils.JenaUtils;
+import eu.europeana.jena.encoder.utils.JenaUtils;
 
 import static eu.europeana.api.record.io.json.v2.EdmJsonV2Definitions.*;
 

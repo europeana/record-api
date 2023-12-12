@@ -16,7 +16,7 @@ import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.api.record.model.media.WebResource;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
-import static eu.europeana.api.record.model.ModelConstants.ID;
+import static eu.europeana.api.record.model.ModelConstants.id;
 
 /**
  * @author Hugo
@@ -24,7 +24,7 @@ import static eu.europeana.api.record.model.ModelConstants.ID;
  */
 @JenaResource(ns = EDM.NS, localName = EDM.EuropeanaAggregation)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type
+@JsonPropertyOrder({ id, RDF.type
     , EDM.dataProvider, EDM.intermediateProvider, EDM.provider
     , EDM.datasetName, EDM.country, EDM.language
     , EDM.object, EDM.preview, EDM.isShownAt, EDM.isShownBy, EDM.hasView

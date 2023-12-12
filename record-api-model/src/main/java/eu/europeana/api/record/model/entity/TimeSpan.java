@@ -13,14 +13,13 @@ import eu.europeana.api.edm.OWL;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.edm.SKOS;
 import eu.europeana.api.record.io.json.CompactSerializer;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.api.record.model.internal.LanguageMapArray;
 import eu.europeana.jena.encoder.annotation.JenaCollection;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
-
-import static eu.europeana.api.record.model.ModelConstants.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +30,11 @@ import java.util.List;
  */
 @JenaResource(ns = EDM.NS, localName = EDM.TimeSpan)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type, SKOS.prefLabel, SKOS.altLabel
+@JsonPropertyOrder({ModelConstants.id, RDF.type, SKOS.prefLabel, SKOS.altLabel
         , EDM.begin, EDM.end
         , SKOS.note, DCTerms.isPartOf, DCTerms.hasPart
         , EDM.isNextInSequence, OWL.sameAs })
-@Entity(value = CONTEXTUALENTITY, discriminator = EDM.TimeSpan, discriminatorKey = RDF.type)
+@Entity(value = ModelConstants.ContextualEntity, discriminator = EDM.TimeSpan, discriminatorKey = RDF.type)
 public class TimeSpan extends ContextualEntity {
 
     //dates

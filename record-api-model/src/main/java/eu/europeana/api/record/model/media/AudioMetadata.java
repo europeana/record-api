@@ -12,13 +12,12 @@ import eu.europeana.api.edm.EBUCORE;
 import eu.europeana.api.edm.EDM;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.io.json.CompactSerializer;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.DatatypeLiteral;
 import eu.europeana.api.record.model.data.EdmType;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.jena.encoder.annotation.JenaClass;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
-
-import static eu.europeana.api.record.model.ModelConstants.AUDIO;
 
 /**
  * @author Hugo
@@ -26,7 +25,7 @@ import static eu.europeana.api.record.model.ModelConstants.AUDIO;
  */
 @JenaClass
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@Entity(discriminator = AUDIO, discriminatorKey = RDF.type)
+@Entity(discriminator = ModelConstants.Audio, discriminatorKey = RDF.type)
 public class AudioMetadata extends TechnicalMetadata {
 
     @JenaProperty(ns = EBUCORE.NS, localName = EBUCORE.duration)

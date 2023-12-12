@@ -8,10 +8,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -30,27 +28,10 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.sparql.vocabulary.FOAF;
-import org.apache.jena.vocabulary.DC;
-import org.apache.jena.vocabulary.DCAT;
-import org.apache.jena.vocabulary.DCTerms;
-import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.SKOS;
 
 
-import eu.europeana.jena.edm.CC;
-import eu.europeana.jena.edm.DOAP;
-import eu.europeana.jena.edm.DQV;
-import eu.europeana.jena.edm.EBUCORE;
-import eu.europeana.jena.edm.EDM;
-import eu.europeana.jena.edm.OA;
-import eu.europeana.jena.edm.ODRL;
-import eu.europeana.jena.edm.ORE;
-import eu.europeana.jena.edm.RDAGR2;
-import eu.europeana.jena.edm.SVCS;
-import eu.europeana.jena.edm.WGS84;
-import eu.europeana.jena.utils.JenaUtils;
+import eu.europeana.jena.encoder.utils.JenaUtils;
 
 /**
  * @author Hugo

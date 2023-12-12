@@ -1,8 +1,6 @@
-/**
- * 
- */
 package eu.europeana.jena.encoder;
 
+import eu.europeana.api.record.model.data.DataValueFactory;
 import eu.europeana.jena.encoder.codec.JenaCodec;
 import eu.europeana.jena.encoder.library.ClassTemplate;
 import eu.europeana.jena.encoder.library.ClassTemplate.FieldDefinition;
@@ -25,7 +23,7 @@ public class JenaObjectDecoder
 {
     private HashMap<String,Object> cache;
     private TemplateLibrary        library;
-    protected DataValueFactory       factory;
+    protected DataValueFactory factory;
     private String                 base;
     private boolean                makeRelative;
 

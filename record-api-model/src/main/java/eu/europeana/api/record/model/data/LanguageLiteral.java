@@ -1,17 +1,15 @@
 package eu.europeana.api.record.model.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
-import static eu.europeana.api.record.model.ModelConstants.LANGUAGE;
-import static eu.europeana.api.record.model.ModelConstants.LANG;
+import eu.europeana.api.record.model.ModelConstants;
 
 
 //@Entity(useDiscriminator = false)
 public class LanguageLiteral extends Literal<String> {
 
-    @JsonProperty(LANGUAGE)
-    @Property(LANG)
+    @JsonProperty(ModelConstants.language)
+    @Property(ModelConstants.lang)
     protected String lang;
 
     public LanguageLiteral() {}

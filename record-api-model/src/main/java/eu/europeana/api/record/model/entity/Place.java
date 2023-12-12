@@ -18,16 +18,16 @@ import eu.europeana.jena.encoder.annotation.JenaResource;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.europeana.api.record.model.ModelConstants.ID;
-import static eu.europeana.api.record.model.ModelConstants.CONTEXTUALENTITY;
+import static eu.europeana.api.record.model.ModelConstants.id;
+import static eu.europeana.api.record.model.ModelConstants.ContextualEntity;
 
 @JenaResource(ns = EDM.NS, localName = EDM.Place)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type, SKOS.prefLabel, SKOS.altLabel
+@JsonPropertyOrder({ id, RDF.type, SKOS.prefLabel, SKOS.altLabel
         , WGS84.latitude, WGS84.longitude, WGS84.altitude
         , SKOS.note, DCTerms.isPartOf, DCTerms.hasPart
         , EDM.isNextInSequence, OWL.sameAs })
-@Entity(value = CONTEXTUALENTITY, discriminator = EDM.Place, discriminatorKey = RDF.type)
+@Entity(value = ContextualEntity, discriminator = EDM.Place, discriminatorKey = RDF.type)
 public class Place extends ContextualEntity {
 
     //coordinates

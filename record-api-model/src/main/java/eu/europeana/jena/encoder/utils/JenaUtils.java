@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.europeana.jena.utils;
+package eu.europeana.jena.encoder.utils;
 
 import eu.europeana.api.edm.NamespaceDeclaration;
 import org.apache.commons.lang3.StringUtils;

@@ -47,18 +47,14 @@ public class DataSourceConfig {
     @Value("${mongo.record.database}")
     private String recordDatabase;
 
-
     @Bean
     public MongoClient mongoClient() {
         ConnectionString connectionString = new ConnectionString(hostUri);
 
         // add codecs
         CodecRegistry myRegistry = fromRegistries(
-                fromProviders(getDataValueCodecProvider()),
-                fromCodecs(new EdmTypeCodec(), new DatatypeCodec()
-                        , new LanguageMapCodecProvider<LanguageMap>()
-                        , new LanguageMapArrayCodecProvider()),
-                MongoClientSettings.getDefaultCodecRegistry()
+                fromProviders(getDataValueCodecProvider())
+                ,  MongoClientSettings.getDefaultCodecRegistry()
         );
 
 
@@ -92,7 +88,6 @@ public class DataSourceConfig {
     private Datastore createDatastore(MongoClient mongoClient, String recordDatabase, RecordApiCodecProvider provider) {
         Datastore datastore = Morphia.createDatastore(mongoClient, recordDatabase);
        // provider.setDatastore(datastore);
-
         DatastoreHolder.holder.set(datastore);
 
         // hack in order to inject our own PropertyCodecProvider
@@ -110,7 +105,6 @@ public class DataSourceConfig {
 
         LOGGER.info("Datastore initialized");
         return datastore;
-
     }
 
 }

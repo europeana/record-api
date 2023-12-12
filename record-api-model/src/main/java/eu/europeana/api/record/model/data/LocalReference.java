@@ -7,6 +7,7 @@ import dev.morphia.annotations.PostPersist;
 import dev.morphia.annotations.Property;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import org.bson.Document;
 
 import static eu.europeana.api.record.model.ModelConstants.*;
@@ -15,15 +16,15 @@ import static eu.europeana.api.record.model.ModelConstants.*;
  * @author Hugo
  * @since 8 Aug 2023
  */
-@Entity(discriminator = LOCAL, discriminatorKey = RDF.type)
+@Entity(discriminator = Local, discriminatorKey = RDF.type)
 public class LocalReference implements ObjectReference
 {
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     protected String           id;
 
     @JsonUnwrapped
-    @Property(OBJECT)
+    @Property(ModelConstants.object)
     protected EDMClass object;
 
     public LocalReference() {}

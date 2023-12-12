@@ -7,12 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
-import eu.europeana.api.edm.DCTerms;
-import eu.europeana.api.edm.EDM;
-import eu.europeana.api.edm.OWL;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.edm.SKOS;
-import eu.europeana.api.edm.WGS84;
 import eu.europeana.api.record.io.json.CompactSerializer;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.ObjectReference;
@@ -21,8 +17,8 @@ import eu.europeana.jena.encoder.annotation.JenaCollection;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
 
-import static eu.europeana.api.record.model.ModelConstants.ID;
-import static eu.europeana.api.record.model.ModelConstants.CONTEXTUALENTITY;
+import static eu.europeana.api.record.model.ModelConstants.id;
+import static eu.europeana.api.record.model.ModelConstants.ContextualEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +29,12 @@ import java.util.List;
  */
 @JenaResource(ns = SKOS.NS, localName = SKOS.Concept)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type, SKOS.prefLabel, SKOS.altLabel
+@JsonPropertyOrder({ id, RDF.type, SKOS.prefLabel, SKOS.altLabel
         , SKOS.note, SKOS.notation
         , SKOS.broader, SKOS.narrower, SKOS.related
         , SKOS.broadMatch, SKOS.narrowMatch, SKOS.relatedMatch
         , SKOS.closeMatch, SKOS.exactMatch, SKOS.inScheme })
-@Entity(value = CONTEXTUALENTITY, discriminator = SKOS.Concept, discriminatorKey = RDF.type)
+@Entity(value = ContextualEntity, discriminator = SKOS.Concept, discriminatorKey = RDF.type)
 public class Concept extends ContextualEntity {
 
     //note

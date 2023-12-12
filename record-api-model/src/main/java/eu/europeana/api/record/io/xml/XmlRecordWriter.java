@@ -9,7 +9,6 @@ import org.apache.jena.rdf.model.Model;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.OutputStream;

@@ -13,13 +13,11 @@ import eu.europeana.api.edm.DOAP;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.edm.SVCS;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.jena.encoder.annotation.JenaId;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
-import static eu.europeana.api.record.model.ModelConstants.ID;
-
-
 
 /**
  * @author Hugo
@@ -27,14 +25,14 @@ import static eu.europeana.api.record.model.ModelConstants.ID;
  */
 @JenaResource(ns = SVCS.NS, localName = SVCS.Service)
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({ ID, RDF.type
+@JsonPropertyOrder({ModelConstants.id, RDF.type
                    , DCTerms.conformsTo, DOAP.impls })
 @Entity(discriminator = SVCS.Service, discriminatorKey = RDF.type)
 public class Service implements EDMClass {
 
     @JenaId
-    @JsonProperty(ID)
-    @Property(ID)
+    @JsonProperty(ModelConstants.id)
+    @Property(ModelConstants.id)
     protected String id;
 
     @JenaProperty(ns = DCTerms.NS, localName = DCTerms.conformsTo)

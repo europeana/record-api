@@ -12,6 +12,7 @@ import eu.europeana.api.edm.EBUCORE;
 import eu.europeana.api.edm.EDM;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.io.json.CompactSerializer;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.DatatypeLiteral;
 import eu.europeana.api.record.model.data.EdmType;
 import eu.europeana.api.record.model.data.Literal;
@@ -21,15 +22,13 @@ import eu.europeana.jena.encoder.annotation.JenaProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.europeana.api.record.model.ModelConstants.IMAGE;
-
 /**
  * @author Hugo
  * @since 8 Aug 2023
  */
 @JenaClass
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@Entity(discriminator = IMAGE, discriminatorKey = RDF.type)
+@Entity(discriminator = ModelConstants.Image, discriminatorKey = RDF.type)
 public class ImageMetadata extends TechnicalMetadata {
 
     @JenaProperty(ns = EBUCORE.NS, localName = EBUCORE.width)

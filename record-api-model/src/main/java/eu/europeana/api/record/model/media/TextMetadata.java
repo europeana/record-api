@@ -18,8 +18,8 @@ import eu.europeana.api.record.model.data.EdmType;
 import eu.europeana.jena.encoder.annotation.JenaClass;
 import eu.europeana.jena.encoder.annotation.JenaCodec;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
-import static eu.europeana.api.record.model.ModelConstants.TEXT;
-import static eu.europeana.api.record.model.ModelConstants.ADDITIONALTYPE;
+
+import static eu.europeana.api.record.model.ModelConstants.*;
 
 
 /**
@@ -28,7 +28,7 @@ import static eu.europeana.api.record.model.ModelConstants.ADDITIONALTYPE;
  */
 @JenaClass
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@Entity(discriminator = TEXT, discriminatorKey = RDF.type)
+@Entity(discriminator = Text, discriminatorKey = RDF.type)
 public class TextMetadata extends TechnicalMetadata {
     
     @JenaProperty(ns = EDM.NS, localName = EDM.spatialResolution)
@@ -39,7 +39,7 @@ public class TextMetadata extends TechnicalMetadata {
 
     @JenaCodec(using = FulltextFieldCodec.class)
     @Property("fulltext")
-    @JsonProperty(ADDITIONALTYPE)
+    @JsonProperty(additionalType)
     @JsonSerialize(using = FullTextResourceSerializer.class)
     private boolean isFulltextResource;
 

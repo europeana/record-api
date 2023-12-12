@@ -2,9 +2,7 @@ package eu.europeana.api.record.io.jena;
 
 import dev.morphia.mapping.codec.references.MorphiaProxy;
 import eu.europeana.api.record.model.EDMClass;
-import eu.europeana.api.record.model.data.LocalReference;
 import eu.europeana.api.record.model.data.ObjectReference;
-import eu.europeana.api.record.model.data.SharedReference;
 import eu.europeana.jena.encoder.JenaObjectDecoder.DecoderContext;
 import eu.europeana.jena.encoder.JenaObjectEncoder.EncoderContext;
 import eu.europeana.jena.encoder.codec.JenaCodec;

@@ -7,24 +7,15 @@ import org.bson.BsonReader;
 import org.bson.BsonReaderMark;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
-import org.bson.Document;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.Parameterizable;
-import org.bson.codecs.configuration.CodecConfigurationException;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PropertyCodecRegistry;
 import org.bson.codecs.pojo.TypeWithTypeParameters;
 
-import com.mongodb.DBObjectCodecProvider;
-
-import dev.morphia.Datastore;
-import dev.morphia.mapping.Mapper;
-import dev.morphia.mapping.MappingException;
-import dev.morphia.mapping.codec.ObjectCodec;
 import eu.europeana.api.edm.RDF;
-import eu.europeana.api.record.db.MongoServiceManager;
 import eu.europeana.api.record.model.data.DataValue;
 import eu.europeana.api.record.model.data.Datatype;
 import eu.europeana.api.record.model.data.DatatypeLiteral;
@@ -33,10 +24,10 @@ import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.LocalReference;
 import eu.europeana.api.record.model.data.SharedReference;
 
-import static eu.europeana.api.record.model.ModelConstants.*;
-
 import java.lang.reflect.Type;
 import java.util.List;
+
+import static eu.europeana.api.record.model.ModelConstants.*;
 
 /**
  * @author Hugo

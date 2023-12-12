@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package eu.europeana.api.record.model;
 
 /**
@@ -9,30 +7,29 @@ package eu.europeana.api.record.model;
  */
 public interface ModelConstants {
 
+    public static final String dataItemUri      = "http://data.europeana.eu/item/";
 
-    public static final String DATAITEMURI = "http://data.europeana.eu/item/";
+    public static final String id               = "id";
+    public static final String object           = "object";
+    public static final String datatype         = "datatype";
+    public static final String lang             = "lang";
+    public static final String language         = "language";
+    public static final String value            = "value";
+    public static final String context          = "@context";
+    public static final String Record           = "Record";
+    public static final String proxies          = "proxies";
+    public static final String edmType          = "edmType";
+    public static final String dcType           = "dcType";
+    public static final String dcRights         = "dcRights";
+    public static final String additionalType   = "additionalType";
+    public static final String techMeta         = "techMeta";
+    public static final String ContextualEntity = "ContextualEntity";
+    public static final String Local            = "Local";
+    public static final String Shared           = "Shared";
 
-    public static final String ID = "id";
-    public static final String OBJECT = "object";
-    public static final String DATATYPE = "datatype";
-    public static final String LANG = "lang";
-    public static final String LANGUAGE = "language";
-    public static final String VALUE = "value";
-    public static final String CONTEXT = "@context";
-    public static final String RECORD = "Record";
-    public static final String PROXIES = "proxies";
-    public static final String EDMTYPE = "edmType";
-    public static final String DCTYPE = "dcType";
-    public static final String DCRIGHTS = "dcRights";
-    public static final String ADDITIONALTYPE = "additionalType";
-    public static final String TECHMETA = "techMeta";
-    public static final String CONTEXTUALENTITY = "ContextualEntity";
-    public static final String LOCAL = "Local";
-    public static final String SHARED = "Shared";
-
-    public static final String AUDIO = "Audio";
-    public static final String IMAGE = "Image";
-    public static final String VIDEO = "Video";
-    public static final String TEXT = "Text";
-    public static final String _3D = "3D";
+    public static final String Audio  = "Audio";
+    public static final String Image  = "Image";
+    public static final String Video  = "Video";
+    public static final String Text   = "Text";
+    public static final String _3D    = "3D";
 }

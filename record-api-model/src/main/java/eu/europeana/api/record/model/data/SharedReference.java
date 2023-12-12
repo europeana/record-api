@@ -6,24 +6,21 @@ import dev.morphia.annotations.*;
 import dev.morphia.query.filters.Filters;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import org.bson.Document;
-
-import static eu.europeana.api.record.model.ModelConstants.ID;
-import static eu.europeana.api.record.model.ModelConstants.SHARED;
-import static eu.europeana.api.record.model.ModelConstants.OBJECT;
 
 /**
  * @author Hugo
  * @since 8 Aug 2023
  */
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-@Entity(discriminator = SHARED, discriminatorKey = RDF.type)
+@Entity(discriminator = ModelConstants.Shared, discriminatorKey = RDF.type)
 public class SharedReference implements ObjectReference {
 
-    @Property(ID)
+    @Property(ModelConstants.id)
     protected String id;
 
-    @Reference(value = OBJECT, lazy = true)
+    @Reference(value = ModelConstants.object, lazy = true)
     protected EDMClass object;
 
 
@@ -57,7 +54,7 @@ public class SharedReference implements ObjectReference {
             EDMClass o = this.object;
 
             EDMClass o2 = ds.find(o.getClass())
-                    .filter(Filters.eq(ID, o.getID()))
+                    .filter(Filters.eq(ModelConstants.id, o.getID()))
                     .first();
             if ( o2 == null ) { ds.save(o); }
             else { this.object = o2; }

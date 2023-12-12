@@ -5,6 +5,7 @@ import dev.morphia.annotations.*;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.edm.SKOS;
 import eu.europeana.api.record.model.EDMClass;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.internal.LanguageMap;
 import eu.europeana.api.record.model.internal.LanguageMapArray;
@@ -15,10 +16,9 @@ import org.bson.types.ObjectId;
 
 import java.util.List;
 
-import static eu.europeana.api.record.model.ModelConstants.CONTEXTUALENTITY;
-import static eu.europeana.api.record.model.ModelConstants.ID;
+import static eu.europeana.api.record.model.ModelConstants.ContextualEntity;
 
-@Entity(value = CONTEXTUALENTITY, discriminator = CONTEXTUALENTITY
+@Entity(value = ContextualEntity, discriminator = ContextualEntity
         , discriminatorKey = RDF.type)
 public abstract class ContextualEntity implements EDMClass
 {
@@ -26,9 +26,9 @@ public abstract class ContextualEntity implements EDMClass
     protected ObjectId    objID;
 
     @JenaId
-    @JsonProperty(ID)
+    @JsonProperty(ModelConstants.id)
     @Indexed(options = @IndexOptions(name="idx_id", unique = true))
-    @Property(ID)
+    @Property(ModelConstants.id)
     protected String id;
 
     @JenaProperty(ns = SKOS.NS, localName = SKOS.prefLabel)

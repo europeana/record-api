@@ -19,7 +19,6 @@ import org.apache.jena.rdf.model.Statement;
 
 import java.util.Optional;
 
-import static org.apache.jena.rdf.model.ResourceFactory.*;
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 
 /**

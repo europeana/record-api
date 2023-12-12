@@ -1,6 +1,3 @@
-/**
- * 
- */
 package eu.europeana.jena.encoder.codec;
 
 import eu.europeana.jena.encoder.JenaObjectDecoder.DecoderContext;

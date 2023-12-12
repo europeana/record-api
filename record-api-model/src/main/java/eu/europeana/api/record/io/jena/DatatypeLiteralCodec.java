@@ -1,6 +1,3 @@
-/**
- * 
- */
 package eu.europeana.api.record.io.jena;
 
 import eu.europeana.api.record.model.data.Datatype;
@@ -10,7 +7,7 @@ import eu.europeana.jena.encoder.JenaEncoderException;
 import eu.europeana.jena.encoder.JenaObjectDecoder.DecoderContext;
 import eu.europeana.jena.encoder.JenaObjectEncoder.EncoderContext;
 import eu.europeana.jena.encoder.codec.JenaCodec;
-import eu.europeana.jena.utils.JenaUtils;
+import eu.europeana.jena.encoder.utils.JenaUtils;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
