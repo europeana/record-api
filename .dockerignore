@@ -1,0 +1,4 @@
+# Send only unzipped war directory to Docker
+**
+!/record-api-web/target/record-api-web-executable.jar/
+**/*.user.properties

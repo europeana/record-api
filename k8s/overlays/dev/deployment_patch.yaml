@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: record-api-v3-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: record-api-v3
+          # required to use local image
+          imagePullPolicy: Never
