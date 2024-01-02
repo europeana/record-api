@@ -1,43 +1,46 @@
 package eu.europeana.api.record.io;
 
-import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.format.FormatWriter;
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.io.json.JsonLdWriter;
 import eu.europeana.api.record.io.xml.XmlRecordWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 
 /**
- * @author Hugo
+ * @author Srishti Singh
  * @since 13 Oct 2023
- * @refractored Srishti Singh 17 November 2023
+ * @refractored 22 December 2023
  */
-@Service
+@Configuration
 public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter> {
 
-    @Autowired
-    JsonLdWriter jsonLdWriter;
+    private final JsonLdWriter jsonLdWriter;
 
-    @Autowired
-    XmlRecordWriter xmlRecordWriter;
+    private final XmlRecordWriter xmlRecordWriter;
 
-    @Resource(name = AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_TURTLE)
-    JenaBasedFormatWriter jenaBasedTurtleWriter;
+    private final JenaBasedFormatWriter jenaBasedTurtleWriter;
 
-    @Resource(name = AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_N3)
-    JenaBasedFormatWriter JenaBasedN3Writer;
+    private final JenaBasedFormatWriter JenaBasedN3Writer;
 
-    @Resource(name = AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_NT)
-    JenaBasedFormatWriter JenaBasedNTWriter;
+    private final JenaBasedFormatWriter JenaBasedNTWriter;
 
-    public FormatHandlerRegistry() {
-        put(RdfFormat.JSONLD, jsonLdWriter);
-        put(RdfFormat.XML, xmlRecordWriter);
-        put(RdfFormat.TURTLE, jenaBasedTurtleWriter);
+
+    public FormatHandlerRegistry(JsonLdWriter jsonLdWriter, XmlRecordWriter xmlRecordWriter,
+                                 @Qualifier("jenaFormatWriterTurtle") JenaBasedFormatWriter jenaBasedTurtleWriter,
+                                 @Qualifier("jenaFormatWriterN3") JenaBasedFormatWriter jenaBasedN3Writer,
+                                 @Qualifier("jenaFormatWriterNt") JenaBasedFormatWriter jenaBasedNTWriter) {
+        this.jsonLdWriter = jsonLdWriter;
+        this.xmlRecordWriter = xmlRecordWriter;
+        this.jenaBasedTurtleWriter = jenaBasedTurtleWriter;
+        this.JenaBasedN3Writer = jenaBasedN3Writer;
+        this.JenaBasedNTWriter = jenaBasedNTWriter;
+
+        put(RdfFormat.JSONLD, this.jsonLdWriter);
+        put(RdfFormat.XML, this.xmlRecordWriter);
+        put(RdfFormat.TURTLE, this.jenaBasedTurtleWriter);
         put(RdfFormat.N3, JenaBasedN3Writer);
         put(RdfFormat.NT, JenaBasedNTWriter);
     }

@@ -71,10 +71,6 @@ public class RecordController {
 
     private ResponseEntity<String> createResponse(String collectionId, String recordId, RdfFormat rdfFormat) throws EuropeanaApiException, IOException {
         String about = RecordUtils.buildRecordId(collectionId, recordId);
-//        ProvidedCHO testRecord = new TestDataBuilder().newRecord();
-//        recordService.saveRecord(testRecord);
-//        LOGGER.info("saved Data");
-
         Optional<ProvidedCHO> record = recordService.getRecord(about);
         if (record.isEmpty()) {
             throw new RecordDoesNotExistsException(about);
