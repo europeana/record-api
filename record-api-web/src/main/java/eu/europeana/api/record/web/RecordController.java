@@ -2,10 +2,10 @@ package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
 import eu.europeana.api.error.EuropeanaApiException;
-import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.model.ProvidedCHO;
+import eu.europeana.api.record.model.RecordRequest;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
 import io.swagger.annotations.ApiOperation;
@@ -62,22 +62,21 @@ public class RecordController {
             @PathVariable String datasetId,
             @PathVariable String localId,
             HttpServletRequest request) throws EuropeanaApiException, IOException {
-        RdfFormat rdfFormat = RecordUtils.getRDFFormat.apply(localId, request);
-        localId = RecordUtils.getIdWithoutExtension(localId);
-        LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, localId, rdfFormat);
-        return createResponse(datasetId, localId, rdfFormat);
+        return createResponse(datasetId, localId, request);
     }
 
 
-    private ResponseEntity<String> createResponse(String collectionId, String recordId, RdfFormat rdfFormat) throws EuropeanaApiException, IOException {
-        String about = RecordUtils.buildRecordId(collectionId, recordId);
-        Optional<ProvidedCHO> record = recordService.getRecord(about);
+    private ResponseEntity<String> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException, IOException {
+        RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, request);
+        LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
+
+        Optional<ProvidedCHO> record = recordService.getRecord(recordRequest.getAbout());
         if (record.isEmpty()) {
-            throw new RecordDoesNotExistsException(about);
+            throw new RecordDoesNotExistsException(recordRequest.getAbout());
         }
 
         OutputStream stream = new ByteArrayOutputStream();
-        formatHandlerRegistry.get(rdfFormat).write(record.get(), stream );
-        return ResponseEntity.status(HttpStatus.OK).body(stream.toString());
+        formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(record.get(), stream );
+        return ResponseEntity.status(HttpStatus.OK).headers(RecordUtils.getHeaders(request, recordRequest)).body(stream.toString());
     }
 }
