@@ -26,6 +26,11 @@
     <format mediaType="video/x-ms-wmv"               label="WMV"         type="Video"      support="Rendered"/>
     <format mediaType="video/x-msvideo"              label="AVI"         type="Video"      support="Rendered"/>
     <format mediaType="image/jp2"                    label="JP2000"      type="Image"      support="Rendered"/>
+    <format mediaType="image/jpeg2000-image"         label="JP2000"      type="Image"      support="Rendered"/>
+    <format mediaType="image/x-jpeg2000-image"       label="JP2000"      type="Image"      support="Rendered"/>
+    <format mediaType="image/x-jp2-codestream"       label="JP2000"      type="Image"      support="Rendered"/>
+    <format mediaType="image/jpeg2000"               label="JP2000"      type="Image"      support="Rendered"/>
+    <format mediaType="image/jpx"                    label="JP2000"      type="Image"      support="Rendered"/>
     <format mediaType="image/x-pict"                 label="PICT"        type="Image"      support="Rendered"/>
     <format mediaType="image/tiff"                   label="TIFF"        type="Image"      support="Rendered"/>
     <format mediaType="image/x-xcf"                  label="XCF"         type="Image"      support="Rendered"/>

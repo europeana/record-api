@@ -1,9 +1,6 @@
 package eu.europeana.api.error;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.List;
 import java.time.OffsetDateTime;
@@ -16,25 +13,41 @@ import static eu.europeana.api.error.EuropeanaErrorConstants.*;
  * This class contains fields to be returned by APIs when an error occurs within the application.
  *
  */
-@JsonPropertyOrder({CONTEXT, TYPE, SUCCESS, STATUS, ERROR, MESSAGE, SEE_ALSO, TIMESTAMP, PATH})
+@JsonPropertyOrder({CONTEXT, TYPE, SUCCESS, STATUS, CODE, ERROR, MESSAGE, SEE_ALSO, TIMESTAMP, PATH, TRACE})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class EuropeanaApiErrorResponse {
 
+    @JsonProperty(CONTEXT)
     private final String context = ERROR_CONTEXT;
+
+    @JsonProperty(TYPE)
     private final  String type= ERROR_TYPE;
+
+    @JsonProperty(SUCCESS)
     private final boolean success = false;
+
+    @JsonProperty(STATUS)
     private final int status;
+
+    @JsonProperty(ERROR)
     private final String error;
+
+    @JsonProperty(MESSAGE)
     private final String message;
+
+    @JsonProperty(SEE_ALSO)
     private final String seeAlso = SEE_ALSO_VALUE;
 
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
     private final OffsetDateTime timestamp = OffsetDateTime.now();
 
+    @JsonProperty(TRACE)
     private final String trace;
 
+    @JsonProperty(PATH)
     private final String path;
 
+    @JsonProperty(CODE)
     private final String code;
 
     private EuropeanaApiErrorResponse(int status, String error, String message, String trace, String path, String code) {
@@ -78,7 +91,6 @@ public class EuropeanaApiErrorResponse {
         return code;
     }
 
-    @JsonGetter(CONTEXT)
     public String getContext() {
         return context;
     }

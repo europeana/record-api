@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>record-api-definitions</module>
-        <module>record-api-impl</module>
         <module>record-api-mongo</module>
         <module>record-api-web</module>
         <module>record-api-common</module>
+        <module>record-api-model</module>
+        <module>record-api-jena</module>
     </modules>
 
     <parent>
@@ -74,6 +74,7 @@
         <spotbugs-plugin.version>4.7.3.5</spotbugs-plugin.version>
         <sonar-plugin.version>3.7.0.1746</sonar-plugin.version>
         <apache.commomLang3.version>3.13.0</apache.commomLang3.version>
+        <jena.version>4.10.0</jena.version>
     </properties>
 
     <!-- Set asm version to be used by maven-pmd-plugin -->

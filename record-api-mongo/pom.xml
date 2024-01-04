@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>eu.europeana.api</groupId>
-            <artifactId>record-api-impl</artifactId>
+            <artifactId>record-api-model</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
@@ -78,8 +78,6 @@
             <artifactId>snappy-java</artifactId>
             <version>${xerial.snappy.version}</version>
         </dependency>
-
-
 
     </dependencies>
 

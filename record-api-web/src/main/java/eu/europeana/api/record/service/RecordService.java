@@ -3,9 +3,9 @@ package eu.europeana.api.record.service;
 import eu.europeana.api.record.config.AppConfig;
 import eu.europeana.api.record.config.RecordApiConfiguration;
 import eu.europeana.api.record.model.ProvidedCHO;
-import eu.europeana.api.record.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import eu.europeana.api.record.db.repository.RecordRepository;
 
 import java.util.Optional;
 

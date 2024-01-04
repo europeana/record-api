@@ -13,6 +13,8 @@ public class EuropeanaErrorConstants {
     public static final String SEE_ALSO = "seeAlso";
     public static final String TIMESTAMP = "timestamp";
     public static final String PATH = "path";
+    public static final String TRACE = "trace";
+    public static final String CODE = "code";
 
     public static final  String ERROR_TYPE= "ErrorResponse";
     public static final  String ERROR_CONTEXT = "http://www.europeana.eu/schemas/context/api.jsonld";
