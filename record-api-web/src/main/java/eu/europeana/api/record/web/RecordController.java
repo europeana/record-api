@@ -44,10 +44,23 @@ public class RecordController {
     }
 
 
+    /**
+     * Retrieves the Record in the format requested
+     * Format is requested two way - either as an extension in the localID or the Accept Header
+     * If present in localId : example - UEDIN_214.xml or UEDIN_214.json Or a valid Accept header.
+     *                                   Extensions are given preference over Accept header values
+     *                                   If both are provided then default format is set to JSONLD
+     * @param datasetId Dataset Id
+     * @param localId local id
+     * @param request HttpServlet request
+     * @return Response Entity with StreamingResponseBody
+     * @throws EuropeanaApiException
+     * @throws IOException
+     */
     @ApiOperation(
             value = "Retrieve a record",
             nickname = "retrieveRecord",
-            response = java.lang.Void.class)
+            response = StreamingResponseBody.class)
     @GetMapping(
             value = {
                     "/record/v3/{datasetId}/{localId}",
@@ -59,7 +72,7 @@ public class RecordController {
             produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8,
                     MediaType.TEXT_XML_VALUE, HttpHeaders.CONTENT_TYPE_RDF_XML, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, MediaType.APPLICATION_XML_VALUE,
                     MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
-    public ResponseEntity<StreamingResponseBody> retrieveJsonRecord(
+    public ResponseEntity<StreamingResponseBody> retrieveRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
             HttpServletRequest request) throws EuropeanaApiException {
@@ -68,8 +81,9 @@ public class RecordController {
 
     private ResponseEntity<StreamingResponseBody> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException {
         RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, request);
-        LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
+        }
         Optional<ProvidedCHO> record = recordService.getRecord(recordRequest.getAbout());
         if (!record.isPresent()) {
             throw new RecordDoesNotExistsException(recordRequest.getAbout());
@@ -81,6 +95,6 @@ public class RecordController {
                 out.flush();
                 }
         };
-        return new ResponseEntity(responseBody, RecordUtils.getHeaders(request, recordRequest), HttpStatus.OK);
+        return new ResponseEntity<>(responseBody, RecordUtils.getHeaders(request, recordRequest), HttpStatus.OK);
     }
 }
