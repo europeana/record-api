@@ -54,8 +54,7 @@ public class RecordController {
      * @param localId local id
      * @param request HttpServlet request
      * @return Response Entity with StreamingResponseBody
-     * @throws EuropeanaApiException
-     * @throws IOException
+     * @throws EuropeanaApiException throws generic EuropeanaApiException
      */
     @ApiOperation(
             value = "Retrieve a record",
@@ -88,12 +87,13 @@ public class RecordController {
         if (!record.isPresent()) {
             throw new RecordDoesNotExistsException(recordRequest.getAbout());
         }
+        ProvidedCHO providedCHO = record.get();
         StreamingResponseBody responseBody = new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream out) throws IOException {
-                formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(record.get(), out);
+                formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(providedCHO, out);
                 out.flush();
-                }
+            }
         };
         return new ResponseEntity<>(responseBody, RecordUtils.getHeaders(request, recordRequest), HttpStatus.OK);
     }
