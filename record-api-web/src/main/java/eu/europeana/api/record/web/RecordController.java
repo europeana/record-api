@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.*;
 import java.util.Optional;
@@ -58,25 +59,28 @@ public class RecordController {
             produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8,
                     MediaType.TEXT_XML_VALUE, HttpHeaders.CONTENT_TYPE_RDF_XML, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, MediaType.APPLICATION_XML_VALUE,
                     MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
-    public ResponseEntity<String> retrieveJsonRecord(
+    public ResponseEntity<StreamingResponseBody> retrieveJsonRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
-            HttpServletRequest request) throws EuropeanaApiException, IOException {
+            HttpServletRequest request) throws EuropeanaApiException {
         return createResponse(datasetId, localId, request);
     }
 
-
-    private ResponseEntity<String> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException, IOException {
+    private ResponseEntity<StreamingResponseBody> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException {
         RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, request);
         LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
 
         Optional<ProvidedCHO> record = recordService.getRecord(recordRequest.getAbout());
-        if (record.isEmpty()) {
+        if (!record.isPresent()) {
             throw new RecordDoesNotExistsException(recordRequest.getAbout());
         }
-
-        OutputStream stream = new ByteArrayOutputStream();
-        formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(record.get(), stream );
-        return ResponseEntity.status(HttpStatus.OK).headers(RecordUtils.getHeaders(request, recordRequest)).body(stream.toString());
+        StreamingResponseBody responseBody = new StreamingResponseBody() {
+            @Override
+            public void writeTo(OutputStream out) throws IOException {
+                formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(record.get(), out);
+                out.flush();
+                }
+        };
+        return new ResponseEntity(responseBody, RecordUtils.getHeaders(request, recordRequest), HttpStatus.OK);
     }
 }
