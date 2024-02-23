@@ -64,12 +64,17 @@ public class RecordUtils {
      */
     public static HttpHeaders getHeaders(HttpServletRequest request, RecordRequest recordRequest) {
         HttpHeaders httpHeaders= new HttpHeaders();
-        if ( !recordRequest.hasExtension() && request.getHeader(HttpHeaders.ACCEPT) != null) {
+        if (!recordRequest.hasExtension() && isValidMediaType(request)) {
             httpHeaders.setContentType(MediaType.valueOf(request.getHeader(HttpHeaders.ACCEPT)));
-        } else { // default content-type by RDF Format
+        } else { // default content-type by default RDF Format
             httpHeaders.setContentType(MediaType.valueOf(recordRequest.getRdfFormat().getMediaType()));
         }
         return  httpHeaders;
+    }
+
+    private static boolean isValidMediaType(HttpServletRequest request) {
+        String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        return acceptHeader != null && RdfFormat.getFormatByMediaType(acceptHeader) != null;
     }
 }
 
