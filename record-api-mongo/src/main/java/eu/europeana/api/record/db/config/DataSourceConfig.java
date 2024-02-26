@@ -16,7 +16,6 @@ import dev.morphia.mapping.codec.CodecUtils;
 import dev.morphia.mapping.codec.MorphiaCodecProvider;
 import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.record.db.codec.*;
-import eu.europeana.api.record.model.internal.LanguageMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
