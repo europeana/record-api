@@ -60,6 +60,7 @@
        <!-- Spring Boot 3 is based on Spring Framework 6.0 and Jakarta EE 9. A-->
         <spring-boot.version>3.1.2</spring-boot.version>
         <spring-framework.version>6.0.11</spring-framework.version>
+        <springdoc.version>2.3.0</springdoc.version>
 
         <surefire.version>3.1.2</surefire.version>
         <swagger.version>3.0.0</swagger.version>
@@ -129,6 +130,7 @@
                     <includeOnlyProperties>
                         <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                        <includeOnlyProperty>git.branch</includeOnlyProperty>
                     </includeOnlyProperties>
                     <commitIdGenerationMode>full</commitIdGenerationMode>
                 </configuration>

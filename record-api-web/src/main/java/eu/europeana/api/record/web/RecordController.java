@@ -8,7 +8,8 @@ import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.model.RecordRequest;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,12 +21,19 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 import java.io.*;
 import java.util.Optional;
 
 import static eu.europeana.api.record.utils.RecordConstants.*;
 
+@Tag(
+        name = "Record API rest endpoints"
+//        description = "Record API retrieval in different formats"
+
+)
 @RestController
 @Validated
 public class RecordController {
@@ -43,10 +51,14 @@ public class RecordController {
     }
 
 
-    @ApiOperation(
-            value = "Retrieve a record",
-            nickname = "retrieveRecord",
-            response = java.lang.Void.class)
+    @Operation(
+            summary = "retrieveRecord",
+            description = "Retrieve record in json/json-ld, XML, Turtle, N3, NT "
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status 200 OK"
+    )
     @GetMapping(
             value = {
                     "/record/v3/{datasetId}/{localId}",
