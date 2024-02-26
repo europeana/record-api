@@ -8,7 +8,8 @@ import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.model.RecordRequest;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,12 +21,19 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 import java.io.*;
 import java.util.Optional;
 
 import static eu.europeana.api.record.utils.RecordConstants.*;
 
+@Tag(
+        name = "Record API rest endpoints"
+//        description = "Record API retrieval in different formats"
+
+)
 @RestController
 @Validated
 public class RecordController {
@@ -43,21 +51,29 @@ public class RecordController {
     }
 
 
-    @ApiOperation(
-            value = "Retrieve a record",
-            nickname = "retrieveRecord",
-            response = java.lang.Void.class)
+    @Operation(
+            summary = "retrieveRecord",
+            description = "Retrieve record in json/json-ld, XML, Turtle, N3, NT "
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status 200 OK"
+    )
     @GetMapping(
             value = {
                     "/record/v3/{datasetId}/{localId}",
             },
             headers = { ACCEPT_HEADER_JSONLD, ACCEPT_HEADER_JSON,
                     ACCEPT_HEADER_APPLICATION_TEXT_XML, ACCEPT_HEADER_RDF_XML, ACCEPT_HEADER_APPLICATION_RDF_XML, ACCEPT_HEADER_APPLICATION_XML,
-                    ACCEPT_HEADER_APPLICATION_TURTLE_TEXT, ACCEPT_HEADER_APPLICATION_TURTLE, ACCEPT_HEADER_APPLICATION_TURTLE_X
+                    ACCEPT_HEADER_APPLICATION_TURTLE_TEXT, ACCEPT_HEADER_APPLICATION_TURTLE, ACCEPT_HEADER_APPLICATION_TURTLE_X,
+                    ACCEPT_HEADER_APPLICATION_N3, ACCEPT_HEADER_APPLICATION_N3_RDF, ACCEPT_HEADER_APPLICATION_N3_TEXT,
+                    ACCEPT_HEADER_APPLICATION_NT, ACCEPT_HEADER_APPLICATION_NT_TEXT, ACCEPT_HEADER_APPLICATION_NT_TRIPLES
             },
-            produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8,
+            produces = {HttpHeaders.CONTENT_TYPE_JSONLD, MediaType.APPLICATION_JSON_VALUE,
                     MediaType.TEXT_XML_VALUE, HttpHeaders.CONTENT_TYPE_RDF_XML, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, MediaType.APPLICATION_XML_VALUE,
-                    MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
+                    MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X,
+                    MEDIA_TYPE_N3_TEXT, MEDIA_TYPE_N3_RDF, MEDIA_TYPE_N3,
+                    MEDIA_TYPE_NT_TRIPLES, MEDIA_TYPE_NT, MEDIA_TYPE_NT_TEXT })
     public ResponseEntity<String> retrieveJsonRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
