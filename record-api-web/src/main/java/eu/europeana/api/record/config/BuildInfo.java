@@ -8,6 +8,8 @@ import org.springframework.context.annotation.PropertySource;
  * Makes build information and the application name and description from the project's pom.xml available.
  * While generating a war file this data is written automatically to the build.properties file which is read here.
  * Note that the same information is also available in the Spring-Boot /actuator/info endpoint
+ * @author Sristhti Singh
+ * @since 26 Feb 2024
  */
 @Configuration
 @PropertySource("classpath:build.properties")
