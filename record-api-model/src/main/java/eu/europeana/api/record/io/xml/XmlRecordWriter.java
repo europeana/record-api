@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * @author Hugo
@@ -36,5 +37,10 @@ public class XmlRecordWriter extends EdmXmlStreamWriter implements FormatWriter<
             super.write(m, out);
         }
         catch(XMLStreamException e) { throw new IOException(e); }
+    }
+
+    @Override
+    public void write(List<ProvidedCHO> value, OutputStream out) throws IOException {
+        // empty for now
     }
 }

@@ -10,6 +10,7 @@ import org.apache.jena.rdf.model.Model;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * @author Hugo
@@ -31,5 +32,10 @@ public class JenaBasedFormatWriter implements FormatWriter<ProvidedCHO> {
     public void write(ProvidedCHO cho, OutputStream out) throws IOException {
         Model m = new JenaObjectEncoder(library).encode(cho, cho.getID());
         m.write(out, format);
+    }
+
+    @Override
+    public void write(List<ProvidedCHO> value, OutputStream out) throws IOException {
+        // empty for now
     }
 }

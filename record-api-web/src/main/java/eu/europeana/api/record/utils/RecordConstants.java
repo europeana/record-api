@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
  */
 public class RecordConstants {
 
-    public static final String BASE_URL = "http://data.europeana.eu/item/";
+    public static final String BASE_URL = "http://data.europeana.eu/item";
     public static final String ACCEPT  = "Accept=";
 
     // TTL headers
@@ -30,9 +30,4 @@ public class RecordConstants {
     public static final String ACCEPT_HEADER_APPLICATION_TURTLE_TEXT = ACCEPT + MEDIA_TYPE_TURTLE_TEXT;
     public static final String ACCEPT_HEADER_APPLICATION_TURTLE = ACCEPT + MEDIA_TYPE_TURTLE;
     public static final String ACCEPT_HEADER_APPLICATION_TURTLE_X  = ACCEPT + MEDIA_TYPE_TURTLE_X;
-
-
-
-
-
 }

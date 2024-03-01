@@ -1,10 +1,8 @@
-/**
- * 
- */
 package eu.europeana.api.format;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * @author Hugo
@@ -13,4 +11,7 @@ import java.io.OutputStream;
 public interface FormatWriter<T>
 {
     public void write(T value, OutputStream out) throws IOException;
+
+    public void write(List<T> value, OutputStream out) throws IOException;
+
 }
