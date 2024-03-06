@@ -5,6 +5,7 @@ package eu.europeana.api.record.io.json.v2;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
@@ -20,7 +21,7 @@ import javax.annotation.Resource;
  * @author Hugo
  * @since 14 Oct 2023
  */
-public class JsonV2Writer extends RecordV2JsonWriter 
+public class JsonV2Writer extends RecordV2JsonWriter
                           implements FormatWriter<ProvidedCHO> {
 
     private JenaObjectEncoder encoder;
@@ -36,6 +37,11 @@ public class JsonV2Writer extends RecordV2JsonWriter
     public void write(ProvidedCHO cho, OutputStream out) throws IOException {
         Model m = encoder.encode(cho, cho.getID());
         super.write(m, out);
+    }
+
+    @Override
+    public void write(List<ProvidedCHO> value, OutputStream out) throws IOException {
+        // empty for now
     }
 
 }

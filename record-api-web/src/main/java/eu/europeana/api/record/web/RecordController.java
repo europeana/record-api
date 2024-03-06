@@ -2,6 +2,7 @@ package eu.europeana.api.record.web;
 
 import eu.europeana.api.commons.web.http.HttpHeaders;
 import eu.europeana.api.error.EuropeanaApiException;
+import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.model.ProvidedCHO;
@@ -17,12 +18,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.*;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.europeana.api.record.utils.RecordConstants.*;
 
@@ -43,10 +44,22 @@ public class RecordController {
     }
 
 
+    /**
+     * Retrieves the Record in the format requested
+     * Format is requested two way - either as an extension in the localID or the Accept Header
+     * If present in localId : example - UEDIN_214.xml or UEDIN_214.json Or a valid Accept header.
+     *                                   Extensions are given preference over Accept header values
+     *                                   If both are provided then default format is set to JSONLD
+     * @param datasetId Dataset Id
+     * @param localId local id
+     * @param request HttpServlet request
+     * @return Response Entity with StreamingResponseBody
+     * @throws EuropeanaApiException throws generic EuropeanaApiException
+     */
     @ApiOperation(
             value = "Retrieve a record",
             nickname = "retrieveRecord",
-            response = java.lang.Void.class)
+            response = StreamingResponseBody.class)
     @GetMapping(
             value = {
                     "/record/v3/{datasetId}/{localId}",
@@ -58,25 +71,83 @@ public class RecordController {
             produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8,
                     MediaType.TEXT_XML_VALUE, HttpHeaders.CONTENT_TYPE_RDF_XML, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, MediaType.APPLICATION_XML_VALUE,
                     MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
-    public ResponseEntity<String> retrieveJsonRecord(
+    public ResponseEntity<StreamingResponseBody> retrieveRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
-            HttpServletRequest request) throws EuropeanaApiException, IOException {
+            HttpServletRequest request) throws EuropeanaApiException {
         return createResponse(datasetId, localId, request);
     }
 
+    /**
+     * Retrieve Multiple records. This is currently only available for json format
+     * @param urls urls for which records to be fetched
+     * @param request http request
+     * @return List of records
+     * @throws EuropeanaApiException
+     */
+    @ApiOperation(
+            value = "Retrieve multiple records",
+            nickname = "retrieveRecords",
+            response = StreamingResponseBody.class)
+    @PostMapping(value = "/record/v3/retrieve",
+            produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8})
+    public ResponseEntity<StreamingResponseBody> retrieveRecords(
+            @RequestBody List<String> urls, HttpServletRequest request) throws EuropeanaApiException {
+        return createResponseMultipleRecords(urls);
+    }
 
-    private ResponseEntity<String> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException, IOException {
+    private ResponseEntity<StreamingResponseBody> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException {
         RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, request);
-        LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
+        }
         Optional<ProvidedCHO> record = recordService.getRecord(recordRequest.getAbout());
-        if (record.isEmpty()) {
+        if (!record.isPresent()) {
             throw new RecordDoesNotExistsException(recordRequest.getAbout());
         }
+        ProvidedCHO providedCHO = record.get();
+        StreamingResponseBody responseBody = new StreamingResponseBody() {
+            @Override
+            public void writeTo(OutputStream out) throws IOException {
+                formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(providedCHO, out);
+                out.flush();
+            }
+        };
+        return new ResponseEntity<>(responseBody, RecordUtils.getHeaders(request, recordRequest), HttpStatus.OK);
+    }
 
-        OutputStream stream = new ByteArrayOutputStream();
-        formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(record.get(), stream );
-        return ResponseEntity.status(HttpStatus.OK).headers(RecordUtils.getHeaders(request, recordRequest)).body(stream.toString());
+    private ResponseEntity<StreamingResponseBody> createResponseMultipleRecords(List<String> urls) throws EuropeanaApiException {
+        List<String> recordIds = RecordUtils.buildRecordIds(urls);
+        List<ProvidedCHO> records = recordService.retrieveMultipleByRecordIds(recordIds);
+        if (records.isEmpty()) {
+            throw new RecordDoesNotExistsException(urls.toString());
+        }
+
+        // LinkedHashMap iterates keys() and values() in order of insertion. Using a map
+        // improves sort performance significantly
+        Map<String, ProvidedCHO> sortedRecordMap = new LinkedHashMap<>(records.size());
+        for (String id : recordIds) {
+            sortedRecordMap.put(id, null);
+        }
+        for (ProvidedCHO providedCHO : records) {
+            sortedRecordMap.replace(providedCHO.getID(), providedCHO);
+        }
+
+        // create response headers
+        org.springframework.http.HttpHeaders httpHeaders= new org.springframework.http.HttpHeaders();
+        httpHeaders.setContentType(MediaType.valueOf(RdfFormat.JSONLD.getMediaType()));
+
+        // remove null values in response
+        List<ProvidedCHO> providedCHOS = sortedRecordMap.values().stream()
+                .filter(Objects::nonNull).collect(Collectors.toList());
+
+        StreamingResponseBody responseBody = new StreamingResponseBody() {
+            @Override
+            public void writeTo(OutputStream out) throws IOException {
+                formatHandlerRegistry.get(RdfFormat.JSONLD).write(providedCHOS, out);
+                out.flush();
+            }
+        };
+        return new ResponseEntity<>(responseBody, httpHeaders, HttpStatus.OK);
     }
 }

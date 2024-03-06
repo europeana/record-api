@@ -1,12 +1,10 @@
 package eu.europeana.api.record.db.repository;
 
 import dev.morphia.Datastore;
-import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.filters.Filter;
 import dev.morphia.query.filters.Filters;
 import eu.europeana.api.config.AppConfigConstants;
-import eu.europeana.api.record.model.EDMClass;
 import eu.europeana.api.record.model.ProvidedCHO;
 import org.springframework.stereotype.Repository;
 
@@ -71,6 +69,23 @@ public class RecordRepository {
                 .iterator(new FindOptions())
                 .tryNext();
     }
+
+
+    /**
+     * Fetches the records for the list of record ids
+     * @param recordIds ids to be fetched
+     * @return list of ProvidedCho(s)
+     */
+    public List<ProvidedCHO> findByRecordIds(List<String> recordIds) {
+        List<Filter> filters = new ArrayList<>();
+        filters.add(Filters.in("id", recordIds));
+        return datastore
+                .find(ProvidedCHO.class)
+                .filter(filters.toArray(Filter[]::new))
+                .iterator(new FindOptions())
+                .toList();
+    }
+
 
 //    public void save(EDMClass o)
 //    {
