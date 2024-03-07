@@ -39,6 +39,7 @@ public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter> {
         this.JenaBasedNTWriter = jenaBasedNTWriter;
 
         put(RdfFormat.JSONLD, this.jsonLdWriter);
+        put(RdfFormat.JSON, this.jsonLdWriter);
         put(RdfFormat.XML, this.xmlRecordWriter);
         put(RdfFormat.TURTLE, this.jenaBasedTurtleWriter);
         put(RdfFormat.N3, JenaBasedN3Writer);
