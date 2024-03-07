@@ -51,19 +51,18 @@ public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
 
     @Override
     public void write(List<ProvidedCHO> providedCHOS, OutputStream out) throws IOException {
+        Stack lStack = new Stack<String>();
+        stack.set(lStack);
         ArrayNode records = mapper.createArrayNode();
         providedCHOS.stream()
                 .forEach(
                         providedCHO -> {
-                            Stack lStack = new Stack<String>();
-                            stack.set(lStack);
                             try {
                                 ContextAttributes attrs = ContextAttributes.getEmpty().withSharedAttribute(context, new Context(providedCHO.getID()));
                                 mapper.setDefaultAttributes(attrs);
                                 records.add(mapper.valueToTree(providedCHO));
                             } finally {
                                 lStack.clear();
-                                stack.remove();
                             }
                         });
 
@@ -72,6 +71,7 @@ public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
         result.set("total", mapper.valueToTree(records.size()));
         result.set("items", records);
 
+        stack.remove();
         mapper.writerWithDefaultPrettyPrinter().writeValues(out).write(result);
     }
 }
