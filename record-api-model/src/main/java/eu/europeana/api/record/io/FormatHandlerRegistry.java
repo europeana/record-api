@@ -23,9 +23,9 @@ public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter> {
 
     private final JenaBasedFormatWriter jenaBasedTurtleWriter;
 
-    private final JenaBasedFormatWriter JenaBasedN3Writer;
+    private final JenaBasedFormatWriter jenaBasedN3Writer;
 
-    private final JenaBasedFormatWriter JenaBasedNTWriter;
+    private final JenaBasedFormatWriter jenaBasedNTWriter;
 
 
     public FormatHandlerRegistry(JsonLdWriter jsonLdWriter, XmlRecordWriter xmlRecordWriter,
@@ -35,15 +35,15 @@ public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter> {
         this.jsonLdWriter = jsonLdWriter;
         this.xmlRecordWriter = xmlRecordWriter;
         this.jenaBasedTurtleWriter = jenaBasedTurtleWriter;
-        this.JenaBasedN3Writer = jenaBasedN3Writer;
-        this.JenaBasedNTWriter = jenaBasedNTWriter;
+        this.jenaBasedN3Writer = jenaBasedN3Writer;
+        this.jenaBasedNTWriter = jenaBasedNTWriter;
 
         put(RdfFormat.JSONLD, this.jsonLdWriter);
         put(RdfFormat.JSON, this.jsonLdWriter);
         put(RdfFormat.XML, this.xmlRecordWriter);
         put(RdfFormat.TURTLE, this.jenaBasedTurtleWriter);
-        put(RdfFormat.N3, JenaBasedN3Writer);
-        put(RdfFormat.NT, JenaBasedNTWriter);
+        put(RdfFormat.N3, this.jenaBasedN3Writer);
+        put(RdfFormat.NT, this.jenaBasedNTWriter);
     }
 }
 
