@@ -1,5 +1,6 @@
 package eu.europeana.api.record.service;
 
+import dev.morphia.query.MorphiaCursor;
 import eu.europeana.api.record.config.AppConfig;
 import eu.europeana.api.record.config.RecordApiConfiguration;
 import eu.europeana.api.record.model.ProvidedCHO;
@@ -31,7 +32,7 @@ public class RecordService {
         return Optional.ofNullable(recordRepository.findById(about));
     }
 
-    public List<ProvidedCHO> retrieveMultipleByRecordIds(List<String> recordIds) {
+    public MorphiaCursor<ProvidedCHO> retrieveMultipleByRecordIds(List<String> recordIds) {
         return recordRepository.findByRecordIds(recordIds);
     }
 

@@ -1,5 +1,6 @@
 package eu.europeana.api.record.web;
 
+import dev.morphia.query.MorphiaCursor;
 import eu.europeana.api.commons.web.http.HttpHeaders;
 import eu.europeana.api.error.EuropeanaApiException;
 import eu.europeana.api.format.RdfFormat;
@@ -23,7 +24,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static eu.europeana.api.record.utils.RecordConstants.*;
 
@@ -118,33 +118,19 @@ public class RecordController {
 
     private ResponseEntity<StreamingResponseBody> createResponseMultipleRecords(List<String> urls) throws EuropeanaApiException {
         List<String> recordIds = RecordUtils.buildRecordIds(urls);
-        List<ProvidedCHO> records = recordService.retrieveMultipleByRecordIds(recordIds);
-        if (records.isEmpty()) {
+        MorphiaCursor<ProvidedCHO> records = recordService.retrieveMultipleByRecordIds(recordIds);
+        System.out.println(records.available());
+        if (records.available() == 0) {
             throw new RecordDoesNotExistsException(urls.toString());
-        }
-
-        // LinkedHashMap iterates keys() and values() in order of insertion. Using a map
-        // improves sort performance significantly
-        Map<String, ProvidedCHO> sortedRecordMap = new LinkedHashMap<>(records.size());
-        for (String id : recordIds) {
-            sortedRecordMap.put(id, null);
-        }
-        for (ProvidedCHO providedCHO : records) {
-            sortedRecordMap.replace(providedCHO.getID(), providedCHO);
         }
 
         // create response headers
         org.springframework.http.HttpHeaders httpHeaders= new org.springframework.http.HttpHeaders();
         httpHeaders.setContentType(MediaType.valueOf(RdfFormat.JSONLD.getMediaType()));
-
-        // remove null values in response
-        List<ProvidedCHO> providedCHOS = sortedRecordMap.values().stream()
-                .filter(Objects::nonNull).collect(Collectors.toList());
-
         StreamingResponseBody responseBody = new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream out) throws IOException {
-                formatHandlerRegistry.get(RdfFormat.JSONLD).write(providedCHOS, out);
+                formatHandlerRegistry.get(RdfFormat.JSONLD).write(records, out);
                 out.flush();
             }
         };

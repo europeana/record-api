@@ -2,6 +2,7 @@ package eu.europeana.api.record.db.repository;
 
 import dev.morphia.Datastore;
 import dev.morphia.query.FindOptions;
+import dev.morphia.query.MorphiaCursor;
 import dev.morphia.query.filters.Filter;
 import dev.morphia.query.filters.Filters;
 import eu.europeana.api.config.AppConfigConstants;
@@ -76,14 +77,13 @@ public class RecordRepository {
      * @param recordIds ids to be fetched
      * @return list of ProvidedCho(s)
      */
-    public List<ProvidedCHO> findByRecordIds(List<String> recordIds) {
+    public MorphiaCursor<ProvidedCHO> findByRecordIds(List<String> recordIds) {
         List<Filter> filters = new ArrayList<>();
         filters.add(Filters.in("id", recordIds));
         return datastore
                 .find(ProvidedCHO.class)
                 .filter(filters.toArray(Filter[]::new))
-                .iterator(new FindOptions())
-                .toList();
+                .iterator(new FindOptions());
     }
 
 

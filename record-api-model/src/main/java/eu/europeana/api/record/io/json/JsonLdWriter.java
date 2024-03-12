@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Stack;
 
 import static eu.europeana.api.config.AppConfigConstants.BEAN_JSON_MAPPER;
@@ -50,27 +50,27 @@ public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
     }
 
     @Override
-    public void write(List<ProvidedCHO> providedCHOS, OutputStream out) throws IOException {
+    public void write(Iterator<ProvidedCHO> providedCHOS, OutputStream out) throws IOException {
         Stack lStack = new Stack<String>();
         stack.set(lStack);
         ArrayNode records = mapper.createArrayNode();
-        providedCHOS.stream()
-                .forEach(
-                        providedCHO -> {
-                            try {
-                                ContextAttributes attrs = ContextAttributes.getEmpty().withSharedAttribute(context, new Context(providedCHO.getID()));
-                                mapper.setDefaultAttributes(attrs);
-                                records.add(mapper.valueToTree(providedCHO));
-                            } finally {
-                                lStack.clear();
-                            }
-                        });
+
+        while (providedCHOS.hasNext()) {
+            try {
+                ProvidedCHO providedCHO = providedCHOS.next();
+                ContextAttributes attrs = ContextAttributes.getEmpty().withSharedAttribute(context, new Context(providedCHO.getID()));
+                mapper.setDefaultAttributes(attrs);
+                records.add(mapper.valueToTree(providedCHO));
+            } finally {
+                lStack.clear();
+            }
+
+        }
 
         ObjectNode result = mapper.createObjectNode();
         result.set("type", mapper.valueToTree("ResultPage"));
         result.set("total", mapper.valueToTree(records.size()));
         result.set("items", records);
-
         stack.remove();
         mapper.writerWithDefaultPrettyPrinter().writeValues(out).write(result);
     }
