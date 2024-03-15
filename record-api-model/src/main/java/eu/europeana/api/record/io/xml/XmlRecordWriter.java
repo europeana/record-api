@@ -40,7 +40,7 @@ public class XmlRecordWriter extends EdmXmlStreamWriter implements FormatWriter<
     }
 
     @Override
-    public void write(Iterator<ProvidedCHO> value, OutputStream out) throws IOException {
+    public void write(Iterator<ProvidedCHO> value, int size, OutputStream out) throws IOException {
         // empty for now
     }
 }

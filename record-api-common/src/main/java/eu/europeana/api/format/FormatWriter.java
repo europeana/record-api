@@ -11,6 +11,6 @@ import java.util.Iterator;
 public interface FormatWriter<T> {
     public void write(T value, OutputStream out) throws IOException;
 
-    public void write(Iterator<T> value, OutputStream out) throws IOException;
+    public void write(Iterator<T> value, int size, OutputStream out) throws IOException;
 
 }

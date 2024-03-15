@@ -119,7 +119,6 @@ public class RecordController {
     private ResponseEntity<StreamingResponseBody> createResponseMultipleRecords(List<String> urls) throws EuropeanaApiException {
         List<String> recordIds = RecordUtils.buildRecordIds(urls);
         MorphiaCursor<ProvidedCHO> records = recordService.retrieveMultipleByRecordIds(recordIds);
-        System.out.println(records.available());
         if (records.available() == 0) {
             throw new RecordDoesNotExistsException(urls.toString());
         }
@@ -130,7 +129,7 @@ public class RecordController {
         StreamingResponseBody responseBody = new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream out) throws IOException {
-                formatHandlerRegistry.get(RdfFormat.JSONLD).write(records, out);
+                formatHandlerRegistry.get(RdfFormat.JSONLD).write(records, records.available(), out);
                 out.flush();
             }
         };

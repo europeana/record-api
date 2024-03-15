@@ -35,7 +35,7 @@ public class JenaBasedFormatWriter implements FormatWriter<ProvidedCHO> {
     }
 
     @Override
-    public void write(Iterator<ProvidedCHO> value, OutputStream out) throws IOException {
+    public void write(Iterator<ProvidedCHO> value, int size, OutputStream out) throws IOException {
         // empty for now
     }
 }
