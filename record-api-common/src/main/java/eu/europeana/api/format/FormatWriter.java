@@ -9,8 +9,21 @@ import java.util.Iterator;
  * @since 12 Oct 2023
  */
 public interface FormatWriter<T> {
-    public void write(T value, OutputStream out) throws IOException;
 
-    public void write(Iterator<T> value, int size, OutputStream out) throws IOException;
+    /**
+     * Method for serialising T value
+     * @param value value to be formatted
+     * @param out output stream
+     * @throws IOException
+     */
+    void write(T value, OutputStream out) throws IOException;
+
+    /**
+     * Method for serialising list of values
+     * @param value list of value to be formatted
+     * @param out output stream
+     * @throws IOException
+     */
+    void write(Iterator<T> value, int size, OutputStream out) throws IOException;
 
 }
