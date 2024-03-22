@@ -2,17 +2,16 @@ package eu.europeana.api.record.io.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.format.FormatWriter;
 import eu.europeana.api.record.model.ProvidedCHO;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Stack;
 
 import static eu.europeana.api.config.AppConfigConstants.BEAN_JSON_MAPPER;
@@ -50,29 +49,36 @@ public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
     }
 
     @Override
-    public void write(List<ProvidedCHO> providedCHOS, OutputStream out) throws IOException {
-        ArrayNode records = mapper.createArrayNode();
-        providedCHOS.stream()
-                .forEach(
-                        providedCHO -> {
-                            Stack lStack = new Stack<String>();
-                            stack.set(lStack);
-                            try {
-                                ContextAttributes attrs = ContextAttributes.getEmpty().withSharedAttribute(context, new Context(providedCHO.getID()));
-                                mapper.setDefaultAttributes(attrs);
-                                records.add(mapper.valueToTree(providedCHO));
-                            } finally {
-                                lStack.clear();
-                                stack.remove();
-                            }
-                        });
+    public void write(Iterator<ProvidedCHO> providedCHOS, int size, OutputStream out) throws IOException {
+        Stack lStack = new Stack<String>();
+        stack.set(lStack);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        stream.write("{\"type\": \"ResultPage\",".getBytes());
+        stream.write(("\"total\":" + size + ",").getBytes());
+        stream.write(("\"items\": [" ).getBytes());
+        int counter = 1;
+        while (providedCHOS.hasNext()) {
+            ProvidedCHO providedCHO = providedCHOS.next();
+            ContextAttributes attrs = ContextAttributes.getEmpty()
+                    .withSharedAttribute(context, new Context(providedCHO.getID()));
+            mapper.setDefaultAttributes(attrs);
+            try {
+                mapper.writerWithDefaultPrettyPrinter().writeValues(stream).write(providedCHO);
+                if (counter < size) {
+                    stream.write(",".getBytes());
+                }
+                counter ++;
+            }
+            finally {
+                lStack.clear();
+            }
+        }
 
-        ObjectNode result = mapper.createObjectNode();
-        result.set("type", mapper.valueToTree("ResultPage"));
-        result.set("total", mapper.valueToTree(records.size()));
-        result.set("items", records);
-
-        mapper.writerWithDefaultPrettyPrinter().writeValues(out).write(result);
+        stream.write("]}".getBytes());
+        stream.flush();
+        stream.writeTo(out);
+        stack.remove();
+        stream.close();
     }
 }
 

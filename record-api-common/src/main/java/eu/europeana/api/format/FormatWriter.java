@@ -2,14 +2,14 @@ package eu.europeana.api.format;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * @author Hugo
  * @since 12 Oct 2023
  */
-public interface FormatWriter<T>
-{
+public interface FormatWriter<T> {
+
     /**
      * Method for serialising T value
      * @param value value to be formatted
@@ -24,6 +24,6 @@ public interface FormatWriter<T>
      * @param out output stream
      * @throws IOException
      */
-    void write(List<T> value, OutputStream out) throws IOException;
+    void write(Iterator<T> value, int size, OutputStream out) throws IOException;
 
 }

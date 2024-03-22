@@ -2,6 +2,7 @@ package eu.europeana.api.record.io.json.v2;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.List;
 
 import eu.europeana.api.config.AppConfigConstants;
@@ -39,7 +40,7 @@ public class JsonV2Writer extends RecordV2JsonWriter
     }
 
     @Override
-    public void write(List<ProvidedCHO> value, OutputStream out) throws IOException {
+    public void write(Iterator<ProvidedCHO> value, int size, OutputStream out) throws IOException {
         // empty for now
     }
 
