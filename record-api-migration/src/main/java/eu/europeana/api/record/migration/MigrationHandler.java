@@ -61,12 +61,12 @@ public class MigrationHandler {
 
     private final FormatHandlerRegistry registry;
 
-    private final RecordRepository migrationRepository;
+    private final MigrationRepository migrationRepository;
 
     private final TemplateLibrary library;
 
     @Autowired
-    public MigrationHandler(MigrationSettings settings, FormatHandlerRegistry registry, RecordRepository migrationRepository, TemplateLibrary library) {
+    public MigrationHandler(MigrationSettings settings, FormatHandlerRegistry registry, MigrationRepository migrationRepository, TemplateLibrary library) {
         this.settings = settings;
         this.registry = registry;
         this.migrationRepository = migrationRepository;
