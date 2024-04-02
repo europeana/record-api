@@ -3,12 +3,14 @@ package eu.europeana.api.record.migration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.PropertySource;
 import org.w3c.dom.Document;
 
 import javax.xml.transform.Transformer;
@@ -35,7 +37,16 @@ import java.util.zip.ZipInputStream;
                 // DataSources are manually configured (for EM and batch DBs)
                 DataSourceAutoConfiguration.class
         })
+@PropertySource(
+        value = {"classpath:migration.properties", "classpath:migration.user.properties"},
+        ignoreResourceNotFound = true)
 public class RunMigration implements CommandLineRunner {
+
+    @Value("${source.file}")
+    private String sourceDirectory;
+
+    @Value("${target.file}")
+    private String targetDirectory;
 
     private PrintStream progressLog;
     private Transformer transformer = null;
@@ -44,6 +55,7 @@ public class RunMigration implements CommandLineRunner {
     @Autowired
     private MigrationHandler handler;
 
+
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(RunMigration.class, args);
         System.exit(SpringApplication.exit(context));
@@ -51,8 +63,8 @@ public class RunMigration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        File src = new File("C:\\Work\\incoming\\Record v3\\source\\");
-        File logDir = new File("C:\\Work\\incoming\\Record v3\\target");
+        File src = new File(sourceDirectory);
+        File logDir = new File(targetDirectory);
         PrintStream out = new PrintStream(new File(logDir, "run.log"));
         PrintStream error = new PrintStream(new File(logDir, "error.log"));
         try {

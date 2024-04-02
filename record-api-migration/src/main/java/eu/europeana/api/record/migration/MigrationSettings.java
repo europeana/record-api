@@ -15,6 +15,7 @@ import eu.europeana.jena.encoder.codec.CodecRegistry;
 import eu.europeana.jena.encoder.library.DefaultUriNormalizer;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,7 +30,6 @@ public class MigrationSettings {
 
     @Resource(name = AppConfigConstants.BEAN_MEDIA_TYPES)
     private MediaTypes mediaTypes;
-
 
     @Bean
     public FormatHandlerRegistry getFormatHandlerRegistry() {
