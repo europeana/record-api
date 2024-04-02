@@ -55,7 +55,6 @@ public class RunMigration implements CommandLineRunner {
     @Autowired
     private MigrationHandler handler;
 
-
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(RunMigration.class, args);
         System.exit(SpringApplication.exit(context));

@@ -3,7 +3,6 @@ package eu.europeana.api.record.migration;
 import dev.morphia.query.filters.Filters;
 import eu.europeana.api.edm.EDM;
 import eu.europeana.api.format.RdfFormat;
-import eu.europeana.api.record.db.repository.RecordRepository;
 import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.migration.RecordDomProcessor.Result;
 import eu.europeana.api.record.model.*;
