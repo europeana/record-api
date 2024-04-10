@@ -51,6 +51,19 @@ public class RecordController {
     }
 
 
+
+    /**
+     * Retrieves the Record in the format requested
+     * Format is requested two-way - either as an extension in the localID or the Accept Header
+     * If present in localId : example - UEDIN_214.xml or UEDIN_214.json Or a valid Accept header.
+     *                                   Extensions are given preference over Accept header values
+     *                                   If both are provided then default format is set to JSONLD
+     * @param datasetId Dataset Id
+     * @param localId local id
+     * @param request HttpServlet request
+     * @return Response Entity with StreamingResponseBody
+     * @throws EuropeanaApiException throws generic EuropeanaApiException
+     */
     @Operation(
             summary = "retrieveRecord",
             description = "Retrieve record in json/json-ld, XML, Turtle, N3, NT "
