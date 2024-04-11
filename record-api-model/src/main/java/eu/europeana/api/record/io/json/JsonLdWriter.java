@@ -8,8 +8,10 @@ import eu.europeana.api.record.model.ProvidedCHO;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.Stack;
 
 import static eu.europeana.api.config.AppConfigConstants.BEAN_JSON_MAPPER;
@@ -35,15 +37,48 @@ public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
                 .withSharedAttribute(context, new Context(providedCHO.getID()));
         mapper.setDefaultAttributes(attrs);
 
-        Stack stack = new Stack<String>();
+        Stack lStack = new Stack<String>();
         try {
-            this.stack.set(stack);
+            stack.set(lStack);
             mapper.writerWithDefaultPrettyPrinter().writeValues(out).write(providedCHO);
         }
         finally {
-            stack.clear();
-            this.stack.remove();
+            lStack.clear();
+            stack.remove();
         }
+    }
+
+    @Override
+    public void write(Iterator<ProvidedCHO> providedCHOS, int size, OutputStream out) throws IOException {
+        Stack lStack = new Stack<String>();
+        stack.set(lStack);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        stream.write("{\"type\": \"ResultPage\",".getBytes());
+        stream.write(("\"total\":" + size + ",").getBytes());
+        stream.write(("\"items\": [" ).getBytes());
+        int counter = 1;
+        while (providedCHOS.hasNext()) {
+            ProvidedCHO providedCHO = providedCHOS.next();
+            ContextAttributes attrs = ContextAttributes.getEmpty()
+                    .withSharedAttribute(context, new Context(providedCHO.getID()));
+            mapper.setDefaultAttributes(attrs);
+            try {
+                mapper.writerWithDefaultPrettyPrinter().writeValues(stream).write(providedCHO);
+                if (counter < size) {
+                    stream.write(",".getBytes());
+                }
+                counter ++;
+            }
+            finally {
+                lStack.clear();
+            }
+        }
+
+        stream.write("]}".getBytes());
+        stream.flush();
+        stream.writeTo(out);
+        stack.remove();
+        stream.close();
     }
 }
 

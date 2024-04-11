@@ -5,7 +5,8 @@ package eu.europeana.api.format;
  * @since 13 Oct 2023
  */
 public enum RdfFormat {
-    JSONLD("jsonld", "json", "application/ld+json", "application/json")
+    JSONLD("jsonld", null, "application/ld+json")
+  , JSON("json", null,  "application/json")
   , XML("rdf", "xml", "application/rdf+xml", "application/xml", "text/xml", "rdf/xml")
   , TURTLE("ttl", null, "text/turtle", "application/turtle", "application/x-turtle")
   , N3("n3", null, "text/n3", "text/rdf+n3", "application/n3")

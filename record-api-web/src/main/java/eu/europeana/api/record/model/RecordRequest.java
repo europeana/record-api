@@ -6,6 +6,7 @@ public class RecordRequest {
 
     private String datasetId;
 
+    // clean localId without extension
     private String localId;
 
     // complete record Id
@@ -13,7 +14,7 @@ public class RecordRequest {
 
     private RdfFormat rdfFormat;
 
-    // if the localID has extension like .json or .rdf
+    // if the localID had extension like .json or .rdf
     private boolean hasExtension;
 
     public String getDatasetId() {
