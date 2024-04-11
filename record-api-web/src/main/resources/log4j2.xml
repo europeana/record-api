@@ -14,6 +14,10 @@
             <AppenderRef ref="Console"/>
         </Root>
         <Logger name="org.apache.http" level="INFO"/>
-        <Logger name="eu.europeana.api.record" level="DEBUG"/>
+        <Logger name="eu.europeana.api.record.web.RecordController" level="DEBUG"/>
+
+        <!-- Log only error. suppress warn messages - specially "Found more than one class mapped to collection"-->
+        <Logger name="dev.morphia.mapping.Mapper" level="ERROR"/>
+
     </Loggers>
 </Configuration>
