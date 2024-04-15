@@ -107,10 +107,15 @@ public class RecordController {
      * @return List of records
      * @throws EuropeanaApiException
      */
-    @ApiOperation(
-            value = "Retrieve multiple records",
-            nickname = "retrieveRecords",
-            response = StreamingResponseBody.class)
+
+    @Operation(
+            summary = "retrieveRecords",
+            description = "Retrieve mutiple record in json/json-ld"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status 200 OK"
+    )
     @PostMapping(value = "/record/v3/retrieve",
             produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8})
     public ResponseEntity<StreamingResponseBody> retrieveRecords(
