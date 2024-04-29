@@ -10,7 +10,6 @@ import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.model.RecordRequest;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -152,7 +151,7 @@ public class RecordController {
 
         // create response headers
         org.springframework.http.HttpHeaders httpHeaders= new org.springframework.http.HttpHeaders();
-        httpHeaders.setContentType(MediaType.valueOf(RdfFormat.JSONLD.getMediaType()));
+        httpHeaders.setContentType(RecordUtils.getMediaTypeObject(RdfFormat.JSONLD));
         StreamingResponseBody responseBody = new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream out) throws IOException {
@@ -162,4 +161,5 @@ public class RecordController {
         };
         return new ResponseEntity<>(responseBody, httpHeaders, HttpStatus.OK);
     }
+
 }
