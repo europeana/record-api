@@ -3,6 +3,7 @@ package eu.europeana.api.record.utils;
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.model.RecordRequest;
 import jakarta.servlet.http.HttpServletRequest;
+import java.nio.charset.Charset;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -96,9 +97,10 @@ public class RecordUtils {
     public static HttpHeaders getHeaders(HttpServletRequest request, RecordRequest recordRequest) {
         HttpHeaders httpHeaders= new HttpHeaders();
         if (!recordRequest.hasExtension() && isValidMediaType(request)) {
-            httpHeaders.setContentType(MediaType.valueOf(request.getHeader(HttpHeaders.ACCEPT)));
+          String header = request.getHeader(HttpHeaders.ACCEPT);
+          httpHeaders.setContentType(RecordUtils.getMediaTypeObject(RdfFormat.getFormatByMediaType(header)));
         } else { // default content-type by default RDF Format
-            httpHeaders.setContentType(MediaType.valueOf(recordRequest.getRdfFormat().getMediaType()));
+            httpHeaders.setContentType(getMediaTypeObject(recordRequest.getRdfFormat()));
         }
         return  httpHeaders;
     }
@@ -107,5 +109,15 @@ public class RecordUtils {
         String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
         return acceptHeader != null && RdfFormat.getFormatByMediaType(acceptHeader) != null;
     }
+
+
+  public static MediaType getMediaTypeObject(RdfFormat format) {
+    Charset charset = format.getCharsetObject();
+    String mediaTypeVal = format.getMediaType();
+    if (format.getCharsetObject() != null) {
+      return new MediaType(MediaType.valueOf(mediaTypeVal), charset);
+    }
+    return new MediaType(MediaType.valueOf(mediaTypeVal));
+  }
 }
 
