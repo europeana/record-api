@@ -86,8 +86,11 @@ public class RecordRepository {
                 .iterator(new FindOptions());
     }
 
+    public Datastore getDatastore() {
+        return datastore;
+    }
 
-//    public void save(EDMClass o)
+    //    public void save(EDMClass o)
 //    {
 //        if ( o != null ) {
 //            long count = datastore.find(o.getClass()).filter(Filters.eq("id", o.getID())).count();
