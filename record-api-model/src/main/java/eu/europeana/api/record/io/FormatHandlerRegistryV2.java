@@ -36,6 +36,7 @@ public class FormatHandlerRegistryV2 extends HashMap<RdfFormat, FormatWriter> {
         this.jenaBasedTurtleWriter = jenaBasedTurtleWriter;
 
         put(RdfFormat.JSONLD, this.jsonLdWriter);
+        put(RdfFormat.JSON, this.jsonV2Writer);
         put(RdfFormat.XML, this.xmlRecordWriter);
         put(RdfFormat.TURTLE, this.jenaBasedTurtleWriter);
 
