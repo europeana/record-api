@@ -23,14 +23,14 @@ public enum RdfFormat {
   }
 
   public static RdfFormat getFormatByMediaType(String mediaType) {
-    if(StringUtils.isNotEmpty(mediaType)) {
+
+      if(StringUtils.isEmpty(mediaType)) { return null; }
+
       for (RdfFormat format : RdfFormat.values()) {
-        if (format.acceptsMediaType(mediaType)) {
-          return format;
-        }
+          if (format.acceptsMediaType(mediaType)) { return format; }
       }
-    }
-    return null;
+
+      return null;
   }
 
   private String   extension;
@@ -55,7 +55,7 @@ public enum RdfFormat {
   public String   getMediaType()   { return mediaTypes[0]; }
 
   public Charset getCharsetObject(){
-    return StringUtils.isNotEmpty(charset)?Charset.forName(charset):null;
+    return StringUtils.isNotEmpty(charset) ? Charset.forName(charset) : null;
   }
 
   public boolean acceptsExtension(String extension) {

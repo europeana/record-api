@@ -33,10 +33,6 @@ public class ObjectReferenceCodec implements JenaCodec<ObjectReference> {
 
         //TODO: review how to best work with lazy loading
         EDMClass o = ref.getDereferencedObject();
-        if ( o instanceof MorphiaProxy) {
-            o = ((MorphiaProxy)o).unwrap();
-        }
-
         context.process(o);
     }
 

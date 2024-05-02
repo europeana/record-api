@@ -17,28 +17,14 @@ import java.util.HashMap;
 @Configuration
 public class FormatHandlerRegistryV2 extends HashMap<RdfFormat, FormatWriter> {
 
-    private final JsonV2Writer jsonV2Writer;
-
-    private final JsonLdWriter jsonLdWriter;
-
-    private final XmlRecordWriter xmlRecordWriter;
-
-    private final JenaBasedFormatWriter jenaBasedTurtleWriter;
-
-
     public FormatHandlerRegistryV2(JsonV2Writer jsonV2Writer,
                                    JsonLdWriter jsonLdWriter,
                                    XmlRecordWriter xmlRecordWriter,
                                    @Qualifier("jenaFormatWriterTurtle") JenaBasedFormatWriter jenaBasedTurtleWriter) {
-        this.jsonV2Writer = jsonV2Writer;
-        this.jsonLdWriter = jsonLdWriter;
-        this.xmlRecordWriter = xmlRecordWriter;
-        this.jenaBasedTurtleWriter = jenaBasedTurtleWriter;
-
-        put(RdfFormat.JSONLD, this.jsonLdWriter);
-        put(RdfFormat.JSON, this.jsonV2Writer);
-        put(RdfFormat.XML, this.xmlRecordWriter);
-        put(RdfFormat.TURTLE, this.jenaBasedTurtleWriter);
+        put(RdfFormat.JSONLD, jsonLdWriter);
+        put(RdfFormat.JSON  , jsonV2Writer);
+        put(RdfFormat.XML   , xmlRecordWriter);
+        put(RdfFormat.TURTLE, jenaBasedTurtleWriter);
 
     }
 }

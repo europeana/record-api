@@ -64,6 +64,7 @@ public class AudioMetadata extends TechnicalMetadata {
     @JsonSerialize(using = CompactSerializer.class)
     private DatatypeLiteral<Integer> audioChannelNumber;
 
+    @JsonProperty(ModelConstants.edmType)
     public EdmType getType() { return EdmType.SOUND; }
 
     public Literal<Integer> getDuration() {
