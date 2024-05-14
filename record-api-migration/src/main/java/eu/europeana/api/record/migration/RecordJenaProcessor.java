@@ -2,6 +2,8 @@ package eu.europeana.api.record.migration;
 
 import static org.apache.jena.rdf.model.ResourceFactory.*;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import eu.europeana.api.config.AppConfigConstants;
@@ -44,7 +46,7 @@ import eu.europeana.jena.edm.EDM;
 import eu.europeana.jena.edm.ORE;
 import eu.europeana.jena.edm.RDAGR2;
 import eu.europeana.jena.edm.SVCS;
-import eu.europeana.jena.utils.JenaUtils;
+import eu.europeana.jena.encoder.utils.JenaUtils;
 
 import static eu.europeana.api.record.migration.MigrationHandler.log;
 
@@ -114,8 +116,8 @@ public class RecordJenaProcessor {
 
     private MediaTypes mediaTypes = null;
     
-    public RecordJenaProcessor() {
-        mediaTypes = RecordApiTemplateLibrary.getMediaTypes();
+    public RecordJenaProcessor(MediaTypes mediaTypes) {
+        this.mediaTypes = mediaTypes;
     }
 
     public Resource upgrade(Resource cho) {

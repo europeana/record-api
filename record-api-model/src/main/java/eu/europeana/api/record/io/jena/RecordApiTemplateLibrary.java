@@ -75,4 +75,8 @@ public class RecordApiTemplateLibrary extends TemplateLibrary {
 
         LOG.info("RecordApiTemplateLibrary configuration added ....");
     }
+
+    public MediaTypes getMediaTypes() {
+        return this.mediaTypes;
+    }
 }
