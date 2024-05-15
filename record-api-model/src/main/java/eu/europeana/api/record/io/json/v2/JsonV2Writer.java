@@ -35,6 +35,7 @@ public class JsonV2Writer extends RecordV2JsonWriter
 
     @Override
     public void write(ProvidedCHO cho, OutputStream out) throws IOException {
+        //WHY CREATE A NEW ENCODER?
         Model m = new JenaObjectEncoder(library).encode(cho, cho.getID());
         super.write(m, out);
     }

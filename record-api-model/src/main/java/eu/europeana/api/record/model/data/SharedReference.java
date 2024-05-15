@@ -3,6 +3,7 @@ package eu.europeana.api.record.model.data;
 import com.fasterxml.jackson.annotation.*;
 import dev.morphia.Datastore;
 import dev.morphia.annotations.*;
+import dev.morphia.mapping.codec.references.MorphiaProxy;
 import dev.morphia.query.filters.Filters;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.model.EDMClass;
@@ -44,7 +45,13 @@ public class SharedReference implements ObjectReference {
 
     public boolean isDereferenced() { return (this.object != null); }
 
-    public EDMClass getDereferencedObject() { return this.object; }
+    public EDMClass getDereferencedObject() {
+        EDMClass obj = this.object;
+        if ( obj instanceof MorphiaProxy ) { 
+            obj = (EDMClass)((MorphiaProxy)obj).unwrap(); 
+        }
+        return obj;
+    }
 
     public String toString() { return ("<" + id + ">"); }
 

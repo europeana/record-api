@@ -30,7 +30,7 @@ public class CodecRegistry {
 
         for ( Class c : clazz.getInterfaces() )
         {
-            codec = get(c);
+            codec = getRecursively(c);
             if ( codec != null ) { return codec; }
         }
 

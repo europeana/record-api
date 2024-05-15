@@ -1,6 +1,7 @@
 package eu.europeana.api.record.db.repository;
 
 import dev.morphia.Datastore;
+import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.MorphiaCursor;
 import dev.morphia.query.filters.Filter;
@@ -57,20 +58,30 @@ public class RecordRepository {
     /**
      * Find Record that matches the given record id
      *
-     * @param about : Id of the record to be fetched
+     * @param recordId : Id of the record to be fetched
      * @return record matching record id
      */
-    public ProvidedCHO findById(String about) {
+    public ProvidedCHO findById(String recordId) {
+        return findById(recordId, new FindOptions());
+    }
+
+    /**
+     * Find Record that matches the given record id and supplying find options
+     *
+     * @param recordId : Id of the record to be fetched
+     * @param opts     : options for find
+     * @return record matching record id
+     */
+    public ProvidedCHO findById(String recordId, FindOptions opts) {
         List<Filter> filters = new ArrayList<>();
-        filters.add(Filters.eq("id", about));
+        filters.add(Filters.eq("id", recordId));
 
         return datastore
                 .find(ProvidedCHO.class)
                 .filter(filters.toArray(Filter[]::new))
-                .iterator(new FindOptions())
+                .iterator(opts)
                 .tryNext();
-    }
-
+    } 
 
     /**
      * Fetches the records for the list of record ids
@@ -78,12 +89,23 @@ public class RecordRepository {
      * @return list of ProvidedCho(s)
      */
     public MorphiaCursor<ProvidedCHO> findByRecordIds(List<String> recordIds) {
+        return findByRecordIds(recordIds, new FindOptions());
+    }
+
+    /**
+     * Fetches the records for the list of record ids
+     * @param recordIds ids to be fetched
+     * @param opts  : options for find
+     * @return list of ProvidedCho(s)
+     */
+    public MorphiaCursor<ProvidedCHO> findByRecordIds(List<String> recordIds
+                                                    , FindOptions opts) {
         List<Filter> filters = new ArrayList<>();
         filters.add(Filters.in("id", recordIds));
         return datastore
                 .find(ProvidedCHO.class)
                 .filter(filters.toArray(Filter[]::new))
-                .iterator(new FindOptions());
+                .iterator(opts);
     }
 
     public Datastore getDatastore() {

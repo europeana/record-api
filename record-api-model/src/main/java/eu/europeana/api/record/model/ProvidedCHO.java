@@ -36,7 +36,7 @@ import static eu.europeana.api.record.model.ModelConstants.*;
                    , DCTerms.spatial, EDM.currentLocation, DC.coverage
                    , DC.subject, dcType, DC.format, DCTerms.medium
                    , DCTerms.conformsTo, DCTerms.extent, EDM.hasType, EDM.hasMet
-                   , EDM.isRelatedTo, DC.rights, DCTerms.provenance, EDM.realizes
+                   , EDM.isRelatedTo, dcRights, DCTerms.provenance, EDM.realizes
                    , DC.source, DC.relation, DCTerms.isPartOf, DCTerms.hasPart
                    , EDM.isNextInSequence, DCTerms.isFormatOf, DCTerms.hasFormat
                    , DCTerms.isVersionOf, DCTerms.hasVersion, DCTerms.isReferencedBy

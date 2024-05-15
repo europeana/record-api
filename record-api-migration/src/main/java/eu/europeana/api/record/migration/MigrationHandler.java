@@ -48,6 +48,7 @@ public class MigrationHandler {
     private boolean validate = true;
     protected boolean validateDB = false;
     protected boolean saveCopy = false;
+    private boolean   genExternal = true;
     private File logDir = null;
     private int threads = DEFAULT_THREADS;
     private ExecutorService executor = null;
@@ -91,6 +92,8 @@ public class MigrationHandler {
     public void setSaveCopy(boolean saveCopy) {
         this.saveCopy = saveCopy;
     }
+
+    public void setGenerateExternal(boolean genExternal) { this.genExternal = genExternal; }
 
     public void setValidateDB(boolean validate) {
         this.validateDB = validate;
@@ -164,6 +167,8 @@ public class MigrationHandler {
             if (cho == null) {
                 return null;
             }
+
+            if ( genExternal ) { cho = jenaProcessor.generateExternal(cho); }
 
             this.cho = cho;
             ProvidedCHO pcho = (ProvidedCHO) new JenaObjectDecoder(library, RecordModelFactoryImpl.INSTANCE).decode(cho);

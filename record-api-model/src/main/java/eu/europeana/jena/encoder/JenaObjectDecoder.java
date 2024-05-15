@@ -252,6 +252,7 @@ public class JenaObjectDecoder
         if ( codec != null ) { return codec; }
 
         Class<?> clazz = field.getField().getType();
+        //TODO: see if we can hook up the codecs directly to the field definitions
         return library.getCodecRecursively(clazz);
     }
 

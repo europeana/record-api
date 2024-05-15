@@ -52,12 +52,16 @@ public class JenaUtils {
         }
     }
 
+    public static boolean hasDatatype(Literal l) {
+        return hasDatatype(l.getDatatype());
+    }
+
     public static boolean hasDatatype(RDFDatatype dt) {
         return ( dt != null && !ignoredDatatypes.contains(dt.getURI())); 
     }
 
     public static boolean hasLanguage(Literal literal) {
-        return ( !StringUtils.isBlank(literal.getLanguage()) );
+        return ( StringUtils.isNotBlank(literal.getLanguage()) );
     }
 
     public static <T extends Collection<Statement>> T copy(StmtIterator iter

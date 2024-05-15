@@ -248,7 +248,13 @@ public class RecordV2JsonWriter {
                   && !EDM.FullTextResource.equals(obj) )  {
                     continue;
                 }
-                jgen.writeObjectField(def.name, toValue(obj, def));
+//                jgen.writeObjectField(def.name, toValue(obj, def));
+                try {
+                    jgen.writeObjectField(def.name, toValue(obj, def));
+                }
+                catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
                 break;
             }
         }

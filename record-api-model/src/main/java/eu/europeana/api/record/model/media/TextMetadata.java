@@ -13,6 +13,7 @@ import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.io.jena.FulltextFieldCodec;
 import eu.europeana.api.record.io.json.CompactSerializer;
 import eu.europeana.api.record.io.json.FullTextResourceSerializer;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.DatatypeLiteral;
 import eu.europeana.api.record.model.data.EdmType;
 import eu.europeana.jena.encoder.annotation.JenaClass;
@@ -45,6 +46,7 @@ public class TextMetadata extends TechnicalMetadata {
 
     public TextMetadata() {}
 
+    @JsonProperty(ModelConstants.edmType)
     public EdmType getType() { return EdmType.TEXT; }
 
     public DatatypeLiteral<Integer> getSpatialResolution() {

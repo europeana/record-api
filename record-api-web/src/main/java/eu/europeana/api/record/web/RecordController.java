@@ -10,7 +10,8 @@ import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.model.RecordRequest;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,14 +20,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
 
 import java.io.*;
 import java.util.*;
 
 import static eu.europeana.api.record.utils.RecordConstants.*;
 
+@Tag(
+        name = "Record API rest endpoints"
+//        description = "Record API retrieval in different formats"
+
+)
 @RestController
 @Validated
 public class RecordController {
@@ -43,10 +56,9 @@ public class RecordController {
         this.formatHandlerRegistry = formatHandlerRegistry;
     }
 
-
     /**
      * Retrieves the Record in the format requested
-     * Format is requested two way - either as an extension in the localID or the Accept Header
+     * Format is requested two-way - either as an extension in the localID or the Accept Header
      * If present in localId : example - UEDIN_214.xml or UEDIN_214.json Or a valid Accept header.
      *                                   Extensions are given preference over Accept header values
      *                                   If both are provided then default format is set to JSONLD
@@ -56,20 +68,29 @@ public class RecordController {
      * @return Response Entity with StreamingResponseBody
      * @throws EuropeanaApiException throws generic EuropeanaApiException
      */
-    @ApiOperation(
-            value = "Retrieve a record",
-            nickname = "retrieveRecord",
-            response = StreamingResponseBody.class)
+
+    @Operation(
+            summary = "retrieveRecord",
+            description = "Retrieve record in json/json-ld, XML, Turtle, N3, NT "
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status 200 OK"
+    )
     @GetMapping(
             value = {
                     "/record/v3/{datasetId}/{localId}",
             },
             headers = { ACCEPT_HEADER_JSONLD, ACCEPT_HEADER_JSON,
                     ACCEPT_HEADER_APPLICATION_TEXT_XML, ACCEPT_HEADER_RDF_XML, ACCEPT_HEADER_APPLICATION_RDF_XML, ACCEPT_HEADER_APPLICATION_XML,
-                    ACCEPT_HEADER_APPLICATION_TURTLE_TEXT, ACCEPT_HEADER_APPLICATION_TURTLE, ACCEPT_HEADER_APPLICATION_TURTLE_X
+                    ACCEPT_HEADER_APPLICATION_TURTLE_TEXT, ACCEPT_HEADER_APPLICATION_TURTLE, ACCEPT_HEADER_APPLICATION_TURTLE_X,
+                    ACCEPT_HEADER_APPLICATION_N3, ACCEPT_HEADER_APPLICATION_N3_RDF, ACCEPT_HEADER_APPLICATION_N3_TEXT,
+                    ACCEPT_HEADER_APPLICATION_NT, ACCEPT_HEADER_APPLICATION_NT_TEXT, ACCEPT_HEADER_APPLICATION_NT_TRIPLES
             },
-            produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8,
+            produces = {HttpHeaders.CONTENT_TYPE_JSONLD, MediaType.APPLICATION_JSON_VALUE,
                     MediaType.TEXT_XML_VALUE, HttpHeaders.CONTENT_TYPE_RDF_XML, HttpHeaders.CONTENT_TYPE_APPLICATION_RDF_XML, MediaType.APPLICATION_XML_VALUE,
+                    MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X,
+                    MEDIA_TYPE_N3_TEXT, MEDIA_TYPE_N3_RDF, MEDIA_TYPE_N3,
                     MEDIA_TYPE_TURTLE_TEXT, MEDIA_TYPE_TURTLE, MEDIA_TYPE_TURTLE_X})
     public ResponseEntity<StreamingResponseBody> retrieveRecord(
             @PathVariable String datasetId,
@@ -85,10 +106,15 @@ public class RecordController {
      * @return List of records
      * @throws EuropeanaApiException
      */
-    @ApiOperation(
-            value = "Retrieve multiple records",
-            nickname = "retrieveRecords",
-            response = StreamingResponseBody.class)
+
+    @Operation(
+            summary = "retrieveRecords",
+            description = "Retrieve mutiple record in json/json-ld"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status 200 OK"
+    )
     @PostMapping(value = "/record/v3/retrieve",
             produces = {HttpHeaders.CONTENT_TYPE_JSONLD_UTF8, HttpHeaders.CONTENT_TYPE_JSON_UTF8})
     public ResponseEntity<StreamingResponseBody> retrieveRecords(
@@ -125,7 +151,7 @@ public class RecordController {
 
         // create response headers
         org.springframework.http.HttpHeaders httpHeaders= new org.springframework.http.HttpHeaders();
-        httpHeaders.setContentType(MediaType.valueOf(RdfFormat.JSONLD.getMediaType()));
+        httpHeaders.setContentType(RecordUtils.getMediaTypeObject(RdfFormat.JSONLD));
         StreamingResponseBody responseBody = new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream out) throws IOException {
@@ -135,4 +161,5 @@ public class RecordController {
         };
         return new ResponseEntity<>(responseBody, httpHeaders, HttpStatus.OK);
     }
+
 }
