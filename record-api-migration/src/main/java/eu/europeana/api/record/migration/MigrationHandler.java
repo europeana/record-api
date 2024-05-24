@@ -19,6 +19,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfxml.xmlinput.DOM2Model;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXParseException;
@@ -33,6 +34,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.jena.rdf.model.ResourceFactory.createResource;
+import static eu.europeana.api.config.AppConfigConstants.*;
 
 /**
  * @author Hugo
@@ -66,7 +68,10 @@ public class MigrationHandler {
     private final TemplateLibrary library;
 
     @Autowired
-    public MigrationHandler(MigrationSettings settings, FormatHandlerRegistry registry, MigrationRepository migrationRepository, TemplateLibrary library) {
+    public MigrationHandler(MigrationSettings settings
+                          , FormatHandlerRegistry registry
+                          , MigrationRepository migrationRepository
+                          , @Qualifier(BEAN_RECORD_TEMPLATE_LIBRARY) TemplateLibrary library) {
         this.settings = settings;
         this.registry = registry;
         this.migrationRepository = migrationRepository;

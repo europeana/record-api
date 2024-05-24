@@ -7,11 +7,9 @@ public class AppConfigConstants {
     public static final String BEAN_RECORD_DATA_STORE = "recordDataStore";
     public static final String BEAN_RECORD_REPO = "recordRepo";
     public static final String BEAN_RECORD_SERVICE = "recordService";
-    public static final String BEAN_RECORD_JSONLD_SERIALIZER = "recordJsonldWriter";
-    public static final String BEAN_RECORD_XML_SERIALIZER = "recordXmlWriter";
 
     // v2 beans
-    public static final String BEAN_RECORD_V2_JSON_SERIALIZER = "recordJsonV2Writer";
+    public static final String BEAN_FORMAT_WRITER_V2_JSON = "recordJsonV2Writer";
 
 
     // serialiser beans
@@ -23,9 +21,12 @@ public class AppConfigConstants {
     public static final String BEAN_NAMESPACE_RESOLVER= "namespaceResolver";
     public static final String BEAN_DEFAULT_URI_RESOLVER= "defaultUriResolver";
     public static final String BEAN_RECORD_TEMPLATE_LIBRARY = "recordApiTemplateLibrary";
-    public static final String BEAN_JENA_FORAMAT_WRITER_TURTLE = "jenaFormatWriterTurtle";
-    public static final String BEAN_JENA_FORAMAT_WRITER_N3 = "jenaFormatWriterN3";
-    public static final String BEAN_JENA_FORAMAT_WRITER_NT = "jenaFormatWriterNt";
+    
+    public static final String BEAN_FORMAT_WRITER_TURTLE = "recordWriterTurtle";
+    public static final String BEAN_FORMAT_WRITER_N3     = "recordWriterN3";
+    public static final String BEAN_FORMAT_WRITER_NT     = "recordWriterNt";
+    public static final String BEAN_FORMAT_WRITER_JSONLD = "recordWriterJsonLD";
+    public static final String BEAN_FORMAT_WRITER_XML    = "recordWriterXml";
 
 
     // media config beans

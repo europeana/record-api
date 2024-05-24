@@ -16,6 +16,7 @@ import org.bson.codecs.pojo.PropertyCodecRegistry;
 import org.bson.codecs.pojo.TypeWithTypeParameters;
 
 import eu.europeana.api.edm.RDF;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.DataValue;
 import eu.europeana.api.record.model.data.Datatype;
 import eu.europeana.api.record.model.data.DatatypeLiteral;
@@ -94,8 +95,8 @@ public abstract class AbsDataValueCodec<T extends DataValue> implements Codec<T>
                                        , LanguageLiteral literal
                                        , EncoderContext ctxt) {
         writer.writeStartDocument();
-        writer.writeString(lang , literal.getLanguage());
-        writer.writeString(value, literal.getValue());
+        writer.writeString(lang, literal.getLanguage());
+        writer.writeString(val , literal.getValue());
         writer.writeEndDocument();
     }
     
@@ -103,9 +104,9 @@ public abstract class AbsDataValueCodec<T extends DataValue> implements Codec<T>
                                        , DatatypeLiteral literal
                                        , EncoderContext ctxt) {
         writer.writeStartDocument();
-        writer.writeName(datatype);
+        writer.writeName(dt);
         encodeDatatype(writer, literal.getDatatype(), ctxt);
-        writer.writeName(value);
+        writer.writeName(val);
         encodeValue(writer, literal.getValue(), ctxt);
         writer.writeEndDocument();
     }
@@ -146,13 +147,13 @@ public abstract class AbsDataValueCodec<T extends DataValue> implements Codec<T>
         reader.readStartDocument();
         while ( reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String name = reader.readName();
-            if ( name.equals(value ) ) {
+            if ( name.equals(val) ) {
                 obj = decodeValue(reader, ctxt, gtype);
             }
             else if ( name.equals(lang) ) {
                 language = reader.readString();
             }
-            else if ( name.equals(datatype) ) {
+            else if ( name.equals(ModelConstants.dt) ) {
                 dt = decodeDatatype(reader, ctxt);
             }
             else {
@@ -172,7 +173,7 @@ public abstract class AbsDataValueCodec<T extends DataValue> implements Codec<T>
         reader.readStartDocument();
         while ( reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String name = reader.readName();
-            if ( name.equals(value) ) {
+            if ( name.equals(val) ) {
                 str = reader.readString();
             }
             else if ( name.equals(lang) ) {
@@ -192,10 +193,10 @@ public abstract class AbsDataValueCodec<T extends DataValue> implements Codec<T>
         reader.readStartDocument();
         while ( reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String name = reader.readName();
-            if ( name.equals(value ) ) {
+            if ( name.equals(val ) ) {
                 obj = decodeValue(reader, ctxt,  gtype);
             }
-            else if ( name.equals(datatype) ) {
+            else if ( name.equals(ModelConstants.dt) ) {
                 dt = decodeDatatype(reader, ctxt);
             }
         }
@@ -228,13 +229,13 @@ public abstract class AbsDataValueCodec<T extends DataValue> implements Codec<T>
         boolean isValue = false;
         while ( reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String name = reader.readName();
-            if ( name.equals(value   ) ) { isValue = true; }
-            else if ( name.equals(lang    ) ) { return LanguageLiteral.class;                }
-            else if ( name.equals(datatype) ) { return DatatypeLiteral.class;                }
+            if ( name.equals(val) ) { isValue = true; }
+            else if ( name.equals(lang)   ) { return LanguageLiteral.class;                }
+            else if ( name.equals(dt)     ) { return DatatypeLiteral.class;                }
             else if ( name.equals(RDF.type) ) { 
                 String type = reader.readString();
-                if ( type.equals("Shared") ) { return SharedReference.class; }
-                if ( type.equals("Local") ) { return LocalReference.class; }
+                if ( type.equals(Shared) ) { return SharedReference.class; }
+                if ( type.equals(Local) ) { return LocalReference.class; }
                 //return mapper.getClass(reader.readString()); 
             }
             reader.skipValue();

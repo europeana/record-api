@@ -6,8 +6,11 @@ import eu.europeana.api.record.io.json.JsonLdWriter;
 import eu.europeana.api.record.io.xml.XmlRecordWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.util.HashMap;
+
+import static eu.europeana.api.config.AppConfigConstants.*;
 
 /**
  * @author Srishti Singh
@@ -15,12 +18,14 @@ import java.util.HashMap;
  * @refractored 22 December 2023
  */
 @Configuration
+@Import(JsonLdWriter.class)
 public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter> {
 
-    public FormatHandlerRegistry(JsonLdWriter jsonLdWriter, XmlRecordWriter xmlRecordWriter,
-                                 @Qualifier("jenaFormatWriterTurtle") JenaBasedFormatWriter jenaBasedTurtleWriter,
-                                 @Qualifier("jenaFormatWriterN3") JenaBasedFormatWriter jenaBasedN3Writer,
-                                 @Qualifier("jenaFormatWriterNt") JenaBasedFormatWriter jenaBasedNTWriter) {
+    public FormatHandlerRegistry(@Qualifier(BEAN_FORMAT_WRITER_JSONLD) JsonLdWriter jsonLdWriter
+                               , @Qualifier(BEAN_FORMAT_WRITER_XML) XmlRecordWriter xmlRecordWriter
+                               , @Qualifier(BEAN_FORMAT_WRITER_TURTLE) JenaBasedFormatWriter jenaBasedTurtleWriter
+                               , @Qualifier(BEAN_FORMAT_WRITER_N3) JenaBasedFormatWriter jenaBasedN3Writer
+                               , @Qualifier(BEAN_FORMAT_WRITER_NT) JenaBasedFormatWriter jenaBasedNTWriter) {
         put(RdfFormat.JSONLD, jsonLdWriter);
         put(RdfFormat.JSON  , jsonLdWriter);
         put(RdfFormat.XML   , xmlRecordWriter);

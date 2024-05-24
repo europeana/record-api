@@ -123,6 +123,7 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
                                                          .entrySet() ) {
                 xml.writeNamespace(entry.getKey(), entry.getValue());
             }
+            xml.writeNamespace(eu.europeana.api.edm.RDF.PREFIX, RDF.getURI());
 
             Resource       prevType  = null;
             List<Property> propOrder = null;

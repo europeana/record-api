@@ -15,11 +15,13 @@ import org.apache.jena.vocabulary.RDF;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * @author Hugo
  * @since 10 Oct 2023
  */
-// ADD not thread safe add dependency in pom
+@NotThreadSafe
 public class JenaObjectEncoder
 {
     private Model             m;

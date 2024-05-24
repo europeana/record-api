@@ -72,7 +72,7 @@ public class VideoMetadata extends TechnicalMetadata {
 
     public VideoMetadata() {}
 
-    @JsonProperty(ModelConstants.edmType)
+    @JsonProperty(ModelConstants.mediaCategory)
     public EdmType getType() { return EdmType.VIDEO; }
 
     public DatatypeLiteral<Integer> getWidth() {

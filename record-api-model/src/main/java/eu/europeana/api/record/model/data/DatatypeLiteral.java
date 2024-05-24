@@ -18,7 +18,7 @@ public class DatatypeLiteral<T> extends Literal<T> {
 
     @JsonProperty(ModelConstants.datatype)
     @JsonSerialize(using = DatatypeSerializer.class)
-    @Property(ModelConstants.datatype)
+    @Property(ModelConstants.dt)
     protected Datatype datatype;
 
     public DatatypeLiteral() {}

@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,12 +54,22 @@ public class RecordApp extends SpringBootServletInitializer {
 
                 ProvidedCHO cho = repo.findById(
                         "http://data.europeana.eu/item/142/UEDIN_214"
-                      , vr.getProjection("external"));
+                      , vr.getProjection("media.full"));
                 System.out.println(cho);
 
-                FormatHandlerRegistryV2 reg = ctx.getBean(FormatHandlerRegistryV2.class);
-                reg.get(RdfFormat.JSONLD).write(cho, System.out);
+                if ( cho == null ) { return; }
 
+                FormatHandlerRegistry reg = ctx.getBean(FormatHandlerRegistry.class);
+//                reg.get(RdfFormat.JSONLD).write(cho, System.out);
+
+                File dir = new File("C:\\Work\\incoming\\Record v3\\formats");
+                for ( RdfFormat format : RdfFormat.values() ) {
+                    File file = new File(dir, "record." +  format.getExtension());
+                    try ( FileOutputStream fos = new FileOutputStream(file) ) {
+                        reg.get(format).write(cho, fos);
+                        fos.flush();
+                    }
+                }
                 //new JsonV2Writer().write(cho, System.out);
 
         }

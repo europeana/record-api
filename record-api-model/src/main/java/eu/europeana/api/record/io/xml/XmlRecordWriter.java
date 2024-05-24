@@ -18,14 +18,8 @@ import java.util.Iterator;
  * @author Hugo
  * @since 8 Nov 2023
  */
-@Component(AppConfigConstants.BEAN_RECORD_XML_SERIALIZER)
+@Component(AppConfigConstants.BEAN_FORMAT_WRITER_XML)
 public class XmlRecordWriter extends EdmXmlStreamWriter implements FormatWriter<ProvidedCHO> {
-
-    // TODO not thread safe
-    private JenaObjectEncoder encoder;
-
-    // TODO later
-    // encoder = new JenaObjectEncoder(RecordApiTemplateLibrary.INSTANCE);
 
     @Resource(name = AppConfigConstants.BEAN_RECORD_TEMPLATE_LIBRARY)
     private TemplateLibrary library;

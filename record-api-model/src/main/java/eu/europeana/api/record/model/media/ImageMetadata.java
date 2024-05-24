@@ -64,7 +64,7 @@ public class ImageMetadata extends TechnicalMetadata {
     @JsonSerialize(using = CompactSerializer.class)
     private Literal<ImageOrientation> orientation;
 
-    @JsonProperty(ModelConstants.edmType)
+    @JsonProperty(ModelConstants.mediaCategory)
     public EdmType getType() { return EdmType.IMAGE; }
 
     public DatatypeLiteral<Integer> getWidth()

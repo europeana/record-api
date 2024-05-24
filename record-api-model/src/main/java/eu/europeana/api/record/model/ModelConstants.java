@@ -11,15 +11,17 @@ public interface ModelConstants {
 
     public static final String id               = "id";
     public static final String object           = "object";
-    public static final String datatype         = "datatype";
+    public static final String dt               = "dt";
+    public static final String datatype         = "@datatype";
     public static final String lang             = "lang";
-    public static final String language         = "language";
-    public static final String value            = "value";
+    public static final String language         = "@language";
+    public static final String val              = "value";
+    public static final String value            = "@value";
     public static final String context          = "@context";
     public static final String Record           = "Record";
     public static final String proxies          = "proxies";
-    public static final String edmType          = "edmType";
-    public static final String dcType           = "dcType";
+    public static final String mediaCategory    = "mediaCategory";
+    public static final String objectType       = "objectType";
     public static final String dcRights         = "dcRights";
     public static final String additionalType   = "additionalType";
     public static final String techMeta         = "techMeta";

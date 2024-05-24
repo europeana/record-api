@@ -3,8 +3,12 @@ package eu.europeana.api.record.io.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import eu.europeana.api.config.AppConfigConstants;
+import eu.europeana.api.config.MediaTypeConfig;
 import eu.europeana.api.format.FormatWriter;
+import eu.europeana.api.record.io.RecordIOConfig;
 import eu.europeana.api.record.model.ProvidedCHO;
+
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -17,13 +21,18 @@ import java.util.Stack;
 import static eu.europeana.api.config.AppConfigConstants.BEAN_JSON_MAPPER;
 import static eu.europeana.api.record.model.ModelConstants.context;
 
-@Component(AppConfigConstants.BEAN_RECORD_JSONLD_SERIALIZER)
+@Component(AppConfigConstants.BEAN_FORMAT_WRITER_JSONLD) 
+@Import(RecordIOConfig.class)
 public class JsonLdWriter implements FormatWriter<ProvidedCHO> {
 
     @Resource( name = BEAN_JSON_MAPPER)
     private ObjectMapper mapper;
 
     public static ThreadLocal<Stack<String>> stack = new ThreadLocal();
+
+    public JsonLdWriter() {
+        
+    }
 
     /**
      * Serialises the ProvidedCho into the output stream

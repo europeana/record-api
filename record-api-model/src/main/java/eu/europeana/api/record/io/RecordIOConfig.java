@@ -86,17 +86,17 @@ public class RecordIOConfig {
     }
 
     // JenaBasedFormatWriter beans based on formats
-    @Bean(AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_TURTLE)
+    @Bean(AppConfigConstants.BEAN_FORMAT_WRITER_TURTLE)
     public JenaBasedFormatWriter getJenaBasedTurtleWriter() {
         return new JenaBasedFormatWriter("TURTLE");
     }
 
-    @Bean(AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_N3)
+    @Bean(AppConfigConstants.BEAN_FORMAT_WRITER_N3)
     public JenaBasedFormatWriter getJenaBasedN3Writer() {
         return new JenaBasedFormatWriter("N3");
     }
 
-    @Bean(AppConfigConstants.BEAN_JENA_FORAMAT_WRITER_NT)
+    @Bean(AppConfigConstants.BEAN_FORMAT_WRITER_NT)
     public JenaBasedFormatWriter getJenaBasedNTWriter() {
         return new JenaBasedFormatWriter("NT");
     }

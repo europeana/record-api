@@ -58,9 +58,9 @@ public class ObjectMetadata
     // type & language
 
     @JenaProperty(ns = EDM.NS, localName = EDM.type)
-    @JsonProperty(ModelConstants.edmType)
-    @Property(ModelConstants.edmType)
-    private EdmType edmType;
+    @JsonProperty(ModelConstants.mediaCategory)
+    @Property(ModelConstants.mediaCategory)
+    private EdmType mediaCategory;
 
     @JenaProperty(ns = DC.NS, localName = DC.language)
     @JsonProperty(DC.language)
@@ -134,9 +134,9 @@ public class ObjectMetadata
     private List<DataValue> subject;
 
     @JenaProperty(ns = DC.NS, localName = DC.type)
-    @JsonProperty(ModelConstants.dcType)
-    @Property(ModelConstants.dcType)
-    private List<DataValue> dcType;
+    @JsonProperty(ModelConstants.objectType)
+    @Property(ModelConstants.objectType)
+    private List<DataValue> objectType;
 
     @JenaProperty(ns = DC.NS, localName = DC.format)
     @JsonProperty(DC.format)
@@ -342,14 +342,14 @@ public class ObjectMetadata
     }
 
 
-    public EdmType getEdmType()
+    public EdmType getMediaCategory()
     {
-        return edmType;
+        return mediaCategory;
     }
 
-    public void setType(EdmType edmType)
+    public void setMediaCategory(EdmType mediaCategory)
     {
-        this.edmType = edmType;
+        this.mediaCategory = mediaCategory;
     }
 
     

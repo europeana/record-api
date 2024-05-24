@@ -2,13 +2,16 @@ package eu.europeana.api.record.migration;
 
 import static org.apache.jena.rdf.model.ResourceFactory.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.model.MediaType;
 import eu.europeana.api.model.MediaTypes;
+
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
@@ -18,7 +21,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.sparql.vocabulary.FOAF;
-import org.apache.jena.util.ResourceUtils;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.OWL;
@@ -39,7 +41,6 @@ import eu.europeana.api.edm.SKOS;
 import eu.europeana.api.edm.SVCS;
 import eu.europeana.api.edm.XSD;
 */
-import eu.europeana.api.record.io.jena.RecordApiTemplateLibrary;
 import eu.europeana.jena.edm.CC;
 import eu.europeana.jena.edm.EBUCORE;
 import eu.europeana.jena.edm.EDM;
@@ -58,6 +59,8 @@ public class RecordJenaProcessor {
 
     private static DateTimeFormatter DATETIME_FORMAT
         = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss'Z'");
+
+    private static String THUMBNAIL_URL = "https://api.europeana.eu/thumbnail/v2/url.json?uri=%s&type=%s&size=%s";
 
     /*
     private static final Resource ProvidedCHO      = createResource(EDM.NS + EDM.ProvidedCHO);
@@ -149,6 +152,9 @@ public class RecordJenaProcessor {
         fixWebResourcerReference(getObjects(m.listStatements(null, EDM.isShownBy, (RDFNode)null)));
         fixWebResourcerReference(getObjects(m.listStatements(null, EDM.isShownAt, (RDFNode)null)));
         fixWebResourcerReference(getObjects(m.listStatements(null, EDM.hasView, (RDFNode)null)));
+
+        generateThumbnails(getObjects(m.listStatements(null, EDM.isShownBy, (RDFNode)null)));
+        generateThumbnails(getObjects(m.listStatements(null, EDM.hasView, (RDFNode)null)));
 
         removeLooseResources(getAsList(m.listResourcesWithProperty(RDF.type, SVCS.Service)));
         removeLooseResources(getAsList(m.listResourcesWithProperty(RDF.type, CC.License)));
@@ -256,6 +262,51 @@ public class RecordJenaProcessor {
 
             r.getModel().remove(r, RDF.type, EDM.FullTextResource);
         }
+    }
+
+    private Dimension getSize(Resource r) {
+        Integer width  = getAsInteger(r.getProperty(EBUCORE.width));
+        Integer height = getAsInteger(r.getProperty(EBUCORE.height));
+        return ( width != null && height != null ? new Dimension(width,height) : null );
+    }
+
+    private Integer getAsInteger(Statement stmt) {
+        return ( stmt == null ? null : stmt.getInt() );
+    }
+
+    private void generateThumbnails(List<Resource> resources) {
+        String thumbURL;
+        for ( Resource r : resources ) {
+            Statement stmt = r.getProperty(EBUCORE.hasMimeType);
+            if ( stmt == null ) { continue; }
+
+            Optional<MediaType> mediaType = mediaTypes.getMediaType(stmt.getString());
+            if ( mediaType.isEmpty() ) { continue; }
+            
+            MediaType mt = mediaType.get();
+            if ( !mt.isBrowserSupported() ) { continue; }
+
+            Model m = r.getModel();
+            String url = URLEncoder.encode(r.getURI(), Charset.defaultCharset());
+            Dimension size = getSize(r);
+            if ( size == null ) { continue; }
+
+            thumbURL = String.format(THUMBNAIL_URL, url, mt.getType(), "w400");
+            r.addProperty(EDM.preview
+                        , generateThumbnailResource(m.getResource(thumbURL), mt, size.resizeToWidth(400)));
+
+            thumbURL = String.format(THUMBNAIL_URL, url, mt.getType(), "w200");
+            r.addProperty(EDM.preview
+                        , generateThumbnailResource(m.getResource(thumbURL), mt, size.resizeToWidth(200)));
+        }
+    }
+
+    private Resource generateThumbnailResource(Resource r, MediaType mt, Dimension size) {
+        r.addLiteral(EDM.type, mt.getType());
+        r.addProperty(EBUCORE.width, Integer.toString(size.width), XSDDatatype.XSDinteger);
+        r.addProperty(EBUCORE.height, Integer.toString(size.height), XSDDatatype.XSDinteger);
+        r.addLiteral(EBUCORE.hasMimeType, "image/jpeg");
+        return r;
     }
 
     private void fixWebResourcerReference(List<Resource> resources)
@@ -717,4 +768,12 @@ public class RecordJenaProcessor {
             return 2;
         }
     }
+
+    private static record Dimension(int width, int height) {
+
+        public Dimension resizeToWidth(int width) {
+            float ratio = (float)this.height / this.width;
+            return new Dimension(width, Math.round(ratio * width));
+        }
+     }
 }

@@ -2,6 +2,7 @@ package eu.europeana.api.record.migration;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -12,6 +13,8 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.w3c.dom.Document;
+
+import eu.europeana.api.record.migration.FTPSupport.FTPContext;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -42,8 +45,8 @@ import java.util.zip.ZipInputStream;
         ignoreResourceNotFound = true)
 public class RunMigration implements CommandLineRunner {
 
-    @Value("${source.file}")
-    private String sourceDirectory;
+    @Value("${source.url}")
+    private String sourceURL;
 
     @Value("${target.file}")
     private String targetDirectory;
@@ -62,9 +65,8 @@ public class RunMigration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        File src = new File(sourceDirectory);
         File logDir = new File(targetDirectory);
-        PrintStream out = new PrintStream(new File(logDir, "run.log"));
+        PrintStream out   = new PrintStream(new File(logDir, "run.log"));
         PrintStream error = new PrintStream(new File(logDir, "error.log"));
         try {
             // handler settings
@@ -80,7 +82,7 @@ public class RunMigration implements CommandLineRunner {
             transformer = TransformerFactory.newInstance().newTransformer();
 
             // process
-            process(src);
+            process(sourceURL);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         } finally {
@@ -91,14 +93,26 @@ public class RunMigration implements CommandLineRunner {
         }
     }
 
-    private void process(File dir) {
+    private void process(String url) {
         try {
             handler.start();
-            processInt(dir);
-        } finally {
+            if ( url.startsWith("ftp://") ) {
+                processFtp(new FTPSupport(url));
+                return;
+            }
+            if ( url.startsWith("file://") ) {
+                processInt(new File(url.replace("file:///", "")));
+                return;
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
             handler.end();
         }
     }
+
 
     private void processInt(File dir) {
         for (File file : dir.listFiles()) {
@@ -113,9 +127,9 @@ public class RunMigration implements CommandLineRunner {
 
             String name = file.getName();
             if (name.endsWith(".xml")) {
-                processFile(file);
+                processXML(file);
             } else if (name.endsWith(".zip")) {
-                processZipFile(file);
+                processZip(file);
             }
         }
     }
@@ -135,42 +149,83 @@ public class RunMigration implements CommandLineRunner {
         }
     }
 
-    private void processFile(File file) {
-        try (InputStream is = new FileInputStream(file)) {
-            handle(is);
-            progressLog.println(file.getPath());
-        } catch (IOException e) {
-            e.printStackTrace(System.err);
-        }
-    }
+    // Handling of Zip resources
 
-    private void processZipFile(File file) {
+    private void processZip(File file) {
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
-            ZipEntry ze;
-            InputStream is = new FilterInputStream(zis) {
-                @Override
-                public void close() {
-                }
-            };
-            while ((ze = zis.getNextEntry()) != null) {
-                String name = ze.getName();
-                if (name.endsWith(".xml")) {
-                    handle(is);
-                }
-                zis.closeEntry();
+            processZip(zis);
+            progressLog.println(file.getPath());
+        }
+        catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    private void processZip(ZipInputStream zis) throws IOException {
+        ZipEntry ze;
+        InputStream is = new FilterInputStream(zis) {
+            @Override
+            public void close() {
             }
+        };
+        while ((ze = zis.getNextEntry()) != null) {
+            String name = ze.getName();
+            if (name.endsWith(".xml") ) {
+                processXML(is);
+            }
+            zis.closeEntry();
+        }
+    }
+
+    // Handling of XML resources
+
+    private void processXML(File file) {
+        try (InputStream is = new FileInputStream(file)) {
+            processXML(is);
             progressLog.println(file.getPath());
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }
     }
 
-    private void handle(InputStream is) {
+    private void processXML(InputStream is) {
         try {
             DOMResult domResult = new DOMResult();
             transformer.transform(new StreamSource(is), domResult);
             handler.runTask((Document) domResult.getNode());
         } catch (TransformerException e) {
+        }
+    }
+
+    // Handling of FTP listing and resources
+
+    private void processFtp(FTPSupport ftp) throws IOException {
+        try {
+            processFtp(ftp.getRoot());
+        }
+        finally {
+            ftp.close();
+        }
+    }
+
+    private void processFtp(FTPContext context) throws IOException {
+
+        if ( context.isDirectory() ) {
+            for (FTPFile nfile : context.listFiles() ) { 
+                processFtp(context.newContext(nfile));
+            }
+            return;
+        }
+
+        String url  = context.getURL();
+        if ( processed.contains(url) ) { return; }
+
+        String name = context.getFilename();
+        if ( name.endsWith(".zip") ) {
+            try ( ZipInputStream zis = new ZipInputStream(context.openStream()) ) {
+                processZip(zis);
+                progressLog.println(url);
+            }
         }
     }
 

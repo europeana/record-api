@@ -31,11 +31,11 @@ import static eu.europeana.api.record.model.ModelConstants.*;
             , visible = true, property = RDF.type)
 @JsonPropertyOrder({id, RDF.type
                    , DC.title, DCTerms.alternative, DC.description
-                   , DCTerms.tableOfContents, edmType, DC.language
+                   , DCTerms.tableOfContents, mediaCategory, DC.language
                    , DC.creator, DC.contributor, DC.publisher
                    , DCTerms.created, DCTerms.issued, DCTerms.temporal, DC.date, EDM.year
                    , DCTerms.spatial, EDM.currentLocation, DC.coverage
-                   , DC.subject, dcType, DC.format, DCTerms.medium
+                   , DC.subject, objectType, DC.format, DCTerms.medium
                    , DCTerms.conformsTo, DCTerms.extent, EDM.hasType, EDM.hasMet
                    , EDM.isRelatedTo, DC.rights, DCTerms.provenance, EDM.realizes
                    , DC.source, DC.relation, DCTerms.isPartOf, DCTerms.hasPart

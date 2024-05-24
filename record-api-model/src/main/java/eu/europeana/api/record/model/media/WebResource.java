@@ -83,9 +83,9 @@ public class WebResource implements EDMClass
     // categorisation of the resource
 
     @JenaProperty(ns = DC.NS, localName = DC.type)
-    @Property(ModelConstants.dcType)
-    @JsonProperty(ModelConstants.dcType)
-    private List<DataValue> dcType;
+    @Property(ModelConstants.objectType)
+    @JsonProperty(ModelConstants.objectType)
+    private List<DataValue> objectType;
 
     @JenaProperty(ns = DC.NS, localName = DC.format)
     @JsonProperty(DC.format)
@@ -163,6 +163,13 @@ public class WebResource implements EDMClass
     @JsonProperty(SVCS.has_service)
     private List<ObjectReference> hasService;
 
+    // thumbnail
+    
+    @JenaProperty(ns = EDM.NS, localName = EDM.preview)
+    @Property(EDM.preview)
+    @JsonProperty(EDM.preview)
+    private List<WebResource> preview;
+
     // identifiers
 
     @JenaProperty(ns = OWL.NS, localName = OWL.sameAs)
@@ -224,13 +231,13 @@ public class WebResource implements EDMClass
 
     // categorisation of the resource
 
-    public List<DataValue> getDcTypes() {
-        return ( dcType != null ? dcType
-                                : (dcType = new ArrayList<DataValue>()) );
+    public List<DataValue> getObjectTypes() {
+        return ( objectType != null ? objectType
+                                : (objectType = new ArrayList<DataValue>()) );
     }
 
     public void addDcType(DataValue dcType) {
-        getDcTypes().add(dcType);
+        getObjectTypes().add(dcType);
     }
 
     public List<DataValue> getFormats() {

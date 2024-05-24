@@ -32,12 +32,12 @@ public class RecordApiTemplateLibrary extends TemplateLibrary {
 
     private static final Logger LOG = LogManager.getLogger(RecordApiTemplateLibrary.class);
 
-    @Resource(name = AppConfigConstants.BEAN_MEDIA_TYPES)
-    private MediaTypes mediaTypes;
-
     // TODO add a comment for this method and class what it does
     @Autowired
-    public RecordApiTemplateLibrary(CodecRegistry codecRegistry, NamespaceResolver namespaceResolver, DefaultUriNormalizer defaultUriNormalizer) {
+    public RecordApiTemplateLibrary(CodecRegistry codecRegistry
+                                  , NamespaceResolver namespaceResolver
+                                  , DefaultUriNormalizer defaultUriNormalizer
+                                  , MediaTypes mediaTypes) {
         super(codecRegistry, namespaceResolver, defaultUriNormalizer);
 
         codecRegistry.addCodec(EdmTypeCodec.INSTANCE);
@@ -74,9 +74,5 @@ public class RecordApiTemplateLibrary extends TemplateLibrary {
         importClass(Service.class);
 
         LOG.info("RecordApiTemplateLibrary configuration added ....");
-    }
-
-    public MediaTypes getMediaTypes() {
-        return this.mediaTypes;
     }
 }
