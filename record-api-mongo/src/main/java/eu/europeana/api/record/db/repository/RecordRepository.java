@@ -1,7 +1,6 @@
 package eu.europeana.api.record.db.repository;
 
 import dev.morphia.Datastore;
-import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.MorphiaCursor;
 import dev.morphia.query.filters.Filter;
@@ -28,11 +27,11 @@ public class RecordRepository {
     /**
      * Saves the given record to the database.
      *
-     * @param record record to save
+     * @param recordItem record to save
      * @return saved record
      */
-    public ProvidedCHO save(ProvidedCHO record) {
-        return datastore.save(record);
+    public ProvidedCHO save(ProvidedCHO recordItem) {
+        return datastore.save(recordItem);
     }
 
 
@@ -74,11 +73,12 @@ public class RecordRepository {
      */
     public ProvidedCHO findById(String recordId, FindOptions opts) {
         List<Filter> filters = new ArrayList<>();
-        filters.add(Filters.eq("id", recordId));
+        filters.add(Filters.eq("id", recordId).isValidating(false));
 
         return datastore
                 .find(ProvidedCHO.class)
                 .filter(filters.toArray(Filter[]::new))
+                .disableValidation()
                 .iterator(opts)
                 .tryNext();
     } 
@@ -111,16 +111,6 @@ public class RecordRepository {
     public Datastore getDatastore() {
         return datastore;
     }
-
-    //    public void save(EDMClass o)
-//    {
-//        if ( o != null ) {
-//            long count = datastore.find(o.getClass()).filter(Filters.eq("id", o.getID())).count();
-//            if ( count  > 0 ) { return; }
-//
-//            datastore.save(o);
-//        }
-//    }
 
 
 }

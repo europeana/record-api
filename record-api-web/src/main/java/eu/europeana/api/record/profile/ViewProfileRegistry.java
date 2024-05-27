@@ -4,7 +4,6 @@
 package eu.europeana.api.record.profile;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,7 +25,6 @@ public class ViewProfileRegistry
     static {
 
         //Metadata profiles
-        newProfile("external");
 
         Profile metaBasic = newProfile("meta.basic").expand("id").expandBase("proxies"
          , "id", "type", "title", "description", "creator", "edmType" 
@@ -165,13 +163,8 @@ public class ViewProfileRegistry
 
     public static FindOptions getProjection(String... profileNames) {
         FindOptions opts = new FindOptions();
-        Profile profile = buildProfile(profileNames);
-        if ( !profile.isEmpty() ) {
-            newProjection(opts).include(profile.toArray(String[]::new));
-        }
-        else if ( Arrays.asList(profileNames).contains("external") ) {
-            opts.projection().exclude("proxies");
-        }
+        Projection  proj = newProjection(opts);
+        proj.include(buildProfile(profileNames).toArray(new String[] {}));
         return opts;
     }
 
@@ -242,14 +235,6 @@ public class ViewProfileRegistry
                 node = field + ".";
             }
             return this;
-        }
-    }
-
-    public static final void main(String[] args) {
-        Profile profile = ViewProfileRegistry.buildProfile("meta.full", "prov.full", "media.full");
-        profile.clean();
-        for ( String field : profile ) {
-            System.out.println(field);
         }
     }
 }

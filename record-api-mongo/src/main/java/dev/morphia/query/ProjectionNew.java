@@ -8,8 +8,6 @@ import org.bson.Document;
 import com.mongodb.lang.Nullable;
 
 import dev.morphia.mapping.Mapper;
-import dev.morphia.query.FindOptions;
-import dev.morphia.query.Projection;
 
 /**
  * @author Hugo
@@ -34,6 +32,7 @@ public class ProjectionNew extends dev.morphia.query.Projection {
      * @return this
      * @see <a href="https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/">Project Fields to Return from Query</a>
      */
+    @Override
     public FindOptions include(String... fields) {
         if (projection == null) { projection = new Document(); }
         for ( String field : fields ) {
@@ -41,7 +40,7 @@ public class ProjectionNew extends dev.morphia.query.Projection {
         }
         return super.include(fields);
     }
-
+    @Override
     @Nullable
     public Document map(Mapper mapper, Class<?> type) {
         return projection;
