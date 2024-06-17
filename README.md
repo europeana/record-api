@@ -1,16 +1,18 @@
 # Record API
 New version (v3) of the Record API that is for the first time decoupled from Search API
 
-## Deploy
-To deploy your instance you can use the Docker files in `docker/compose` folder. This image contains Tomcat only.
-However at the moment we do not have a Mongo database or Solr engine in Docker yet.
+## Deployment
+1. Generate a Docker image using the project's Dockerfile
 
-The addresses and login credentials of all these services are specified in the europeana.properties file located in the
-/api2/api2-war/src/main/resources/ folder. For the moment you still need to fill in all the 'REMOVED' values (login
-credentials for services that are not dockerized yet). **Make sure you never commit these changes!**
-It's safer to place these login credentials in a europeana.user.properties file in the same folder because this file
-is set to be ignored by git. All settings in the europeana.user.properties will override those in the europeana.properties.
+2. Configure the application by generating a `record-api.user.properties` file and placing this in the 
+`k8s` folder. After deployment this file will override the settings specified in the `record-api.properties` file
+located in the `record-api-web/src/main/resources` folder. The .gitignore file make sure the .user.properties file
+is never committed.
 
+3. Configure the deployment by setting the proper environment variables specified in the configuration template files
+in the `k8s` folder
+
+4. Deploy to Kubernetes infrastructure
 
 # Europeana Record API
 
