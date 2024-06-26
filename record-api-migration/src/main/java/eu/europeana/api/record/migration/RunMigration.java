@@ -4,14 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 
 import eu.europeana.api.record.migration.FTPSupport.FTPContext;
@@ -32,70 +25,44 @@ import java.util.zip.ZipInputStream;
  * @author Hugo
  * @since 17 Oct 2023
  */
-@SpringBootApplication(
-        scanBasePackages = {"eu.europeana.api.record.migration"},
-        exclude = {
-                // Remove these exclusions to re-enable security
-                SecurityAutoConfiguration.class,
-                // DataSources are manually configured (for EM and batch DBs)
-                DataSourceAutoConfiguration.class
-        })
-@PropertySource(
-        value = {"classpath:migration.properties", "classpath:migration.user.properties"},
-        ignoreResourceNotFound = true)
-public class RunMigration implements CommandLineRunner {
-
-    @Value("${source.url}")
-    private String sourceURL;
-
-    @Value("${target.file}")
-    private String targetDirectory;
+@Component("migrationRunner")
+public class RunMigration {
 
     private PrintStream progressLog;
     private Transformer transformer = null;
     private Collection<String> processed = new HashSet<String>();
 
-    @Autowired
+    @Autowired(required = true)
     private MigrationHandler handler;
 
-    public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(RunMigration.class, args);
-        System.exit(SpringApplication.exit(context));
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-        File logDir = new File(targetDirectory);
-        PrintStream out   = new PrintStream(new File(logDir, "run.log"));
-        PrintStream error = new PrintStream(new File(logDir, "error.log"));
+    public void run(MigrationConfig config) throws Exception {
+        File logDir = config.getLoggingDir();
+        config.out = new PrintStream(new File(logDir, "run.log"));
+        config.err = new PrintStream(new File(logDir, "error.log"));
         try {
-            // handler settings
-            handler.setLoggingDir(logDir);
-            handler.setThreads(20);
-            handler.setSaveCopy(true);
-            handler.setValidateDB(true);
 
-            // file and logger setting
+            // file and logger setting\\
             File progressFile = new File(logDir, "progress.log");
             loadProcessed(progressFile);
             progressLog = new PrintStream(new FileOutputStream(progressFile, true));
             transformer = TransformerFactory.newInstance().newTransformer();
 
             // process
-            process(sourceURL);
+            process(config);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         } finally {
-            out.flush();
-            error.flush();
-            IOUtils.closeQuietly(out);
-            IOUtils.closeQuietly(error);
+            config.out.flush();
+            config.err.flush();
+            IOUtils.closeQuietly(config.out);
+            IOUtils.closeQuietly(config.err);
         }
     }
 
-    private void process(String url) {
+    private void process(MigrationConfig config) {
         try {
-            handler.start();
+            String url = config.getSource();
+            handler.start(config);
             if ( url.startsWith("ftp://") ) {
                 processFtp(new FTPSupport(url));
                 return;
@@ -104,6 +71,7 @@ public class RunMigration implements CommandLineRunner {
                 processInt(new File(url.replace("file:///", "")));
                 return;
             }
+            processInt(new File(url));            
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -114,23 +82,23 @@ public class RunMigration implements CommandLineRunner {
     }
 
 
-    private void processInt(File dir) {
-        for (File file : dir.listFiles()) {
-            if (file.isDirectory()) {
-                processInt(file);
-                continue;
+    private void processInt(File file) {
+        if ( file.isDirectory() ) {
+            for (File f : file.listFiles()) {
+                processInt(f);
             }
+            return;
+        }
 
-            if (processed.contains(file.getPath())) {
-                continue;
-            }
+        if (processed.contains(file.getPath())) {
+            return;
+        }
 
-            String name = file.getName();
-            if (name.endsWith(".xml")) {
-                processXML(file);
-            } else if (name.endsWith(".zip")) {
-                processZip(file);
-            }
+        String name = file.getName();
+        if (name.endsWith(".xml")) {
+            processXML(file);
+        } else if (name.endsWith(".zip")) {
+            processZip(file);
         }
     }
 

@@ -6,6 +6,8 @@ import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.migration.RecordDomProcessor.Result;
 import eu.europeana.api.record.model.*;
+import eu.europeana.api.record.model.data.DataValue;
+import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.api.record.model.internal.ProxyComparator;
 import eu.europeana.jena.encoder.JenaObjectDecoder;
 import eu.europeana.jena.encoder.JenaObjectEncoder;
@@ -26,6 +28,7 @@ import org.xml.sax.SAXParseException;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -40,24 +43,25 @@ import static eu.europeana.api.config.AppConfigConstants.*;
  * @author Hugo
  * @since 3 Nov 2023
  */
-@Service
+@Service("migrationHandler")
 public class MigrationHandler {
 
-    private static final int DEFAULT_THREADS = 20;
     private static final Resource ProvidedCHO = createResource(EDM.NS + EDM.ProvidedCHO);
     private static ThreadLocal<String> recordId = new ThreadLocal();
-    private RdfFormat format = RdfFormat.JSONLD;
-    private boolean validate = true;
-    protected boolean validateDB = false;
-    protected boolean saveCopy = false;
-    private boolean   genExternal = true;
-    private File logDir = null;
-    private int threads = DEFAULT_THREADS;
+
+    private static ModelComparator modelComparator = new ModelComparator();
+
+    private RdfFormat format = RdfFormat.N3;
+
     private ExecutorService executor = null;
 
     private final MigrationSettings settings;
 
+    private MigrationConfig config;
+
     private RecordJenaProcessor jenaProcessor;
+    
+    private EdmExternalGenerator extGenerator = new EdmExternalGenerator();
 
     private RecordDomProcessor domProcessor;
 
@@ -76,36 +80,16 @@ public class MigrationHandler {
         this.registry = registry;
         this.migrationRepository = migrationRepository;
         this.library = library;
-        this.jenaProcessor = new RecordJenaProcessor(this.settings.getMediaTypes());
-        this.domProcessor = new RecordDomProcessor();
         JenaUtils.disableRiotValidation();
         executor = null;
     }
 
-    public void setLoggingDir(File logDir) {
-        this.logDir = logDir;
-    }
-
-    public void setThreads(int threads) {
-        this.threads = threads;
-    }
-
-    public void setValidate(boolean validate) {
-        this.validate = validate;
-    }
-
-    public void setSaveCopy(boolean saveCopy) {
-        this.saveCopy = saveCopy;
-    }
-
-    public void setGenerateExternal(boolean genExternal) { this.genExternal = genExternal; }
-
-    public void setValidateDB(boolean validate) {
-        this.validateDB = validate;
-    }
 
 
-    public void start() {
+    public void start(MigrationConfig config) {
+        this.config = config;
+        this.jenaProcessor = new RecordJenaProcessor(config, this.settings.getMediaTypes());
+        this.domProcessor = new RecordDomProcessor(config);
         executor = getExecutor();
     }
 
@@ -147,9 +131,9 @@ public class MigrationHandler {
             try {
                 storeInDB(parse(domProcessor.process(document)));
             } catch (Throwable t) {
-                synchronized (System.err) {
+                synchronized (config.err) {
                     logErr("Exception in cho: " + recordId);
-                    t.printStackTrace(System.err);
+                    t.printStackTrace(config.err);
                 }
             } finally {
                 MigrationHandler.recordId.remove();
@@ -160,7 +144,7 @@ public class MigrationHandler {
 
             Model m = ModelFactory.createDefaultModel();
             DOM2Model dom2Model = DOM2Model.createD2M(res.uri, m);
-            dom2Model.setProperty(JenaUtils.allowBadURIs, "true");
+            //dom2Model.setProperty(JenaUtils.allowBadURIs, "true");
             dom2Model.load(res.doc);
 
             ResIterator iter = m.listResourcesWithProperty(RDF.type, ProvidedCHO);
@@ -173,7 +157,9 @@ public class MigrationHandler {
                 return null;
             }
 
-            if ( genExternal ) { cho = jenaProcessor.generateExternal(cho); }
+            if ( config.isToGenerateExternal() ) { 
+                cho = extGenerator.generateExternal(cho);
+            }
 
             this.cho = cho;
             ProvidedCHO pcho = (ProvidedCHO) new JenaObjectDecoder(library, RecordModelFactoryImpl.INSTANCE).decode(cho);
@@ -187,7 +173,7 @@ public class MigrationHandler {
                 ViewComparator.sort(aggr.getViews(), res.views);
             }
 
-            if (validate) {
+            if (config.isToValidate()) {
                 validate(m, pcho);
             }
             return pcho;
@@ -196,17 +182,16 @@ public class MigrationHandler {
         private ProvidedCHO validate(Model m1, ProvidedCHO cho) throws IOException {
             String uri = cho.getID();
             Model m2 = ModelFactory.createDefaultModel();
-            new JenaObjectEncoder(library).encode(cho, m2, uri);
-            Model diff = m1.difference(m2);
+            new JenaObjectEncoder<ProvidedCHO>(library).encode(cho, m2);
+            Model diff = modelComparator.compare(m1, m2);
+
             long differences = diff.size();
             if (differences > 0) {
-                logErr("Jena differences <" + uri + ">" + differences + "\n"
-                        + diff.toString());
-                System.err.flush();
+                logErr("Jena differences <" + uri + ">" + differences + "\n");
             }
 
-            if (logDir != null && (saveCopy || differences > 0)) {
-                storeInFile(cho, newFile(uri));
+            if (config.isToLog() && config.isToSaveCopy() && differences > 0 ) {
+                logInFile(m1, m2, diff, newLogFile(uri, "log"));
             }
             return cho;
         }
@@ -218,7 +203,7 @@ public class MigrationHandler {
 
             migrationRepository.save(cho);
 
-            if (!validateDB) {
+            if (!config.isToValidateDB()) {
                 return;
             }
 
@@ -228,18 +213,31 @@ public class MigrationHandler {
                     .first();
 
             Model m2 = ModelFactory.createDefaultModel();
-            new JenaObjectEncoder(library).encode(o2, m2, uri);
+            new JenaObjectEncoder(library).encode(o2, m2);
 
-            Model diff = this.cho.getModel().difference(m2);
+            Model m1   = this.cho.getModel();
+            Model diff = modelComparator.compare(m1,m2);
             long differences = diff.size();
             if (differences > 0) {
-                logErr("db differences " + this.cho.getModel().size() + " - " + m2.size() + " = " + differences + "\n"
-                        + diff.toString());
-                System.err.flush();
+                logErr("db differences " + m1.size() + " - " + m2.size() + " = " + differences + "\n");
             }
 
-            if (logDir != null && (saveCopy || differences > 0)) {
-                storeInFile(cho, newFile(uri));
+            if (config.isToLog() && config.isToSaveCopy() && differences > 0 ) {
+                logInFile(m1, m2, diff, newLogFile(uri, "db.log"));
+            }
+        }
+
+        private void logInFile(Model m1, Model m2, Model diff, File out) throws IOException {
+            FileWriter fos = new FileWriter(out);
+            try {
+                diff.write(fos, "N3");
+                fos.write("\n------------------ SOURCE ------------------\n\n");
+                m1.write(fos, "N3");
+                fos.write("\n------------------ RESULT ------------------\n\n");
+                m2.write(fos, "N3");
+                fos.flush();
+            } finally {
+                IOUtils.closeQuietly(fos);
             }
         }
 
@@ -254,10 +252,10 @@ public class MigrationHandler {
         }
     }
 
-    private File newFile(String uri) {
+    private File newLogFile(String uri, String extension) {
         String name = uri.replace(ModelConstants.dataItemUri, "")
-                + "." + format.getExtension();
-        File file = new File(logDir, name);
+                + "." + extension;
+        File file = new File(config.getLoggingDir(), name);
         File dir = file.getParentFile();
         if (!dir.exists()) {
             dir.mkdirs();
@@ -266,17 +264,18 @@ public class MigrationHandler {
     }
 
     private ExecutorService getExecutor() {
+        int threads = config.getThreads();
         return new ThreadPoolExecutor(
                 threads, threads, 0L, TimeUnit.MILLISECONDS
                 , new ArrayBlockingQueue<Runnable>(threads * 10)
                 , new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
-    public static void log(String str) {
-        System.out.println(recordId.get() + " :> " + str);
+    public void log(String str) {
+        config.out.println(recordId.get() + " :> " + str);
     }
 
-    public static void logErr(String str) {
-        System.err.println(recordId.get() + " :> " + str);
+    public void logErr(String str) {
+        config.err.println(recordId.get() + " :> " + str);
     }
 }

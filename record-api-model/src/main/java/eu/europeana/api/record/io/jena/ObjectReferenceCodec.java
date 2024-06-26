@@ -24,16 +24,28 @@ public class ObjectReferenceCodec implements JenaCodec<ObjectReference> {
 
     @Override
     public void encode(Model m, ObjectReference ref, EncoderContext context) {
-        if ( !ref.isDereferenced() ) {
-            String uri = context.expandUri(ref.getID());
-            context.getResource().addProperty(context.getProperty()
-                    , m.createResource(uri));
-            return;
+
+        //Note: when the cho is retrieved, the object reference comes with a 
+        //morphia proxy, however, the entity that is retrieved via lazy loading
+        //does not create a morphia proxy for any object reference it may contain.
+        //This requires further investigation to understand why!
+        //Good example to test this is: /221/URN_NBN_SI_DOC_0CEKTP4N
+        if ( ref.isDereferenced() ) {
+            //TODO: review how to best work with lazy loading
+            EDMClass o = ref.getDereferencedObject();
+            // the object may be null when it has not been stored before and 
+            // should be covered on the dereferenced
+            if ( o != null ) { 
+                context.process(o);
+                return;
+            }
         }
 
-        //TODO: review how to best work with lazy loading
-        EDMClass o = ref.getDereferencedObject();
-        context.process(o);
+        //Since there is not object and therefore no handler, the reference 
+        //still needs to be created and associated to the source object.
+        String uri = context.expandUri(ref.getID());
+        context.getResource().addProperty(context.getProperty()
+                                        , m.createResource(uri));
     }
 
     @Override

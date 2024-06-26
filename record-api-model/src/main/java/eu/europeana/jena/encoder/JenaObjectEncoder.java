@@ -1,9 +1,11 @@
 package eu.europeana.jena.encoder;
 
+import eu.europeana.api.record.model.EDMClass;
 import eu.europeana.jena.encoder.codec.JenaCodec;
 import eu.europeana.jena.encoder.library.ClassTemplate;
 import eu.europeana.jena.encoder.library.ClassTemplate.FieldDefinition;
 import eu.europeana.jena.encoder.library.ClassTemplate.PropertyDefinition;
+import eu.europeana.jena.encoder.library.ClassTemplate.ReflectionDefinition;
 import eu.europeana.jena.encoder.library.ClassTemplate.ResourceDefinition;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
 import eu.europeana.jena.encoder.utils.JenaUtils;
@@ -22,7 +24,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * @since 10 Oct 2023
  */
 @NotThreadSafe
-public class JenaObjectEncoder
+public class JenaObjectEncoder<T extends EDMClass>
 {
     private Model             m;
     private HashSet<Resource> cache;
@@ -34,11 +36,19 @@ public class JenaObjectEncoder
         cache = new HashSet<Resource>();
     }
 
-    public Model encode(Object o, String base) {
+    public Model encode(T o) {
+        return encode(o, ModelFactory.createDefaultModel());
+    }
+
+    public Model encode(T o, Model m) {
+        return encode(o, m, o.getID() + "/");
+    }
+
+    public Model encode(T o, String base) {
         return encode(o, ModelFactory.createDefaultModel(), base);
     }
 
-    public Model encode(Object o, Model m, String base) {
+    public Model encode(T o, Model m, String base) {
         try {
             this.base = base;
             this.m = m;
@@ -63,6 +73,9 @@ public class JenaObjectEncoder
         JenaCodec codec = ( template != null ? template.getCodec()
                 : library.getCodecRecursively(clazz) );
         if ( codec != null ) { codec.encode(m, o, context); }
+        else {
+            System.err.println("Missing codec: " + o);
+        }
     }
 
     protected void encodeByTemplate(Object o, ClassTemplate template
@@ -90,16 +103,18 @@ public class JenaObjectEncoder
             if ( context.resource == null ) { return; }
         }
 
-        for (FieldDefinition definition : template.getFields() ) {
+        for ( ReflectionDefinition definition : template.getDefinitions() ) {
+
+            if ( !definition.acceptsRead() ) { continue; }
 
             PropertyDefinition propDefinition = definition.getPropertyDefinition();
             if ( propDefinition != null ) {
-                context.property = propDefinition.getProperty();
-                context.field    = definition;
+                context.property   = propDefinition.getProperty();
+                context.definition = definition;
                 JenaUtils.setNamespace(m, propDefinition.getNamespace());
             }
 
-            Object value = getValue(definition.getField(), o);
+            Object    value = definition.getValue(o);
             JenaCodec codec = definition.getCodec();
             if ( codec != null ) {
                 codec.encode(m, value, context);
@@ -110,7 +125,7 @@ public class JenaObjectEncoder
     }
 
     private Resource createResource(ClassTemplate template, Object o) {
-        String id = (String)getValue(template.getId(), o);
+        String id = template.getId().getValue(o);
         return (id == null ? m.createResource()
                 : m.createResource(library.getUriNormalizer().expand(id, base)));
     }
@@ -119,13 +134,6 @@ public class JenaObjectEncoder
         return library.getUriNormalizer().expand(uri, base);
     }
 
-    private Object getValue(Field f, Object o) {
-        try {
-            return f.get(o);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e) {}
-        return null;
-    }
 
 
     public class EncoderContext extends AbsContext {

@@ -8,6 +8,7 @@ import eu.europeana.api.record.exception.RecordDoesNotExistsException;
 import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.api.record.model.RecordRequest;
+import eu.europeana.api.record.profile.ViewProfileRegistry;
 import eu.europeana.api.record.service.RecordService;
 import eu.europeana.api.record.utils.RecordUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,8 +96,10 @@ public class RecordController {
     public ResponseEntity<StreamingResponseBody> retrieveRecord(
             @PathVariable String datasetId,
             @PathVariable String localId,
+            @RequestParam(value = "profile", required = false)
+            String profile,
             HttpServletRequest request) throws EuropeanaApiException {
-        return createResponse(datasetId, localId, request);
+        return createResponse(datasetId, localId, profile, request);
     }
 
     /**
@@ -122,12 +125,14 @@ public class RecordController {
         return createResponseMultipleRecords(urls);
     }
 
-    private ResponseEntity<StreamingResponseBody> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException {
-        RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, request);
+    private ResponseEntity<StreamingResponseBody> createResponse(String datasetId, String localId, String profile, HttpServletRequest request) throws EuropeanaApiException {
+        RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, profile, request);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
         }
-        Optional<ProvidedCHO> record = recordService.getRecord(recordRequest.getAbout());
+        Optional<ProvidedCHO> record = recordService.getRecord(
+                recordRequest.getAbout(),
+                ViewProfileRegistry.getProjection(recordRequest.getProfiles()));
         if (!record.isPresent()) {
             throw new RecordDoesNotExistsException(recordRequest.getAbout());
         }
@@ -155,8 +160,11 @@ public class RecordController {
         StreamingResponseBody responseBody = new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream out) throws IOException {
-                formatHandlerRegistry.get(RdfFormat.JSONLD).write(records, records.available(), out);
-                out.flush();
+                try {
+                    formatHandlerRegistry.get(RdfFormat.JSONLD).write(records, records.available(), out);
+                    out.flush();
+                }
+                finally { records.close(); }
             }
         };
         return new ResponseEntity<>(responseBody, httpHeaders, HttpStatus.OK);

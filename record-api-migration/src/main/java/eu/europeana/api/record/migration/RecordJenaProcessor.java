@@ -1,15 +1,16 @@
 package eu.europeana.api.record.migration;
 
-import static org.apache.jena.rdf.model.ResourceFactory.*;
-
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import eu.europeana.api.model.MediaType;
 import eu.europeana.api.model.MediaTypes;
+import eu.europeana.api.record.model.data.EdmType;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.rdf.model.Literal;
@@ -42,14 +43,14 @@ import eu.europeana.api.edm.SVCS;
 import eu.europeana.api.edm.XSD;
 */
 import eu.europeana.jena.edm.CC;
+import eu.europeana.jena.edm.DQV;
 import eu.europeana.jena.edm.EBUCORE;
 import eu.europeana.jena.edm.EDM;
 import eu.europeana.jena.edm.ORE;
 import eu.europeana.jena.edm.RDAGR2;
 import eu.europeana.jena.edm.SVCS;
-import eu.europeana.jena.encoder.utils.JenaUtils;
 
-import static eu.europeana.api.record.migration.MigrationHandler.log;
+import static eu.europeana.api.record.migration.JenaUtils.*;
 
 /**
  * @author Hugo
@@ -57,75 +58,32 @@ import static eu.europeana.api.record.migration.MigrationHandler.log;
  */
 public class RecordJenaProcessor {
 
-    private static DateTimeFormatter DATETIME_FORMAT
-        = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss'Z'");
+    public static DateTimeFormatter DATETIME_FORMAT
+        = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSS'Z'")
+                           .withZone(ZoneOffset.UTC);
 
-    private static String THUMBNAIL_URL = "https://api.europeana.eu/thumbnail/v2/url.json?uri=%s&type=%s&size=%s";
-
-    /*
-    private static final Resource ProvidedCHO      = createResource(EDM.NS + EDM.ProvidedCHO);
-    private static final Resource Proxy            = createResource(ORE.NS + ORE.Proxy);
-    private static final Resource WebResource      = createResource(EDM.NS + EDM.WebResource);
-    private static final Resource Aggregation      = createResource(ORE.NS + ORE.Aggregation);
-    private static final Resource EuropeanaAggregation = createResource(EDM.NS + EDM.EuropeanaAggregation);
-    private static final Resource FullTextResource = createResource(EDM.NS + EDM.FullTextResource);
-    private static final Resource Service          = createResource(SVCS.NS + SVCS.Service);
-    private static final Resource License          = createResource(CC.NS + CC.License);
-
-    //entities
-    private static final Resource Agent          = createResource(EDM.NS + EDM.Agent);
-    private static final Resource Place          = createResource(EDM.NS + EDM.Place);
-    private static final Resource Concept        = createResource(SKOS.NS + SKOS.Concept);
-    private static final Resource TimeSpan       = createResource(EDM.NS + EDM.TimeSpan);
-    private static final Resource Organization   = createResource(FOAF.NS + FOAF.Organization);
-
-    private static final Property aggregates     = createProperty(ORE.NS + ORE.aggregates);
-    private static final Property proxyFor       = createProperty(ORE.NS + ORE.proxyFor);
-    private static final Property proxyIn        = createProperty(ORE.NS + ORE.proxyIn);
-    private static final Property aggregatedCHO  = createProperty(EDM.NS + EDM.aggregatedCHO);
-    private static final Property lineage        = createProperty(ORE.NS + ORE.lineage);
-    private static final Property created        = createProperty(DCTerms.NS + DCTerms.created);
-    private static final Property modified       = createProperty(DCTerms.NS + DCTerms.modified);
-    private static final Property creator        = createProperty(DC.NS + DC.creator);
-    private static final Property europeanaProxy = createProperty(EDM.NS + EDM.europeanaProxy);
-    private static final Property placeOfBirth   = createProperty(RDAGR2.NS + RDAGR2.placeOfBirth);
-    private static final Property placeOfDeath   = createProperty(RDAGR2.NS + RDAGR2.placeOfDeath);
-    private static final Property isPartOf       = createProperty(DCTerms.NS + DCTerms.isPartOf);
-    private static final Property hasPart        = createProperty(DCTerms.NS + DCTerms.hasPart);
-    private static final Property bioInfo        = createProperty(RDAGR2.NS + RDAGR2.biographicalInformation);
-    
-
-    private static final Property spatial        = createProperty(DCTerms.NS + DCTerms.spatial);
-
-    private static final Property hasMimeType       = createProperty(EBUCORE.NS + EBUCORE.hasMimeType);
-    private static final Property componentColor    = createProperty(EDM.NS + EDM.componentColor);
-    private static final Property spatialResolution = createProperty(EDM.NS + EDM.spatialResolution);
-    private static final Property duration          = createProperty(EBUCORE.NS + EBUCORE.duration);
-
-    private static final Property preview        = createProperty(EDM.NS + EDM.preview);
-    private static final Property isShownBy      = createProperty(EDM.NS + EDM.isShownBy);
-    private static final Property isShownAt      = createProperty(EDM.NS + EDM.isShownAt);
-    private static final Property object         = createProperty(EDM.NS + EDM.object);
-    private static final Property hasView        = createProperty(EDM.NS + EDM.hasView);
-    */
+    private static String THUMBNAIL_URL = "https://api.europeana.eu/thumbnail/v3/%s/%s.%s";
 
     private static List<Resource> ENTITIES 
-        = Arrays.asList(EDM.about, EDM.Place, SKOS.altLabel, EDM.TimeSpan
+        = Arrays.asList(EDM.Agent, EDM.Place, SKOS.Concept, EDM.TimeSpan
                       , FOAF.Organization);
 
     private static Collection<Resource> CORE_CLASSES
         = Arrays.asList(ORE.Proxy, ORE.Aggregation, EDM.WebResource
                       , EDM.EuropeanaAggregation, EDM.ProvidedCHO);
 
-    private MediaTypes mediaTypes = null;
-    
-    public RecordJenaProcessor(MediaTypes mediaTypes) {
+    private MediaTypes      mediaTypes = null;
+    private MigrationConfig config;
+
+    public RecordJenaProcessor(MigrationConfig config, MediaTypes mediaTypes) {
+        this.config     = config;
         this.mediaTypes = mediaTypes;
     }
 
     public Resource upgrade(Resource cho) {
         Model m = cho.getModel();
-        List<Resource> proxies = getAsList(m.listResourcesWithProperty(ORE.proxyFor, cho));
+        m.removeNsPrefix("rdf");
+        List<Resource> proxies = asList(m.listResourcesWithProperty(ORE.proxyFor, cho));
         Collections.sort(proxies, new ProxyComparator());
 
         if ( hasLineage(proxies) ) { 
@@ -137,87 +95,55 @@ public class RecordJenaProcessor {
 
         //if ( !hasLineage(proxies) ) { addLineage(proxies); }
 
+        Resource paggr = getAggregation(proxies.get(0));
         Resource eaggr = getAggregation(proxies.get(proxies.size() - 1));
         removeCreatorAndAggregates(eaggr);
-        fixTimestamps(eaggr);
+        //fixTimestamps(eaggr); //old code
+        fixTimestampsToMills(eaggr);
         addTimestamps(eaggr, proxies);
         removeEuropeanaProxy(proxies);
+        for ( Resource proxy : proxies ) {
+            copyDuplicateLiteralValues(proxy, DC.title, DCTerms.alternative);
+        }
 
-        List<Resource> webResources = getAsList(m.listResourcesWithProperty(RDF.type, EDM.WebResource));
-        removeLooseResources(webResources);
+        List<Resource> webResources = asList(m.listResourcesWithProperty(RDF.type, EDM.WebResource));
+        List<Resource> previews     = getObjects(m.listStatements(null, EDM.preview, (RDFNode)null));
+
+        //get all views
+        List<Resource> allViews     = new ArrayList<>();
+        getObjects(m.listStatements(null, EDM.isShownBy, (RDFNode)null), allViews);
+        getObjects(m.listStatements(null, EDM.hasView, (RDFNode)null), allViews);
+
+        removeLooseResourcesByRecursion(webResources);
+        addMissingWebResourceFromSequence(allViews, paggr);
+        
         cleanPartRelations(webResources);
         cleanTechMetadata(webResources);
         fixWebResourcerReference(getObjects(m.listStatements(null, EDM.object, (RDFNode)null)));
-        fixWebResourcerReference(getObjects(m.listStatements(null, EDM.preview, (RDFNode)null)));
-        fixWebResourcerReference(getObjects(m.listStatements(null, EDM.isShownBy, (RDFNode)null)));
+        fixWebResourcerReference(previews);
+        fixWebResourcerReference(allViews);
         fixWebResourcerReference(getObjects(m.listStatements(null, EDM.isShownAt, (RDFNode)null)));
-        fixWebResourcerReference(getObjects(m.listStatements(null, EDM.hasView, (RDFNode)null)));
+        upgradePreviewToThumbnail(eaggr, previews);
 
-        generateThumbnails(getObjects(m.listStatements(null, EDM.isShownBy, (RDFNode)null)));
-        generateThumbnails(getObjects(m.listStatements(null, EDM.hasView, (RDFNode)null)));
+        generateThumbnails(allViews);
 
-        removeLooseResources(getAsList(m.listResourcesWithProperty(RDF.type, SVCS.Service)));
-        removeLooseResources(getAsList(m.listResourcesWithProperty(RDF.type, CC.License)));
+        removeLooseResources(asList(m.listResourcesWithProperty(RDF.type, SVCS.Service)));
+        removeLooseResources(asList(m.listResourcesWithProperty(RDF.type, CC.License)));
 
-        fixNonNegative(getAsList(m.listStatements(null, EDM.spatialResolution, (RDFNode)null)));
-        fixNonNegative(getAsList(m.listStatements(null, EBUCORE.duration, (RDFNode)null)));
-        fixComponentColor(getAsList(m.listStatements(null, EDM.componentColor, (RDFNode)null)));
+        fixNonNegative(asList(m.listStatements(null, EDM.spatialResolution, (RDFNode)null)));
+        fixNonNegative(asList(m.listStatements(null, EBUCORE.duration, (RDFNode)null)));
+        fixComponentColor(asList(m.listStatements(null, EDM.componentColor, (RDFNode)null)));
 
         List<Resource> entities = getEntities(m);
         removeLooseResourcesByRecursion(entities);
+        for ( Resource entity : entities ) {
+            copyDuplicateLiteralValues(entity, SKOS.prefLabel, SKOS.altLabel);
+        }
         cleanAgents(entities);
         cleanMultiTypedEntities(entities);
         cleanPartRelations(entities);
 
-        return cho;
-    }
-
-    public Resource generateExternal(Resource cho) {
-        Model m = cho.getModel();
-
-        Collection<Property> dismiss = Arrays.asList(ORE.proxyFor, ORE.lineage, ORE.proxyIn, RDF.type);
-        Collection<Property> props   = new HashSet();
-
-        List<Resource> proxies = getAsList(m.listResourcesWithProperty(ORE.proxyFor, cho));
-        for ( Resource proxy : proxies ) {
-            StmtIterator iter = proxy.listProperties();
-            while ( iter.hasNext() ) {
-                Statement stmt = iter.next();
-                Property  prop = stmt.getPredicate();
-                if ( dismiss.contains(prop) ) { continue; }
-
-                props.add(prop);
-                cho.addProperty(prop, stmt.getObject());
-            }
-        }
-
-        Collection<Literal> values = new HashSet();
-        for ( Property p : props ) {
-            List<Statement> stmts = getAsList(cho.listProperties(p));
-            values = getValues(cho, stmts, values);
-
-            for ( Statement stmt : stmts ) {
-                RDFNode node = stmt.getObject();
-                if ( !isDuplicate(node, values, stmts) ) { continue; }
-                m.remove(stmt);
-            }
-
-            values.clear();
-        }
-
-        // add aggregation
-        String uri     = cho.getURI();
-        String aggrURI = uri.replace("http://data.europeana.eu/item/"
-                                   , "http://data.europeana.eu/aggregation/");
-        Resource aggr = m.getResource(aggrURI);
-        aggr.addProperty(RDF.type, ORE.Aggregation);
-        
-        
-        String  dt  = DATETIME_FORMAT.format(OffsetDateTime.now());
-        Literal now = m.createLiteral(dt/*, XSD.dateTime.getURI()*/);
-        aggr.addProperty(DCTerms.created, now);
-        aggr.addProperty(DCTerms.modified, now);
-        cho.addProperty(ORE.isAggregatedBy, aggr);
+        fixTimestampsToMills(asList(m.listResourcesWithProperty(RDF.type, DQV.QualityAnnotation)));
 
         return cho;
     }
@@ -229,7 +155,7 @@ public class RecordJenaProcessor {
 
             String str = obj.asLiteral().getString();
             if ( !str.contains("-") ) { continue; }
-            log("Negative " + stmt.getPredicate().getLocalName() + ": " + str);
+            config.out.println("Negative " + stmt.getPredicate().getLocalName() + ": " + str);
 
             stmt.getModel().remove(stmt);
         }
@@ -284,29 +210,53 @@ public class RecordJenaProcessor {
             if ( mediaType.isEmpty() ) { continue; }
             
             MediaType mt = mediaType.get();
-            if ( !mt.isBrowserSupported() ) { continue; }
+            if ( mt.isVideoOrSound() || !mt.isBrowserSupported() ) { continue; }
 
             Model m = r.getModel();
-            String url = URLEncoder.encode(r.getURI(), Charset.defaultCharset());
+            String mediaId = HashUtils.getMD5(r.getURI());
             Dimension size = getSize(r);
             if ( size == null ) { continue; }
 
-            thumbURL = String.format(THUMBNAIL_URL, url, mt.getType(), "w400");
+            thumbURL = String.format(THUMBNAIL_URL, "400", mediaId, "jpg");
             r.addProperty(EDM.preview
-                        , generateThumbnailResource(m.getResource(thumbURL), mt, size.resizeToWidth(400)));
+                        , generateThumbnailResource(m.getResource(thumbURL), size.resizeToWidth(400)));
 
-            thumbURL = String.format(THUMBNAIL_URL, url, mt.getType(), "w200");
+            thumbURL = String.format(THUMBNAIL_URL, "200", mediaId, "jpg");
             r.addProperty(EDM.preview
-                        , generateThumbnailResource(m.getResource(thumbURL), mt, size.resizeToWidth(200)));
+                        , generateThumbnailResource(m.getResource(thumbURL), size.resizeToWidth(200)));
         }
     }
 
-    private Resource generateThumbnailResource(Resource r, MediaType mt, Dimension size) {
-        r.addLiteral(EDM.type, mt.getType());
+    private Resource generateThumbnailResource(Resource r, Dimension size) {
+        r.addProperty(RDF.type, EDM.WebResource);
+        r.addLiteral(EDM.type, EdmType.IMAGE.toString());
         r.addProperty(EBUCORE.width, Integer.toString(size.width), XSDDatatype.XSDinteger);
         r.addProperty(EBUCORE.height, Integer.toString(size.height), XSDDatatype.XSDinteger);
         r.addLiteral(EBUCORE.hasMimeType, "image/jpeg");
         return r;
+    }
+
+    private void upgradePreviewToThumbnail(Resource eaggr, List<Resource> previews) {
+        eaggr.removeAll(EDM.preview);
+
+        Model m = eaggr.getModel();
+        String thumbURL;
+        for ( Resource preview : previews ) {
+            String mediaId = HashUtils.getMD5(preview.getURI());
+            Dimension size = getSize(preview);
+            if ( size == null ) { continue; }
+
+            thumbURL = String.format(THUMBNAIL_URL, "400", mediaId, "jpg");
+            eaggr.addProperty(EDM.preview
+                            , generateThumbnailResource(m.getResource(thumbURL)
+                                                      , size.resizeToWidth(400)));
+
+            thumbURL = String.format(THUMBNAIL_URL, "200", mediaId, "jpg");
+            eaggr.addProperty(EDM.preview
+                            , generateThumbnailResource(m.getResource(thumbURL)
+                                                      , size.resizeToWidth(200)));
+            
+        }
     }
 
     private void fixWebResourcerReference(List<Resource> resources)
@@ -321,19 +271,19 @@ public class RecordJenaProcessor {
         }
     }
 
-    private void removeLooseResources(Collection<Resource> entities) {
+    private void removeLooseResources(Collection<Resource> resources) {
         boolean removed = true;
         while ( removed ) {
             removed = false;
-            Iterator<Resource> iter = entities.iterator();
+            Iterator<Resource> iter = resources.iterator();
             while ( iter.hasNext() ) {
-                Resource entity = iter.next();
-                Model m = entity.getModel();
+                Resource r = iter.next();
+                Model m = r.getModel();
                 boolean contains = existsBesidesSelfReference(
-                        m.listStatements(null, null, entity));
+                        m.listStatements(null, null, r));
                 if ( contains ) { continue; }
-                log("Removing loose resource: " + entity.getURI());
-                entity.removeProperties();
+                config.out.println("Removing loose resource: " + r.getURI());
+                r.removeProperties();
                 iter.remove();
                 removed = true;
             }
@@ -351,7 +301,7 @@ public class RecordJenaProcessor {
 
             if ( connected ) { continue; }
 
-            log("Removing loose resource: " + entity.getURI());
+            config.out.println("Removing loose resource: " + entity.getURI());
             entity.removeProperties();
             iter.remove();
         }
@@ -373,7 +323,9 @@ public class RecordJenaProcessor {
     }
 
     
-    
+    /*
+     * what to do with https://d-nb.info/gnd/4200334-9 ?
+     */
     
     private void cleanMultiTypedEntities(Collection<Resource> entities) {
         for ( Resource entity : entities ) {
@@ -381,7 +333,7 @@ public class RecordJenaProcessor {
             if ( count <= 1 ) { continue; }
 
             String uri = entity.getURI();
-            log("Entity with multiple types: " + uri);
+            config.out.println("Entity with multiple types: " + uri);
             if ( uri.startsWith("http://vocab.getty.edu/tgn/") ) { 
                 retainType(entity, EDM.Place);
                 continue;
@@ -396,14 +348,54 @@ public class RecordJenaProcessor {
             }
 
             entity.getModel().remove(entity, RDF.type, SKOS.Concept);
-            log("Removed type Concept for: " + entity.getURI());
+            config.out.println("Removed type Concept for: " + entity.getURI());
         }
     }
 
-    private void cleanPartRelations(Collection<Resource> entities) {
-        for ( Resource entity : entities ) {
-            retainOnlyReferences(entity, DCTerms.isPartOf);
-            retainOnlyReferences(entity, DCTerms.hasPart);
+    /*
+     * Establishes a link to the Aggregation for any loose web resource 
+     * that is linked to via isNextInSequence from any of the views
+     * 
+     * Examples: /9200201/BibliographicResource_3000005844676_source
+     *           /9200217/BibliographicResource_3000045505026_source
+     */
+    private void addMissingWebResourceFromSequence(List<Resource> allViews
+                                                 , Resource aggr) {
+        
+        Model m = aggr.getModel();
+        for ( int i = 0; i < allViews.size(); i++ ) {
+            Resource view = allViews.get(i);
+            
+            for ( Statement stmt : asList(m.listStatements(null, EDM.isNextInSequence, view)) ) {
+                Resource subject = stmt.getSubject();
+                if ( allViews.contains(subject) ) { continue; }
+
+                allViews.add(subject);
+                aggr.addProperty(EDM.hasView, subject);
+                config.out.println("Added unlinked view from sequence: " 
+                                 + subject.getURI());
+            }
+
+            for ( Statement stmt : asList(view.listProperties(EDM.isNextInSequence)) ) {
+                RDFNode node = stmt.getObject();
+                if ( !node.isResource() ) { continue; }
+
+                Resource obj = node.asResource();
+                if ( allViews.contains(obj) ) { continue; }
+
+                allViews.add(obj);
+                aggr.addProperty(EDM.hasView, obj);
+                config.out.println("Added unlinked view from sequence: " 
+                                 + obj.getURI());
+            }
+        }
+    }
+
+
+    private void cleanPartRelations(Collection<Resource> resources) {
+        for ( Resource r : resources ) {
+            retainOnlyReferences(r, DCTerms.isPartOf);
+            retainOnlyReferences(r, DCTerms.hasPart);
         }
     }
 
@@ -415,10 +407,10 @@ public class RecordJenaProcessor {
     private void retainOnlyReferences(Resource res
                                     , Property property) {
         Model model = res.getModel();
-        for ( Statement stmt : getAsList(res.listProperties(property)) ) {
+        for ( Statement stmt : asList(res.listProperties(property)) ) {
             if ( !stmt.getObject().isLiteral() ) { continue; }
             model.remove(stmt);
-            log("Removed literal from " + property.getLocalName() + ": " 
+            config.out.println("Removed literal from " + property.getLocalName() + ": " 
               + stmt.getObject().asLiteral().getString());
        }
     }
@@ -430,10 +422,10 @@ public class RecordJenaProcessor {
 
     private void retainOnlyLiterals(Resource res, Property property) {
         Model model = res.getModel();
-        for ( Statement stmt : getAsList(res.listProperties(property)) ) {
+        for ( Statement stmt : asList(res.listProperties(property)) ) {
             if ( stmt.getObject().isLiteral() ) { continue; }
             model.remove(stmt);
-            log("Removed reference from " + property.getLocalName() + ": " 
+            config.out.println("Removed reference from " + property.getLocalName() + ": " 
               + stmt.getObject().asResource().getURI());
         }
     }
@@ -446,12 +438,12 @@ public class RecordJenaProcessor {
 
     private void retainType(Resource entity, Resource type) {
         Model m = entity.getModel();
-        for ( Statement stmt : getAsList(entity.listProperties(RDF.type)) ) {
+        for ( Statement stmt : asList(entity.listProperties(RDF.type)) ) {
             if ( stmt.getObject().isResource() &&
                  stmt.getObject().asResource().equals(type) ) { continue; }
 
             m.remove(stmt);
-            log("Removed type " + stmt.getObject().asResource().getLocalName() 
+            config.out.println("Removed type " + stmt.getObject().asResource().getLocalName() 
               + " for: " + stmt.getSubject().getURI());
         }
     }
@@ -467,6 +459,65 @@ public class RecordJenaProcessor {
         return list;
     }
 
+    /*
+    private void cleanDuplicatePrefLabels(List<Resource> entities) {
+        for ( Resource entity : entities ) {
+            cleanDuplicatePrefLabels(entity);
+        }
+    }
+
+    private void cleanDuplicatePrefLabels(Resource entity) {
+        Map<String,Literal> labels = new HashMap();
+
+        //get all labels without duplicates and removing them along the way
+        StmtIterator iter = entity.listProperties(SKOS.prefLabel);
+        while ( iter.hasNext() ) {
+            RDFNode node = iter.next().getObject();
+            if ( !node.isLiteral() ) { continue; }
+
+            Literal literal = node.asLiteral();
+            String lang = literal.getLanguage();
+            if ( lang == null ) { continue; }
+
+            iter.remove();
+            Literal prev = labels.put(lang, literal);
+            if ( prev != null ) {
+                config.out.println("Duplicate prefLabel removed: " + prev);
+            }
+        }
+
+        //re-adding only the non-duplicate language labels
+        for ( Literal literal : labels.values() ) {
+            entity.addLiteral(SKOS.prefLabel, literal);
+        }
+    }
+    */
+
+    /* copies any duplicate value for a property that has max 1 cardinality
+     * into another property
+     * 
+     * Example: /2048705/object_HA_149
+     */
+    private void copyDuplicateLiteralValues(Resource r
+                                   , Property source, Property target) {
+
+        Model m = r.getModel();
+        Collection<Literal> literals = getLanguageTaggedLiterals(r.listProperties(source));
+        Map<String,Literal> values = new HashMap();
+
+        //move values between properties
+        for ( Literal literal : literals ) {
+            Literal prev = values.put(literal.getLanguage(), literal);
+            if ( prev == null ) { continue; }
+
+            m.remove(r, source, literal);
+            m.add(r, target, literal);
+            config.out.println("Duplicate " + source.getLocalName() 
+                             + " copied to " + target.getLocalName() 
+                             + ": " + prev);
+        }
+    }
+
     private void cleanAgents(List<Resource> entities) {
         int count = 0;
         for ( Resource entity : entities ) {
@@ -475,12 +526,12 @@ public class RecordJenaProcessor {
             Model m = entity.getModel();
             count = count(entity.listProperties(RDAGR2.placeOfBirth));
             if ( count > 1 ) { 
-                retainFirst(getAsList(entity.listProperties(RDAGR2.placeOfBirth)));
+                retainFirst(asList(entity.listProperties(RDAGR2.placeOfBirth)));
             }
 
             count = count(entity.listProperties(RDAGR2.placeOfDeath));
             if ( count > 1 ) { 
-                retainFirst(getAsList(entity.listProperties(RDAGR2.placeOfDeath))); 
+                retainFirst(asList(entity.listProperties(RDAGR2.placeOfDeath))); 
             }
 
             retainOnlyLiterals(entity, RDAGR2.biographicalInformation);
@@ -543,6 +594,43 @@ public class RecordJenaProcessor {
         return null;
     }
 
+    private void fixTimestampsToMills(List<Resource> resources) {
+        for ( Resource r : resources ) {
+            fixTimestampsToMills(r);
+        }
+    }
+
+    private void fixTimestampsToMills(Resource r) {
+        Model model = r.getModel();
+        Literal literal, newLiteral;
+
+        literal = getTimestamp(r, DCTerms.created);
+        newLiteral = fixTimestampToMills(literal);
+        if ( newLiteral != null ) {
+            model.remove(r, DCTerms.created, literal);
+            model.add(r, DCTerms.created, newLiteral);
+        }
+
+        literal = getTimestamp(r, DCTerms.modified);
+        newLiteral = fixTimestampToMills(literal);
+        if ( newLiteral != null ) {
+            model.remove(r, DCTerms.modified, literal);
+            model.add(r, DCTerms.modified, newLiteral);
+        }
+    }
+
+    private Literal fixTimestampToMills(Literal literal) {
+        if ( literal == null ) { return null; }
+
+        String timestamp = literal.getString();
+        Instant ldt = Instant.parse(timestamp);
+        String  dt  = DATETIME_FORMAT.format(ldt);
+        if ( !timestamp.equals(dt) ) {
+            config.out.println("Changed datetime: " + timestamp + " => " + dt);
+        }
+        return literal.getModel().createLiteral(dt);
+    }
+
         
     private void addTimestamps(Resource eaggr, List<Resource> proxies) {
       //Literal lcreated  = getTimestamp(eaggr, created);
@@ -573,7 +661,7 @@ public class RecordJenaProcessor {
         Model model = iter.next().getModel();
         while ( iter.hasNext() ) { 
             Statement stmt = iter.next();
-            log("Removed duplicate " + stmt.getPredicate().getLocalName() 
+            config.out.println("Removed duplicate " + stmt.getPredicate().getLocalName() 
                                      + " from " + stmt.getSubject().getURI());
             model.remove(stmt); 
         }
@@ -605,50 +693,6 @@ public class RecordJenaProcessor {
         return false;
     }
 
-    private boolean hasType(Resource r, Collection<Resource> types) {
-        StmtIterator iter = r.listProperties(RDF.type);
-        while ( iter.hasNext() ) {
-            if ( types.contains(iter.next().getObject()) ) { return true; }
-        }
-        return false;
-    }
-
-    private boolean exists(StmtIterator iter) {
-        try {
-            return ( iter.hasNext() );
-        }
-        finally { iter.close(); }
-    }
-
-    private List<Resource> getObjects(StmtIterator iter) {
-        List<Resource> ret = new ArrayList();
-        try {
-            while ( iter.hasNext() ) { 
-                RDFNode node = iter.next().getObject();
-                if ( node.isResource() ) { ret.add(node.asResource()); }
-            }
-            return ret;
-        }
-        finally { iter.close(); }
-    }
-
-    private List<Statement> getAsList(StmtIterator iter) {
-        List<Statement> ret = new ArrayList();
-        try {
-            while ( iter.hasNext() ) { ret.add(iter.next()); }
-            return ret;
-        }
-        finally { iter.close(); }
-    }
-
-    private List<Resource> getAsList(ResIterator iter) {
-        List<Resource> ret = new ArrayList();
-        try {
-            while ( iter.hasNext() ) { ret.add(iter.next()); }
-            return ret;
-        }
-        finally { iter.close(); }
-    }
 
     /*
      * Methods for external
@@ -666,92 +710,7 @@ public class RecordJenaProcessor {
         return ret;
     }
     
-    private Collection<Literal> getValues(Resource cho
-                                       , Collection<Statement> stmts
-                                       , Collection<Literal> values) {
-        for ( Statement stmt : stmts ) {
-            RDFNode node = stmt.getObject();
-            if ( !node.isResource() ) { continue; }
 
-            Resource r = node.asResource();
-            getLanguageTaggedValues(values, r.listProperties(SKOS.prefLabel));
-            getLanguageTaggedValues(values, r.listProperties(SKOS.altLabel));
-            getLanguageTaggedValues(values, r.listProperties(SKOS.hiddenLabel));
-        }
-        return values;
-    }
-
-    private void getLanguageTaggedValues(Collection<Literal> ret
-                                       , StmtIterator iter) {
-        while ( iter.hasNext() ) {
-            RDFNode node = iter.next().getObject();
-            if ( !node.isLiteral() ) { continue; }
-
-            Literal l = node.asLiteral();
-            if ( JenaUtils.hasLanguage(l) ) { ret.add(l); }
-        }
-    }
- 
-    private boolean isDuplicate(RDFNode node, Collection<Literal> values
-                              , List<Statement> stmts) {
-        if ( node.isLiteral() && isDuplicateLiteral(node.asLiteral(), values) ) { 
-            return true;
-        }
-
-        if ( node.isURIResource() && isDuplicate(node.asResource(), stmts) ) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isDuplicateLiteral(Literal l, Collection<Literal> values) {
-        if ( JenaUtils.hasDatatype(l) ) { return false; }
-
-        return ( JenaUtils.hasLanguage(l) ? isDuplicate(l, values)
-                                          : isDupLangIgnore(l, values) );
-    }
-
-    private boolean isDupLangIgnore(Literal l1, Collection<Literal> list) {
-        for ( Literal l2 : list ) {
-            if ( isDupLangIgnore(l1, l2) ) { return true; }
-        }
-        return false;
-    }
-
-    private boolean isDupLangIgnore(Literal l1, Literal l2) {
-        return l1.getString().equalsIgnoreCase(l2.getString());
-    }
-
-    //Language aware duplicate check
-    private boolean isDuplicate(Literal l1, Collection<Literal> list) {
-        for ( Literal l2 : list ) {
-            if ( isDuplicate(l1, l2) ) { return true; }
-        }
-        return false;
-    }
-
-    //Language aware duplicate check
-    private boolean isDuplicate(Literal l1, Literal l2) {
-        if ( l1.getLanguage().equals(l2.getLanguage()) ) {
-            return l1.getString().equalsIgnoreCase(l2.getString());
-        }
-        return false;
-    }
-
-
-    private boolean isDuplicate(Resource r, List<Statement> stmts) {
-        if ( r.getURI().startsWith("http://data.europeana.eu/") ) { return false; }
-
-        for ( Statement stmt : stmts ) {
-            RDFNode node = stmt.getObject();
-            if ( r == null || !node.isURIResource() ) { continue; }
-
-            Resource r2 = node.asResource();
-            if ( r2.hasProperty(OWL.sameAs, r) 
-              || r2.hasProperty(org.apache.jena.vocabulary.SKOS.exactMatch, r) ) { return true; }
-        }
-        return false;
-    }
 
     private static class ProxyComparator implements Comparator<Resource> {
 

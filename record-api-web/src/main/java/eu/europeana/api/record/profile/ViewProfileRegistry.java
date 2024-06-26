@@ -4,12 +4,15 @@
 package eu.europeana.api.record.profile;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.Projection;
@@ -22,6 +25,7 @@ import dev.morphia.query.ProjectionNew;
 public class ViewProfileRegistry
 {
     private static final Map<String,Profile> profiles = new HashMap();
+    private static Pattern splitProfile = Pattern.compile("[^,\\s+]+");
 
     static {
 
@@ -154,13 +158,16 @@ public class ViewProfileRegistry
         return profiles.get(name);
     }
 
-    public static Profile buildProfile(String... profileNames) {
-        Profile combined = new Profile(null);
-        for ( String name : profileNames ) {
-            Profile prof = profiles.get(name);
-            if ( prof != null ) { combined.include(prof); }
+    public static Collection<Profile> parseProfiles(String expr) {
+        Collection<Profile> profiles = new ArrayList<>();
+        if ( expr == null ) { return profiles; }
+
+        Matcher m = splitProfile.matcher(expr);
+        while (m.find()) {
+            Profile profile = getProfile(m.group());
+            if ( profile != null ) { profiles.add(profile); }
         }
-        return combined.clean();
+        return profiles;
     }
 
     public static FindOptions getProjection(String... profileNames) {
@@ -173,6 +180,35 @@ public class ViewProfileRegistry
             opts.projection().exclude("proxies");
         }
         return opts;
+    }
+
+    public static FindOptions getProjection(Collection<Profile> profiles) {
+        FindOptions opts = new FindOptions();
+        Profile profile = buildProfile(profiles);
+        if ( !profile.isEmpty() ) {
+            newProjection(opts).include(profile.toArray(String[]::new));
+        }
+        else if ( profiles.contains(getProfile("external")) ) {
+            opts.projection().exclude("proxies");
+        }
+        return opts;
+    }
+
+    private static Profile buildProfile(String... profileNames) {
+        Profile combined = new Profile(null);
+        for ( String name : profileNames ) {
+            Profile prof = profiles.get(name);
+            if ( prof != null ) { combined.include(prof); }
+        }
+        return combined.clean();
+    }
+
+    private static Profile buildProfile(Collection<Profile> profiles) {
+        Profile combined = new Profile(null);
+        for ( Profile profile : profiles ) {
+            if ( profile != null ) { combined.include(profile); }
+        }
+        return combined.clean();
     }
 
     private static Profile newProfile(String name) {
@@ -196,7 +232,7 @@ public class ViewProfileRegistry
         return p;
     }
 
-    private static class Profile extends TreeSet<String> {
+    public static class Profile extends TreeSet<String> {
 
         private String name;
 

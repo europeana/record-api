@@ -1,4 +1,4 @@
-package eu.europeana.api.record.db.config;
+package eu.europeana.api.record.migration;
 
 import com.mongodb.Block;
 import com.mongodb.ConnectionString;
@@ -24,6 +24,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 
@@ -33,6 +34,7 @@ import static org.bson.codecs.configuration.CodecRegistries.*;
 @PropertySource(
         value = {"classpath:record-api.properties", "classpath:record-api.user.properties"},
         ignoreResourceNotFound = true)
+@Import({eu.europeana.api.record.db.config.DataSourceConfig.class})
 public class DataSourceConfig {
 
     private static final Logger LOGGER = LogManager.getLogger(DataSourceConfig.class);
@@ -43,8 +45,9 @@ public class DataSourceConfig {
     @Value("${mongo.record.database}")
     private String recordDatabase;
 
+    @Primary
     @Bean
-    public MongoClient mongoClient() {
+    public MongoClient mongoClient(MigrationConfig config) {
         ConnectionString connectionString = new ConnectionString(hostUri);
 
         // add codecs
@@ -52,6 +55,7 @@ public class DataSourceConfig {
                 fromProviders(getDataValueCodecProvider())
                 ,  MongoClientSettings.getDefaultCodecRegistry()
         );
+
 
         return MongoClients.create(
                 MongoClientSettings.builder()

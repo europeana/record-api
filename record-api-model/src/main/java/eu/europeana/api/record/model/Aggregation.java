@@ -38,7 +38,7 @@ import static eu.europeana.api.record.model.ModelConstants.*;
 @JsonPropertyOrder({ id, RDF.type
                    , EDM.dataProvider, EDM.intermediateProvider, EDM.provider
                    , EDM.object, EDM.isShownAt, EDM.isShownBy, EDM.hasView
-                   , EDM.rights, dcRights, EDM.ugc
+                   , rightsStatement, DC.rights, EDM.ugc
                    , DCTerms.created, DCTerms.modified
                    , DQV.hasQualityAnnotation, EDM.aggregatedCHO })
 @Entity(discriminator = ORE.Aggregation, discriminatorKey = RDF.type)
@@ -91,15 +91,15 @@ public class Aggregation implements EDMClass
     //other metadata
 
     @JenaProperty(ns = EDM.NS, localName = EDM.rights)
-    @Property(EDM.rights)
-    @JsonProperty(EDM.rights)
+    @Property(ModelConstants.rightsStatement)
+    @JsonProperty(ModelConstants.rightsStatement)
     @JsonSerialize(using = CompactSerializer.class)
-    private ObjectReference rights;
+    private ObjectReference rightsStatement;
 
     @JenaProperty(ns = DC.NS, localName = DC.rights)
-    @Property(ModelConstants.dcRights)
-    @JsonProperty(ModelConstants.dcRights)
-    private List<DataValue> dcRights;
+    @Property(DC.rights)
+    @JsonProperty(DC.rights)
+    private List<DataValue> rights;
 
     @JenaProperty(ns = EDM.NS, localName = EDM.ugc)
     @Property(EDM.ugc)
@@ -206,21 +206,21 @@ public class Aggregation implements EDMClass
 
     //other metadata
 
-    public ObjectReference getRights() {
-        return rights;
+    public ObjectReference getRightsStatement() {
+        return rightsStatement;
     }
 
-    public void setRights(ObjectReference rights) {
-        this.rights = rights;
+    public void setRightsStatement(ObjectReference rightsStatement) {
+        this.rightsStatement = rightsStatement;
     }
 
-    public List<DataValue> getDcRights() {
-        return ( dcRights != null ? dcRights
-                                  : (dcRights = new ArrayList<DataValue>(1)) );
+    public List<DataValue> getRights() {
+        return ( rights != null ? rights
+                                : (rights = new ArrayList<DataValue>(1)) );
     }
 
     public void addDcRights(DataValue dcRights) {
-        getDcRights().add(dcRights);
+        getRights().add(dcRights);
     }
 
     public Literal<Boolean> getUGC() {

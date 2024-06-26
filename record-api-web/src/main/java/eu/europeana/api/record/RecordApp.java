@@ -10,11 +10,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.jena.riot.RDFFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import dev.morphia.query.filters.Filters;
+import dev.morphia.query.MorphiaCursor;
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.profile.ViewProfileRegistry;
 import eu.europeana.api.record.db.repository.RecordRepository;
@@ -48,30 +51,31 @@ public class RecordApp extends SpringBootServletInitializer {
         public static void main(String[] args) throws IOException {
                 LOG.info("No args provided to application. Starting web server");
                 ConfigurableApplicationContext ctx = SpringApplication.run(RecordApp.class, args);
+
+/*
                 RecordRepository repo = ctx.getBean(RecordRepository.class);
 
                 ViewProfileRegistry vr = new ViewProfileRegistry();
 
-                ProvidedCHO cho = repo.findById(
-                        "http://data.europeana.eu/item/142/UEDIN_214"
-                      , vr.getProjection("media.full"));
-                System.out.println(cho);
+                try ( MorphiaCursor<ProvidedCHO> cursor = repo.findAll(
+//                       Filters.eq("proxies.proxyIn.datasetName", "9200515_NL_Photographs_Serbia")
+                      , vr.getProjection("media.full"))) {
 
-                if ( cho == null ) { return; }
-
-                FormatHandlerRegistry reg = ctx.getBean(FormatHandlerRegistry.class);
-//                reg.get(RdfFormat.JSONLD).write(cho, System.out);
-
-                File dir = new File("C:\\Work\\incoming\\Record v3\\formats");
-                for ( RdfFormat format : RdfFormat.values() ) {
-                    File file = new File(dir, "record." +  format.getExtension());
-                    try ( FileOutputStream fos = new FileOutputStream(file) ) {
-                        reg.get(format).write(cho, fos);
-                        fos.flush();
+                    FormatHandlerRegistry reg = ctx.getBean(FormatHandlerRegistry.class);
+    //                reg.get(RdfFormat.JSONLD).write(cho, System.out);
+    
+                    File dir = new File("C:\\Work\\incoming\\Record v3\\formats");
+                    RdfFormat[] formats = { RdfFormat.XML };
+                    for ( RdfFormat format : formats ) {
+                        File file = new File(dir, "records." +  format.getExtension());
+                        try ( FileOutputStream fos = new FileOutputStream(file) ) {
+                            reg.get(format).write(cursor, Math.min(cursor.available(), 10), fos);
+                            fos.flush();
+                        }
                     }
+                    //new JsonV2Writer().write(cho, System.out);
                 }
-                //new JsonV2Writer().write(cho, System.out);
-
+*/
         }
 
 

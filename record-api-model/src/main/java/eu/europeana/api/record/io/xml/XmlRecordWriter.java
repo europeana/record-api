@@ -6,6 +6,7 @@ import eu.europeana.api.record.model.ProvidedCHO;
 import eu.europeana.jena.encoder.JenaObjectEncoder;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -27,14 +28,27 @@ public class XmlRecordWriter extends EdmXmlStreamWriter implements FormatWriter<
     @Override
     public void write(ProvidedCHO cho, OutputStream out) throws IOException {
         try {
-            Model m = new JenaObjectEncoder(library).encode(cho, cho.getID());
-            super.write(m, out);
+            Model m = new JenaObjectEncoder(library).encode(cho);
+            super.write(m.getResource(cho.getID()), out);
         }
         catch(XMLStreamException e) { throw new IOException(e); }
     }
 
     @Override
-    public void write(Iterator<ProvidedCHO> value, int size, OutputStream out) throws IOException {
-        // empty for now
+    public void write(Iterator<ProvidedCHO> iter, int size, OutputStream out) throws IOException {
+        try {
+            if ( iter.hasNext() && size == 1 ) {
+                write(iter.next(), out);
+                return;
+            }
+            JenaObjectEncoder encoder = new JenaObjectEncoder(library);
+            Model m = ModelFactory.createDefaultModel();
+            while ( iter.hasNext() && size-- > 0 ) {
+                ProvidedCHO cho = iter.next();
+                encoder.encode(cho, m);
+            }
+            super.write(m, out);
+        }
+        catch(XMLStreamException e) { throw new IOException(e); }
     }
 }

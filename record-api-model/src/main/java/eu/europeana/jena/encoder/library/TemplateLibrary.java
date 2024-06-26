@@ -7,7 +7,9 @@ import eu.europeana.jena.encoder.codec.CodecRegistry;
 import eu.europeana.jena.encoder.codec.JenaCodec;
 import eu.europeana.jena.encoder.codec.JenaResourceCodec;
 import eu.europeana.jena.encoder.library.ClassTemplate.FieldDefinition;
+import eu.europeana.jena.encoder.library.ClassTemplate.MethodDefinition;
 import eu.europeana.jena.encoder.library.ClassTemplate.PropertyDefinition;
+import eu.europeana.jena.encoder.library.ClassTemplate.ReflectionDefinition;
 import eu.europeana.jena.encoder.library.ClassTemplate.ResourceDefinition;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -15,9 +17,14 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +66,10 @@ public class TemplateLibrary {
 
     public ClassTemplate getTemplateByClass(Class<?> clazz) {
         return this.templatePerClass.get(clazz);
+    }
+
+    public ClassTemplate getTemplateByType(Type type) {
+        return getTemplateByClass(getClassByType(type));
     }
 
     public ClassTemplate getTemplateByClassRecursively(Class<?> clazz) {
@@ -109,6 +120,10 @@ public class TemplateLibrary {
         return (JenaCodec) registry.getRecursively(clazz);
     }
 
+    public JenaCodec getCodecRecursively(Type type) {
+        return getCodecRecursively(getClassByType(type));
+    }
+
     public JenaCodec getCodec(Object o) {
         return getCodec(o.getClass());
     }
@@ -128,11 +143,18 @@ public class TemplateLibrary {
         if (clazz.isAnnotationPresent(JenaResource.class)) {
             template.type = getType(clazz.getAnnotation(JenaResource.class));
             template.id = getID(clazz);
-            template.id.setAccessible(true);
             templatePerType.put(template.type.resource.getURI(), template);
         }
         processFields(template, clazz);
+        processMethods(template, clazz);
     }
+
+    private Class<?> getClassByType(Type type) {
+        return (Class<?>)( type instanceof ParameterizedType ?
+                ((ParameterizedType)type).getRawType()
+                : type );
+    }
+
 
     private <T> Constructor<T> getConstructor(Class<T> clazz) {
         try {
@@ -151,13 +173,12 @@ public class TemplateLibrary {
                 continue;
             }
 
-            field.setAccessible(true);
-
-            PropertyDefinition definition = getPropertyDefinition(prop);
-
-            template.fields.add(new FieldDefinition(field, definition
-                    , processCodec(field)
-                    , isCollection(field)));
+            ReflectionDefinition def = newFieldDefinition(field, prop);
+            if ( !template.registerDefinition(def) ) {
+                throw new JenaTemplateCompilerException(
+                        "Overlapping annotation for property: " 
+                      + def.getPropertyDefinition().getProperty());
+            }
         }
         Class<?> parent = clazz.getSuperclass();
         if (parent != null) {
@@ -165,25 +186,84 @@ public class TemplateLibrary {
         }
     }
 
+    private void processMethods(ClassTemplate template, Class<?> clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            JenaProperty prop = method.getAnnotation(JenaProperty.class);
+            boolean transitive = method.isAnnotationPresent(JenaTransitive.class);
+            boolean hasCodec = method.isAnnotationPresent(eu.europeana.jena.encoder.annotation.JenaCodec.class);
+            if (prop == null && !transitive && !hasCodec) {
+                continue;
+            }
+
+            ReflectionDefinition def = newMethodDefinition(method, prop);
+            if ( !template.registerDefinition(def) ) {
+                throw new JenaTemplateCompilerException(
+                        "Overlapping annotation for property: " 
+                      + def.getPropertyDefinition().getProperty());
+            }
+        }
+        Class<?> parent = clazz.getSuperclass();
+        if (parent != null) {
+            processMethods(template, parent);
+        }
+    }
+
+    private FieldDefinition newFieldDefinition(Field field, JenaProperty prop) {
+        return new FieldDefinition(field, getPropertyDefinition(prop)
+                                 , processCodec(field), isCollection(field));
+    }
+
+    private MethodDefinition newMethodDefinition(Method m, JenaProperty prop) {
+        PropertyDefinition def = getPropertyDefinition(prop);
+
+        Method readMethod  = isReadMethod(m) ? m : null;
+        Method writeMethod = isWriteMethod(m) ? m : null;
+        if ( readMethod == null && writeMethod == null ) {
+            throw new JenaTemplateCompilerException("Unrecognised method type: " + m);
+        }
+        return new MethodDefinition(readMethod, writeMethod, def, processCodec(m)
+                                  , isCollection(readMethod, writeMethod));
+    }
+
+    private boolean isReadMethod(Method m) {
+        return ( m.getReturnType() != null && m.getParameterCount() == 0 );
+    }
+
+    private boolean isWriteMethod(Method m) {
+        return ( m.getReturnType() == null && m.getParameterCount() == 1 );
+    }
+
     private boolean isCollection(Field field) {
-        if (field.isAnnotationPresent(JenaCollection.class)) {
-            return true;
-        }
-
-        Class<?> type = field.getType();
-        return (Collection.class.isAssignableFrom(type) || type.isArray());
+        return ( field.isAnnotationPresent(JenaCollection.class) 
+              || isCollection(field.getType()) );
     }
 
-    private JenaCodec processCodec(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(eu.europeana.jena.encoder.annotation.JenaCodec.class)) {
+    private boolean isCollection(Method readMethod, Method writeMethod) {
+        if ( readMethod != null ) {
+            return ( readMethod.isAnnotationPresent(JenaCollection.class) 
+                    || isCollection(readMethod.getReturnType()) );
+            
+        }
+        if ( writeMethod != null ) {
+            return ( writeMethod.isAnnotationPresent(JenaCollection.class) 
+                    || isCollection(writeMethod.getParameterTypes()[0]) );
+        }
+        return false;
+    }
+
+    private boolean isCollection(Class<?> clazz) {
+        return (Collection.class.isAssignableFrom(clazz) || clazz.isArray());
+    }
+
+    private JenaCodec<?> processCodec(AnnotatedElement elem) {
+        if (!elem.isAnnotationPresent(eu.europeana.jena.encoder.annotation.JenaCodec.class)) {
             return null;
         }
-//            return (JenaCodec)registry.getRecursively(clazz);
 
         eu.europeana.jena.encoder.annotation.JenaCodec c
-                = clazz.getAnnotation(eu.europeana.jena.encoder.annotation.JenaCodec.class);
+                = elem.getAnnotation(eu.europeana.jena.encoder.annotation.JenaCodec.class);
         try {
-            return (JenaCodec) c.using().getDeclaredConstructor().newInstance();
+            return (JenaCodec<?>) c.using().getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException
                 | IllegalArgumentException | NoSuchMethodException
                 | InvocationTargetException e) {
@@ -192,27 +272,10 @@ public class TemplateLibrary {
         return null;
     }
 
-    private JenaCodec processCodec(Field f) {
-        if (!f.isAnnotationPresent(eu.europeana.jena.encoder.annotation.JenaCodec.class)) {
-            return null;
-        }
-
-        eu.europeana.jena.encoder.annotation.JenaCodec c
-                = f.getAnnotation(eu.europeana.jena.encoder.annotation.JenaCodec.class);
-        try {
-            return (JenaCodec) c.using().getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException
-                | IllegalArgumentException | NoSuchMethodException
-                | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private Field getID(Class<?> clazz) {
+    private FieldDefinition getID(Class<?> clazz) {
         for (Field f : clazz.getDeclaredFields()) {
             if (f.isAnnotationPresent(JenaId.class)) {
-                return f;
+                return new FieldDefinition(f, null, null, false);
             }
         }
         Class<?> parent = clazz.getSuperclass();

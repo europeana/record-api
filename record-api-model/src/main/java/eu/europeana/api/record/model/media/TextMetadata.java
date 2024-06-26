@@ -46,7 +46,6 @@ public class TextMetadata extends TechnicalMetadata {
 
     public TextMetadata() {}
 
-    @JsonProperty(ModelConstants.mediaCategory)
     public EdmType getType() { return EdmType.TEXT; }
 
     public DatatypeLiteral<Integer> getSpatialResolution() {

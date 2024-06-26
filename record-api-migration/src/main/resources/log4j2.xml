@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- Use this pattern for Kubernetes deployments -->
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %level %C:%L [%t] - %m%n" />
+
+            <!-- Use this pattern for local debugging -->
+            <!-- <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %highlight{%level}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue} %logger{36} - %msg%n" /> -->
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <Logger name="org.apache.http" level="INFO"/>
+        <Logger name="org.apache.jena.rdf.model.impl.RDFDefaultErrorHandler" level="ERROR"/>
+
+        <Logger name="eu.europeana.api.record.web.RecordController" level="DEBUG"/>
+
+        <!-- Log only error. suppress warn messages - specially "Found more than one class mapped to collection"-->
+        <Logger name="dev.morphia.mapping" level="ERROR"/>
+        <logger name="com.mongodb" level="DEBUG"/>
+        <logger name="org.mongodb.driver.connection" level="DEBUG"/>
+        
+        <!-- To enable logging of Mongo queries, set log level to debug --> 
+        <logger name="dev.morphia"         level="WARN"/> 
+
+    </Loggers>
+</Configuration>

@@ -10,15 +10,24 @@ import java.io.IOException;
  * @author Hugo
  * @since 12 Sep 2023
  */
-public class ContextSerializer extends JsonSerializer<Context> {
+public class ContextSerializer extends JsonSerializer<ResourceContext> {
 
     public static final ContextSerializer INSTANCE = new ContextSerializer();
 
     @Override
-    public void serialize(Context context, JsonGenerator jgen,
+    public void serialize(ResourceContext context, JsonGenerator jgen,
                           SerializerProvider serializers) throws IOException {
+        if ( !context.hasImportURIs() ) {
+            jgen.writeStartObject();
+            jgen.writeStringField("@base", context.getBase());
+            jgen.writeEndObject();
+            return;
+        }
+
         jgen.writeStartArray();
-        jgen.writeString(context.getURI());
+        for ( String contextURI : context.getImportURIs() ) {
+            jgen.writeString(contextURI);
+        }
         jgen.writeStartObject();
         jgen.writeStringField("@base", context.getBase());
         jgen.writeEndObject();

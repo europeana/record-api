@@ -4,6 +4,7 @@ import eu.europeana.api.record.model.data.DataValueFactory;
 import eu.europeana.jena.encoder.codec.JenaCodec;
 import eu.europeana.jena.encoder.library.ClassTemplate;
 import eu.europeana.jena.encoder.library.ClassTemplate.FieldDefinition;
+import eu.europeana.jena.encoder.library.ClassTemplate.ReflectionDefinition;
 import eu.europeana.jena.encoder.library.TemplateLibrary;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
@@ -40,7 +41,11 @@ public class JenaObjectDecoder
     }
 
     public Object decode(Resource r) {
-        return decode(r, makeRelative ? r.getURI() : null);
+        if ( !makeRelative ) { return decode(r, null); }
+
+        String uri = r.getURI();
+        if ( !uri.endsWith("/") ) { uri += "/"; }
+        return decode(r, uri);
     }
 
     public Object decode(Resource r, String base) {
@@ -157,25 +162,30 @@ public class JenaObjectDecoder
      */
     protected Object decodeByTemplate(ClassTemplate template, DecoderContext context) {
         Object o;
-        Field id = template.getId();
+        FieldDefinition id = template.getId();
         if ( id != null ) {
-            String uri = compactUri(context.resource.getURI());
+            String uri = compactUri(context.getURI());
             // check the cache to see if the resource has previously been decoded
             o = cache.get(uri);
             if ( o != null ) { return o; }
 
             o = template.newObject();
-            setValue(id, o, uri);
+            if ( context.resource.isURIResource() ) {
+                id.setValue(o, uri);
+            }
             // add to the cache to avoid decoding the resource multiple times
             cache.put(uri, o);
         }
         else { o = template.newObject(); }
 
-        for ( FieldDefinition field : template.getFields() ) {
-            context.field       = field;
-            context.currentType = field.getField().getGenericType();
+        for ( ReflectionDefinition def : template.getDefinitions() ) {
+
+            if ( !def.acceptsWrite() ) { continue; }
+
+            context.definition  = def;
+            context.currentType = def.getTargetType();
             Object value = decodeField(context);
-            if ( value != null ) { setValue(field.getField(), o, value); }
+            if ( value != null ) { def.setValue(o, value); }
         }
         return o;
     }
@@ -202,21 +212,23 @@ public class JenaObjectDecoder
 
     private Object decodeField(DecoderContext context)
     {
-        FieldDefinition field = context.field;
-        context.property = ( field.hasPropertyDefinition() ?
-                field.getPropertyDefinition().getProperty() : null );
+        ReflectionDefinition def = context.definition;
+        context.property = ( def.hasPropertyDefinition() ?
+                def.getPropertyDefinition().getProperty() : null );
 
-        if (field.isCollection()) {
-            JenaCodec codec = getCodecForField(field);
+        if (def.isCollection()) {
+            JenaCodec codec = getCodecForField(def);
             return ( codec == null ? null : codec.decode(null, context) );
         }
 
         Property property = context.getProperty();
         if ( property == null ) {
-            JenaCodec codec = getCodecForField(field);
+            JenaCodec codec = getCodecForField(def);
             if ( codec != null ) { return codec.decode(context.getResource(), context); }
 
-            ClassTemplate template = library.getTemplateByClass(field.getField().getType());
+            //ClassTemplate template = library.getTemplateByClass(field.getField().getType());
+            //context.getCurrentTypeAsClass();
+            ClassTemplate template = library.getTemplateByType(context.getCurrentType());
             if ( template != null ) { return decodeByTemplate(template, context); }
 
             return null;
@@ -229,7 +241,7 @@ public class JenaObjectDecoder
             RDFNode value = iter.next().getObject();
             if ( value.isResource() ) { context = context.newContext(value.asResource()); }
 
-            JenaCodec codec = getCodecForField(field);
+            JenaCodec codec = getCodecForField(def);
             if ( codec != null ) { return codec.decode(value, context); }
 
             if ( value.isResource() ) {
@@ -247,23 +259,13 @@ public class JenaObjectDecoder
         return null;
     }
 
-    private JenaCodec getCodecForField(FieldDefinition field) {
+    private JenaCodec getCodecForField(ReflectionDefinition field) {
         JenaCodec codec = field.getCodec();
         if ( codec != null ) { return codec; }
 
-        Class<?> clazz = field.getField().getType();
+        //Class<?> clazz = field.getField().getType();
         //TODO: see if we can hook up the codecs directly to the field definitions
-        return library.getCodecRecursively(clazz);
-    }
-
-    private void setValue(Field field, Object o, Object value)
-    {
-        try {
-            field.set(o, value);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e) {
-            throw new JenaDecoderException(e);
-        }
+        return library.getCodecRecursively(field.getTargetType());
     }
 
 

@@ -1,13 +1,17 @@
 package eu.europeana.api.record.model.data;
 
 import com.fasterxml.jackson.annotation.*;
+
 import dev.morphia.Datastore;
 import dev.morphia.annotations.*;
 import dev.morphia.mapping.codec.references.MorphiaProxy;
-import dev.morphia.query.filters.Filters;
+import dev.morphia.mapping.lazy.proxy.ReferenceException;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.model.EDMClass;
 import eu.europeana.api.record.model.ModelConstants;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 
 /**
@@ -17,6 +21,10 @@ import org.bson.Document;
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @Entity(discriminator = ModelConstants.Shared, discriminatorKey = RDF.type)
 public class SharedReference implements ObjectReference {
+
+    private static final Logger LOGGER = LogManager.getLogger(SharedReference.class);
+
+    public static ThreadLocal<ObjectRepository> repo = new ThreadLocal<>();
 
     @Property(ModelConstants.id)
     protected String id;
@@ -43,12 +51,23 @@ public class SharedReference implements ObjectReference {
         return (this.id.startsWith("#") || this.id.startsWith("\\"));
     }
 
+    /* 
+     * this method needs to check further if the object is actually dereferenced 
+     * or not (looking at the MorphiaProxy). 
+     * I havent done it yet because this will break the serialisation.
+     */
     public boolean isDereferenced() { return (this.object != null); }
 
     public EDMClass getDereferencedObject() {
         EDMClass obj = this.object;
         if ( obj instanceof MorphiaProxy ) { 
-            obj = (EDMClass)((MorphiaProxy)obj).unwrap(); 
+            try {
+                obj = (EDMClass)((MorphiaProxy)obj).unwrap();
+            }
+            catch (ReferenceException e) {
+                LOGGER.warn("Could not dereference: " + this.id);
+                return null;
+            }
         }
         return obj;
     }
@@ -58,30 +77,23 @@ public class SharedReference implements ObjectReference {
     @PrePersist
     public void prePersist(Document doc, Datastore ds) {
         if ( this.object != null ) {
-            EDMClass o = this.object;
-
-            EDMClass o2 = ds.find(o.getClass())
-                    .filter(Filters.eq(ModelConstants.id, o.getID()))
-                    .first();
-            if ( o2 == null ) { ds.save(o); }
-            else { this.object = o2; }
-
-//              (UpdateOperators.set("id", o.getID())).execute(new ModifyOptions()
-//                .returnDocument(ReturnDocument.AFTER));
-//            ds.getMapper().getCollection(o.getClass());
-
-//            ds.find(o.getClass()).filter(Filters.eq("id", o.getID())).ficount();
-//            if ( count  > 0 ) { return; }
-
+            ObjectRepository repo = this.repo.get();
+            repo.save(this.object);
         }
     }
 
     @PostLoad
     public void postLoad(Document document, Datastore ds)
     {
+        // TODO:
+        // Consider again removing the id field since the reference is now based
+        // on that. The challenge will be getting the id from the reference without
+        // forcing a load from the db.
+        
+        //OUTDATED:
         // when lazy loading the object still comes with an "artificial" value, for which,
         // the check against null passes and the call to getID() forces the effective load of the object
         // which effectively breaks the lazy loading. We need to find a better way to do this!
-        if ( this.object != null ) { this.id = this.object.getID(); }
+        //if ( this.object != null ) { this.id = this.object.getID(); }
     }
 }

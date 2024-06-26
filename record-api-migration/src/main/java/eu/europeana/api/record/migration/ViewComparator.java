@@ -11,7 +11,7 @@ import eu.europeana.api.record.model.media.WebResource;
  * @since 2 Nov 2023
  */
 public class ViewComparator implements Comparator<WebResource> {
-
+ 
     public static void sort(List<WebResource> list, List<String> sorted) {
         if ( list.size() == 1 ) { return; }
 
