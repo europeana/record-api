@@ -1,5 +1,6 @@
 package eu.europeana.api.record.web;
 
+import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.query.MorphiaCursor;
 import eu.europeana.api.commons.web.http.HttpHeaders;
 import eu.europeana.api.error.EuropeanaApiException;
@@ -140,6 +141,8 @@ public class RecordController {
         StreamingResponseBody responseBody = new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream out) throws IOException {
+                //this is needed because Jackson serialises the response in a new thread
+                recordService.init();
                 formatHandlerRegistry.get(recordRequest.getRdfFormat()).write(providedCHO, out);
                 out.flush();
             }
@@ -161,6 +164,8 @@ public class RecordController {
             @Override
             public void writeTo(OutputStream out) throws IOException {
                 try {
+                   //this is needed because Jackson serialises the response in a new thread
+                    recordService.init(); 
                     formatHandlerRegistry.get(RdfFormat.JSONLD).write(records, records.available(), out);
                     out.flush();
                 }

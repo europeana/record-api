@@ -32,6 +32,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.connection.ConnectionPoolSettings;
 
+import eu.europeana.api.record.db.config.DataSourceConfig;
+
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 

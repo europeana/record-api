@@ -1,5 +1,6 @@
 package eu.europeana.api.record.service;
 
+import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.MorphiaCursor;
 import eu.europeana.api.record.config.AppConfig;
@@ -23,6 +24,10 @@ public class RecordService {
     public RecordService(RecordRepository recordRepository, RecordApiConfiguration recordApiConfiguration) {
         this.recordRepository = recordRepository;
         this.recordApiConfiguration = recordApiConfiguration;
+    }
+
+    public void init() {
+        DatastoreHolder.holder.set(recordRepository.getDatastore());
     }
 
     public ProvidedCHO saveRecord(ProvidedCHO providedCHO) {

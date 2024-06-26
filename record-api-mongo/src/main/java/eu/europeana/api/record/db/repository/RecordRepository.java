@@ -56,7 +56,6 @@ public class RecordRepository implements ObjectRepository {
      * @return saved record
      */
     public ProvidedCHO save(ProvidedCHO record) {
-
         UpdateOptions upsert = new UpdateOptions().upsert(true);
         Filter idf = Filters.eq("id", record.getID());
 
