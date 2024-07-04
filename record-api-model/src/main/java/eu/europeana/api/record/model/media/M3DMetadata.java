@@ -23,6 +23,5 @@ import static eu.europeana.api.record.model.ModelConstants._3D;
 @Entity(discriminator = _3D, discriminatorKey = RDF.type)
 public class M3DMetadata extends TechnicalMetadata {
     
-    @JsonProperty(ModelConstants.mediaCategory)
     public EdmType getType() { return EdmType._3D; }
 }

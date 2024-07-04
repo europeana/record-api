@@ -30,7 +30,8 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.RDF;
 
-
+import eu.europeana.jena.encoder.library.DefaultUriNormalizer;
+import eu.europeana.jena.encoder.library.ResourceUriNormalizer;
 import eu.europeana.jena.encoder.utils.JenaUtils;
 
 /**
@@ -54,6 +55,8 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
     private static final QName xmlLang 
         = new QName(XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX, "lang");
 
+    private ResourceUriNormalizer uriNormalizer = DefaultUriNormalizer.INSTANCE;
+
     /*
     ///////////////////////////////////////////////////////////////////////
     // Order definitions
@@ -67,18 +70,43 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
     ///////////////////////////////////////////////////////////////////////
      */
 
+    public void write(Resource r, XMLStreamWriter xml) throws XMLStreamException {
+        write(r.getModel(), xml, r.getURI() + "/");
+    }
+
+    public void write(Resource r, Writer writer) throws XMLStreamException {
+        write(r.getModel(), writer, r.getURI() + "/");
+    }
+
+    public void write(Resource r, OutputStream out) throws XMLStreamException {
+        write(r.getModel(), out, r.getURI() + "/");
+    }
+
     public void write(Model model, XMLStreamWriter xml) throws XMLStreamException {
-        new StreamWriter(xml, model).writeDocument();
+        write(model, xml, null);
     }
 
     public void write(Model model, Writer writer) throws XMLStreamException {
-        XMLOutputFactory output = XMLOutputFactory.newInstance();
-        new StreamWriter(output.createXMLStreamWriter(writer), model).writeDocument();
+        write(model, writer, null);
     }
 
     public void write(Model model, OutputStream out) throws XMLStreamException {
+        write(model, out, null);
+    }
+
+
+    public void write(Model model, XMLStreamWriter xml, String base) throws XMLStreamException {
+        new StreamWriter(xml, model, base).writeDocument();
+    }
+
+    public void write(Model model, Writer writer, String base) throws XMLStreamException {
         XMLOutputFactory output = XMLOutputFactory.newInstance();
-        new StreamWriter(output.createXMLStreamWriter(out), model).writeDocument();
+        new StreamWriter(output.createXMLStreamWriter(writer), model, base).writeDocument();
+    }
+
+    public void write(Model model, OutputStream out, String base) throws XMLStreamException {
+        XMLOutputFactory output = XMLOutputFactory.newInstance();
+        new StreamWriter(output.createXMLStreamWriter(out), model, base).writeDocument();
     }
 
     /*
@@ -91,10 +119,12 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
 
         private XMLStreamWriter xml;
         private Model           model;
+        private String          base;
 
-        protected StreamWriter(XMLStreamWriter xml, Model model) { 
+        protected StreamWriter(XMLStreamWriter xml, Model model, String base) { 
             this.xml   = xml; 
             this.model = model;
+            this.base  = base;
         }
 
         private void startElement(QName name) throws XMLStreamException {
@@ -124,11 +154,18 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
                 xml.writeNamespace(entry.getKey(), entry.getValue());
             }
             xml.writeNamespace(eu.europeana.api.edm.RDF.PREFIX, RDF.getURI());
+            if ( this.base != null ) {
+                xml.writeAttribute(XMLConstants.XML_NS_PREFIX
+                                 , XMLConstants.XML_NS_URI
+                                 , "base", this.base);
+            }
 
             Resource       prevType  = null;
             List<Property> propOrder = null;
             for ( Statement stmt : getResources(model) ) {
                 Resource r    = stmt.getSubject();
+                if ( r.isAnon() ) { continue; }
+
                 Resource type = stmt.getResource();
                 if ( !type.equals(prevType) ) {
                     propOrder = EdmXmlStreamWriter.this.propOrder.get(type);
@@ -136,11 +173,26 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
                 }
                 if ( propOrder == null ) { continue; }
 
-                startElement(getQName(type));
-                writeAttribute(rdfAbout, r.getURI());
-                writeProperties(getProperties(r, propOrder), type);
-                endElement();
+                writeResource(r, type, propOrder);
             }
+            endElement();
+        }
+
+        private void writeResource(Resource r) throws XMLStreamException {
+            Statement stmt = r.getProperty(RDF.type);
+            if ( stmt == null ) { return; }
+
+            Resource type = stmt.getResource();
+            writeResource(r, type, EdmXmlStreamWriter.this.propOrder.get(type));
+        }
+
+        private void writeResource(Resource r, Resource type, List<Property> propOrder) 
+                throws XMLStreamException {
+            startElement(getQName(type));
+            if ( r.isURIResource() ) {
+                writeAttribute(rdfAbout, uriNormalizer.compact(r.getURI(), this.base));
+            }
+            writeProperties(getProperties(r, propOrder), type);
             endElement();
         }
 
@@ -156,19 +208,25 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
         private void writeStatement(Statement stmt) 
                 throws XMLStreamException {
             RDFNode node = stmt.getObject();
-            if ( node.isResource() ) {
-                Resource r = node.asResource();
+
+            if ( node.isLiteral() ) {
+                Literal literal = node.asLiteral();
                 startElement(getQName(stmt.getPredicate()));
-                writeAttribute(rdfResource, r.getURI());
+                writeLanguage(literal.getLanguage());
+                writeDatatype(literal.getDatatype());
+                xml.writeCharacters(literal.getLexicalForm());
                 endElement();
                 return;
             }
 
-            Literal literal = node.asLiteral();
+            Resource r = node.asResource();
             startElement(getQName(stmt.getPredicate()));
-            writeLanguage(literal.getLanguage());
-            writeDatatype(literal.getDatatype());
-            xml.writeCharacters(literal.getLexicalForm());
+            if ( r.isURIResource() ) {
+                writeAttribute(rdfResource, uriNormalizer.compact(r.getURI(), this.base));
+            }
+            else {
+                writeResource(r);
+            }
             endElement();
         }
 
@@ -181,6 +239,8 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
             if ( !JenaUtils.hasDatatype(datatype) ) { return; }
 
             String uri = datatype.getURI();
+            // would be nice to optimise datatypes using XML entities in the DTD
+            // however, I dont know how to sense escaped texts over the stream
 //            if ( uri.startsWith(XSD.NS) ) { uri = uri.replace(XSD.NS, "&xsd;"); }
             writeAttribute(rdfDatatype, uri);
         }
@@ -246,9 +306,13 @@ public class EdmXmlStreamWriter extends EdmXmlDefinitions
             int order1 = getOrder(stmt1.getObject());
             int order2 = getOrder(stmt2.getObject());
             int diff = ( order1 - order2 );
-            return ( diff == 0 ? stmt1.getSubject().getURI()
-                                      .compareTo(stmt2.getSubject().getURI())
+            return ( diff == 0 ? getURI(stmt1.getSubject())
+                                      .compareTo(getURI(stmt2.getSubject()))
                                : diff );
+        }
+
+        private String getURI(Resource r) {
+            return ( r.isAnon() ? r.getId().getLabelString() : r.getURI() );
         }
 
         private int getOrder(RDFNode node) { return classOrder.indexOf(node); }

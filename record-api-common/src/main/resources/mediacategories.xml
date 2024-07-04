@@ -23,6 +23,9 @@
     <format mediaType="application/dash+xml"         label="MPEG-DASH"   type="Video"      support="Browser"/>
     <format mediaType="video/x-flv"                  label="FLV"         type="Video"      support="Rendered"/>
     <format mediaType="audio/x-ms-wma"               label="WMA"         type="Sound"      support="Rendered"/>
+    <format mediaType="audio/amr"                    label="AMR"         type="Sound"      support="Rendered"/> <!-- new -->
+    <format mediaType="audio/x-aiff"                 label="AIFF"        type="Sound"      support="Browser"/>  <!-- new (the browser should be able to play) -->
+    <format mediaType="video/x-matroska"             label="MKV"         type="Video"      support="Rendered"/> <!-- new (browser cannot natively played it but it is possible with plugin) -->    
     <format mediaType="video/x-ms-wmv"               label="WMV"         type="Video"      support="Rendered"/>
     <format mediaType="video/x-msvideo"              label="AVI"         type="Video"      support="Rendered"/>
     <format mediaType="image/jp2"                    label="JP2000"      type="Image"      support="Rendered"/>
@@ -42,4 +45,6 @@
     <format mediaType="application/epub+zip"         label="EPUB"        type="Text"       support="Rendered"/>
     <format                                                              type="Video"      support="EUScreen"/>
     <format                                                              type="Sound"      support="EUScreen"/>
+    <format mediaType="application/json+oembed"      label="oEmbed"                        support="Rendered"/>
+    <format mediaType="application/xml+oembed"       label="oEmbed"                        support="Rendered"/>
 </config>

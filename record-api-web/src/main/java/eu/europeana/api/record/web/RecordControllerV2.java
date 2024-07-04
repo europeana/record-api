@@ -80,7 +80,7 @@ public class RecordControllerV2 {
 
 
     private ResponseEntity<StreamingResponseBody> createResponse(String datasetId, String localId, HttpServletRequest request) throws EuropeanaApiException {
-        RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, request);
+        RecordRequest recordRequest = RecordUtils.getRecordRequest(datasetId, localId, null, request);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("datasetId : {} , localId : {}, RDF format : {}", datasetId, recordRequest.getLocalId(), recordRequest.getRdfFormat());
         }

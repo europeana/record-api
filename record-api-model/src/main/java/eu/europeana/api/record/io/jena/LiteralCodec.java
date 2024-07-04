@@ -33,8 +33,9 @@ public class LiteralCodec implements JenaCodec<Literal>
 
     @Override
     public void encode(Model m, Literal value, EncoderContext context) {
-        context.getResource().addLiteral(context.getProperty()
-                , value.getValue().toString());
+        context.process(value.getValue());
+//        context.getResource().addLiteral(context.getProperty()
+//                , value.getValue().toString());
     }
 
     @Override

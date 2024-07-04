@@ -42,11 +42,15 @@ public class TimeSpan extends ContextualEntity {
     @JenaProperty(ns = EDM.NS, localName = EDM.begin)
     @JsonProperty(EDM.begin)
     @Property(EDM.begin)
+    // apply compact serialiaser since edm:begin shouldnt be language tagged and datatyped
+    @JsonSerialize(using = CompactSerializer.class)
     private Literal<String> begin = null;
 
     @JenaProperty(ns = EDM.NS, localName = EDM.end)
     @JsonProperty(EDM.end)
     @Property(EDM.end)
+    // apply compact serialiaser since edm:end shouldnt be language tagged and datatyped
+    @JsonSerialize(using = CompactSerializer.class)
     private Literal<String> end = null;
 
     //note
@@ -78,6 +82,7 @@ public class TimeSpan extends ContextualEntity {
     @JenaProperty(ns = OWL.NS, localName = OWL.sameAs)
     @JsonProperty(OWL.sameAs)
     @Property(OWL.sameAs)
+    // apply compact because owl:sameAs should never be expanded to represent a resource
     @JsonSerialize(using = CompactSerializer.class)
     private List<ObjectReference> sameAs = null;
 

@@ -58,7 +58,7 @@ public class RecordIOConfig {
         module.addSerializer(ObjectReference.class, ObjectReferenceSerializer.INSTANCE);
         module.addSerializer(LanguageMap.class, LanguageMapSerializer.INSTANCE);
         module.addSerializer(LanguageMapArray.class, LanguageMapArraySerializer.INSTANCE);
-        module.addSerializer(Context.class, ContextSerializer.INSTANCE);
+        module.addSerializer(ResourceContext.class, ContextSerializer.INSTANCE);
 
         mapper.registerModule(module);
         mapper.registerModule(new JavaTimeModule());

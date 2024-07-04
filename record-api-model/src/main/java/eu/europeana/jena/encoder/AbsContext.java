@@ -5,6 +5,8 @@ package eu.europeana.jena.encoder;
 
 import eu.europeana.jena.encoder.library.ClassTemplate.FieldDefinition;
 import eu.europeana.jena.encoder.library.ClassTemplate.PropertyDefinition;
+import eu.europeana.jena.encoder.library.ClassTemplate.ReflectionDefinition;
+
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
@@ -16,9 +18,9 @@ import java.lang.reflect.Field;
  */
 public abstract class AbsContext
 {
-    protected Resource        resource;
-    protected Property        property;
-    protected FieldDefinition field;
+    protected Resource             resource;
+    protected Property             property;
+    protected ReflectionDefinition definition;
 
     public AbsContext() { this(null, null, null); }
 
@@ -31,21 +33,29 @@ public abstract class AbsContext
     }
 
     public AbsContext(Resource resource, Property property
-                    , FieldDefinition field) {
-        this.resource = resource;
-        this.property = property;
-        this.field    = field;
+                    , ReflectionDefinition def) {
+        this.resource   = resource;
+        this.property   = property;
+        this.definition = def;
     }
 
     public Resource getResource() { return this.resource; }
+
+    public String   getURI() {
+        if ( this.resource.isAnon() ) {
+            return this.resource.getId().getLabelString();
+        }
+        return this.resource.getURI();
+    }
+    
 
     public Property getProperty() { return this.property; }
     public boolean  hasProperty() { return (this.property != null); }
 
     public PropertyDefinition getPropertyDefinition() {
-        return this.field.getPropertyDefinition();
+        return this.definition.getPropertyDefinition();
     }
 
-    public FieldDefinition getFieldDefinition() { return this.field;            }
-    public Field           getField()           { return this.field.getField(); }
+    public ReflectionDefinition getDefinition() { return this.definition;         }
+    //public Field           getField()           { return this.field.getField(); }
 }

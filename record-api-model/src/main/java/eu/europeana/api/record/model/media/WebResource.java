@@ -24,8 +24,7 @@ import eu.europeana.jena.encoder.annotation.JenaTransitive;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.europeana.api.record.model.ModelConstants.id;
-import static eu.europeana.api.record.model.ModelConstants.additionalType;
+import static eu.europeana.api.record.model.ModelConstants.*;
 
 
 /**
@@ -38,7 +37,7 @@ import static eu.europeana.api.record.model.ModelConstants.additionalType;
 @JsonPropertyOrder({ id, RDF.type, additionalType
                    , DC.description, DC.creator, DCTerms.created, DCTerms.issued
                    , DC.type, DC.format, DCTerms.conformsTo, DCTerms.extent
-                   , EDM.rights, DC.rights
+                   , rightsStatement, DC.rights
                    , EBUCORE.hasMimeType, EBUCORE.fileByteSize 
                    , EBUCORE.width, EBUCORE.height, EBUCORE.duration
                    , EDM.hasColorSpace, EDM.componentColor
@@ -105,14 +104,14 @@ public class WebResource implements EDMClass
     // rights
 
     @JenaProperty(ns = EDM.NS, localName = EDM.rights)
-    @Property(EDM.rights)
-    @JsonProperty(EDM.rights)
-    private ObjectReference rights;
+    @Property(ModelConstants.rightsStatement)
+    @JsonProperty(ModelConstants.rightsStatement)
+    private ObjectReference rightsStatement;
 
     @JenaProperty(ns = DC.NS, localName = DC.rights)
-    @Property(ModelConstants.dcRights)
-    @JsonProperty(ModelConstants.dcRights)
-    private List<DataValue> dcRights;
+    @Property(DC.rights)
+    @JsonProperty(DC.rights)
+    private List<DataValue> rights;
 
     //relations
 
@@ -158,10 +157,12 @@ public class WebResource implements EDMClass
 
     // service
 
+    //no need to keep a object reference to the svcs:Service since it always
+    //refers to a service should be always present
     @JenaProperty(ns = SVCS.NS, localName = SVCS.has_service)
     @Property(SVCS.has_service)
     @JsonProperty(SVCS.has_service)
-    private List<ObjectReference> hasService;
+    private List<Service> hasService;
 
     // thumbnail
     
@@ -269,21 +270,21 @@ public class WebResource implements EDMClass
 
     // rights
 
-    public ObjectReference getRights() {
-        return rights;
+    public ObjectReference getRightsStatement() {
+        return rightsStatement;
     }
 
-    public void setRights(ObjectReference rights) {
-        this.rights = rights;
+    public void setRightsStatement(ObjectReference rightsStatement) {
+        this.rightsStatement = rightsStatement;
     }
 
-    public List<DataValue> getDcRights() {
-        return ( dcRights != null ? dcRights
-                                  : (dcRights = new ArrayList<DataValue>(1)) );
+    public List<DataValue> getRights() {
+        return ( rights != null ? rights
+                                : (rights = new ArrayList<DataValue>(1)) );
     }
 
-    public void addDcRights(DataValue dcRights) {
-        getDcRights().add(dcRights);
+    public void addRights(DataValue dcRights) {
+        getRights().add(dcRights);
     }
 
     //relations
@@ -362,12 +363,12 @@ public class WebResource implements EDMClass
 
     // services
 
-    public List<ObjectReference> getHasServices() {
+    public List<Service> getHasServices() {
         return ( hasService != null ? hasService
-                                    : (hasService = new ArrayList<ObjectReference>()) );
+                                    : (hasService = new ArrayList<Service>()) );
     }
 
-    public void addJHasService(ObjectReference hasService) {
+    public void addHasService(Service hasService) {
         getHasServices().add(hasService);
     }
 

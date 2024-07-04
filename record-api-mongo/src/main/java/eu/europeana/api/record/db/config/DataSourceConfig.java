@@ -40,9 +40,6 @@ public class DataSourceConfig {
     @Value("${mongo.connectionUrl}")
     private String hostUri;
 
-    @Value("${mongo.max.idle.time.millisec: 10000}")
-    private long mongoMaxIdleTimeMillisec;
-
     @Value("${mongo.record.database}")
     private String recordDatabase;
 
@@ -56,17 +53,10 @@ public class DataSourceConfig {
                 ,  MongoClientSettings.getDefaultCodecRegistry()
         );
 
-
-        // connection pool settings
-        Block<ConnectionPoolSettings.Builder> connectionPoolSettingsBlockBuilder =
-                (ConnectionPoolSettings.Builder builder) ->
-                        builder.maxConnectionIdleTime(mongoMaxIdleTimeMillisec, TimeUnit.MILLISECONDS);
-
         return MongoClients.create(
                 MongoClientSettings.builder()
                         .applyConnectionString(connectionString)
                         .codecRegistry(myRegistry)
-                        .applyToConnectionPoolSettings(connectionPoolSettingsBlockBuilder)
                         .build());
     }
 

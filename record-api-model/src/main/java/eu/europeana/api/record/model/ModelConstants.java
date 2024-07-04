@@ -8,6 +8,7 @@ package eu.europeana.api.record.model;
 public interface ModelConstants {
 
     public static final String dataItemUri      = "http://data.europeana.eu/item/";
+    public static final String contextUri       = "https://www.europeana.eu/schemas/context/edm.jsonld";
 
     public static final String id               = "id";
     public static final String object           = "object";
@@ -19,12 +20,15 @@ public interface ModelConstants {
     public static final String value            = "@value";
     public static final String context          = "@context";
     public static final String Record           = "Record";
+    
     public static final String proxies          = "proxies";
+    public static final String metadataLanguage = "metadataLanguage";
     public static final String mediaCategory    = "mediaCategory";
     public static final String objectType       = "objectType";
-    public static final String dcRights         = "dcRights";
+    public static final String rightsStatement  = "rightsStatement";
     public static final String additionalType   = "additionalType";
     public static final String techMeta         = "techMeta";
+
     public static final String ContextualEntity = "ContextualEntity";
     public static final String Local            = "Local";
     public static final String Shared           = "Shared";
