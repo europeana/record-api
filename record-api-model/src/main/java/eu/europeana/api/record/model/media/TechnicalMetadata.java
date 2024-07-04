@@ -8,8 +8,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Property;
 import eu.europeana.api.edm.EBUCORE;
+import eu.europeana.api.edm.EDM;
 import eu.europeana.api.edm.RDF;
 import eu.europeana.api.record.io.json.CompactSerializer;
+import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.data.EdmType;
 import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.jena.encoder.annotation.JenaClass;
@@ -37,6 +39,8 @@ public class TechnicalMetadata {
 
     public TechnicalMetadata() {}
 
+    @JenaProperty(ns = EDM.NS, localName = EDM.type)
+    @JsonProperty(ModelConstants.mediaCategory)
     public EdmType getType() { return null; }
 
     public Literal<String> getMimetype() {

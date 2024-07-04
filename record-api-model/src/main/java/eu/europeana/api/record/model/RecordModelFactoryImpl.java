@@ -8,8 +8,11 @@ import eu.europeana.api.record.model.data.Literal;
 import eu.europeana.api.record.model.data.LocalReference;
 import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.api.record.model.data.SharedReference;
+import eu.europeana.api.record.model.entity.Address;
 import eu.europeana.api.record.model.entity.ContextualEntity;
 import eu.europeana.api.record.model.entity.License;
+import eu.europeana.api.record.model.entity.QualityAnnotation;
+import eu.europeana.api.record.model.media.Service;
 
 /**
  * @author Hugo
@@ -55,7 +58,12 @@ public class RecordModelFactoryImpl implements RecordModelFactory {
      */
     @Override
     public ObjectReference newReference(EDMClass obj) {
-        if ( obj instanceof License ) { return new LocalReference(obj); }
+        if ( obj instanceof License 
+          || obj instanceof Service 
+          || obj instanceof QualityAnnotation 
+          || obj instanceof Address ) { 
+            return new LocalReference(obj); 
+        }
         if ( !(obj instanceof ContextualEntity) ) { return new LocalReference(obj.getID()); }
         return (isLocal(obj.getID()) ? new LocalReference(obj) : new SharedReference(obj));
     }

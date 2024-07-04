@@ -7,6 +7,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdfxml.xmlinput.DOM2Model;
 import org.w3c.dom.*;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
@@ -15,8 +16,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.util.*;
-
-import static eu.europeana.api.record.migration.MigrationHandler.log;
 
 /**
  * @author Hugo
@@ -27,6 +26,12 @@ public class RecordDomProcessor {
     private static String PREFIX_ITEM = "http://data.europeana.eu/item";
     private static String PREFIX_AGGREGATION_EUROPEANA = "http://data.europeana.eu/aggregation/europeana";
     private static String PREFIX_PROXY_EUROPEANA = "http://data.europeana.eu/proxy/europeana";
+
+    private MigrationConfig config;
+
+    public RecordDomProcessor(MigrationConfig config) {
+        this.config = config;
+    }
 
     public String getRecordId(Document doc) {
         String uri = (doc.hasChildNodes()
@@ -39,11 +44,9 @@ public class RecordDomProcessor {
 
     public Result process(Document doc) {
         Element root = doc.getDocumentElement();
-        if (root == null) {
-            return null;
-        }
+        if (root == null) { return null; }
 
-
+        String uri = getURI(root.getElementsByTagNameNS(EDM.NS, EDM.ProvidedCHO));
         List<Element> entities = getEntities(root);
         List<Element> proxies = append(root.getElementsByTagNameNS(ORE.NS, ORE.Proxy)
                 , new ArrayList<Element>(3));
@@ -52,30 +55,42 @@ public class RecordDomProcessor {
 
         //re-establish references
         processMetadata(root.getElementsByTagNameNS(ORE.NS, ORE.Proxy)
-                , entityIds);
+                      , entityIds);
 
         //check for URIs that must be changed to relative
-        Map<String, String> newIds = improveURIs(entityIds);
+        Map<String, String> newIds = improveURIs(uri, entityIds);
         if (!newIds.isEmpty()) {
             applyNewIdsToResources(entities, newIds);
             applyNewIdsToProperties(proxies, newIds);
         }
 
-        processAggregations(root.getElementsByTagNameNS(ORE.NS, ORE.Aggregation));
-        processAggregations(root.getElementsByTagNameNS(EDM.NS, EDM.EuropeanaAggregation));
+        // fix quality annotation references
+        List<Element> eaggr = getElements(root, EDM.NS, EDM.EuropeanaAggregation);
+        List<Element> qAnno = getElements(root, DQV.NS, DQV.QualityAnnotation);
+        newIds = improveURIs(uri, getIds(qAnno, new TreeSet<String>()));
+        if (!newIds.isEmpty()) {
+            applyNewIdsToResources(qAnno, newIds);
+            applyNewIdsToProperties(eaggr, newIds);
+        }
+        
+        List<Element> webres = getElements(root, EDM.NS, EDM.WebResource);
+        fixWebResourceURLs(webres);
+        processAggregations(getElements(root, ORE.NS, ORE.Aggregation));
+        processAggregations(eaggr);
+        fixIdForResource(eaggr, PREFIX_AGGREGATION_EUROPEANA);
 
-        fixIdForResource(root.getElementsByTagNameNS(EDM.NS, EDM.EuropeanaAggregation)
-                , PREFIX_AGGREGATION_EUROPEANA);
-
+        // fix all malformed URIs recursively. 
+        // It is better to do this at the end, after all the other fixes are done
+        recursiveFixURIs(root.getChildNodes());
 
         List<String> views = getHasViews(root.getElementsByTagNameNS(ORE.NS, ORE.Aggregation)
                 , new ArrayList<String>());
 
-        String uri = getURI(root.getElementsByTagNameNS(EDM.NS, EDM.ProvidedCHO));
         if (uri == null) {
             return null;
         }
 
+        root.setAttributeNS(XMLConstants.XML_NS_URI, "xml:base", uri + "/");
         return new Result(doc, uri, views);
     }
 
@@ -92,23 +107,6 @@ public class RecordDomProcessor {
         return append(concepts, append(places, append(times, append(agents, list))));
     }
 
-    private List<Element> append(NodeList nodeList, List<Element> list) {
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            list.add((Element) nodeList.item(i));
-        }
-        return list;
-    }
-
-    private Collection<String> getIds(List<Element> list
-            , Collection<String> ids) {
-        for (Element e : list) {
-            String uri = getId(e);
-            if (uri != null) {
-                ids.add(uri);
-            }
-        }
-        return ids;
-    }
 
     private void processMetadata(NodeList list, Collection<String> ids) {
         for (int i = 0; i < list.getLength(); i++) {
@@ -120,6 +118,8 @@ public class RecordDomProcessor {
                     continue;
                 }
 
+                if ( hasLanguage(prop) ) { continue; }
+                
                 String str = prop.getTextContent();
                 if (StringUtils.isBlank(str)) {
                     continue;
@@ -132,13 +132,8 @@ public class RecordDomProcessor {
         }
     }
 
-    private void fixIdForResource(NodeList list, String uriPrefix) {
-        if (list == null) {
-            return;
-        }
-
-        for (int i = 0; i < list.getLength(); i++) {
-            Element elem = (Element) list.item(i);
+    private void fixIdForResource(List<Element> list, String uriPrefix) {
+        for (Element elem : list ) {
             String uri = getId(elem);
             if (uri != null && uri.startsWith(uriPrefix)) {
                 continue;
@@ -151,20 +146,19 @@ public class RecordDomProcessor {
 
             uri = uriPrefix + recordId;
             setId(elem, uri);
-            log("Fixed URI to: " + uri);
+            config.out.println("Fixed URI to: " + uri);
         }
     }
 
-    private Map<String, String> improveURIs(Collection<String> ids) {
+    private Map<String, String> improveURIs(String uri, Collection<String> ids) {
         Map<String, String> ret = new HashMap();
         for (String id : ids) {
-            if (isRelativeURI(id) || isFullURI(id)) {
-                continue;
-            }
 
-            String newId = newRelativeURI(id);
+            String newId = newRelativeURI(uri, id);
+            if ( newId == null ) { continue; }
+
             if (ids.contains(newId)) {
-                log("Conflicting id: " + newId);
+                config.out.println("Conflicting id: " + newId);
                 continue;
             }
             ret.put(id, newId);
@@ -172,12 +166,38 @@ public class RecordDomProcessor {
         return ret;
     }
 
-    private String newRelativeURI(String id) {
-        return (id.contains("/") || id.contains("#") ? "/" : "#") + id;
+    private String newRelativeURI(String uri, String id) {
+
+        // these are the acceptable patterns
+        if ( id.startsWith("#") || id.startsWith("./") ) { return null; }
+
+        if (isFullURI(id)) {
+            if ( !id.startsWith(uri) ) { return null; }
+            
+            if ( id.equals(uri) ) { return null; }
+
+            //necessary to fix # based uris such as the #contentTier ids
+            id = id.substring(uri.length());
+
+            // these are the acceptable patterns
+            if ( id.startsWith("#") ) { return id; }
+
+            if ( id.startsWith("/") ) { return "." + id; }
+            return null;
+        }
+
+        // remove these patterns because they dont make sense in our context
+        while ( id.startsWith("../") ) { id = id.substring(3); }
+
+        if ( id.startsWith("/") ) { return "." + id; }
+
+        return "#" + id;
     }
 
+    // the expectation is that Metis would have fixed any non-uri character
+    // so this check only looks for the path separator
     private boolean isFullURI(String uri) {
-        return uri.contains("://");
+        return URIUtils.isAbsolute(uri);
     }
 
     private boolean isRelativeURI(String uri) {
@@ -194,19 +214,19 @@ public class RecordDomProcessor {
     private void applyNewIdsToResources(List<Element> list
             , Map<String, String> newIds) {
         for (Element elem : list) {
-            String id = getId(elem);
-            if (id == null) {
-                continue;
-            }
-
-            String newId = newIds.get(id);
-            if (newId == null) {
-                continue;
-            }
-
-            log("Changed declared id: " + id + " => " + newId);
-            setId(elem, newId);
+            applyNewIdsToResources(elem, newIds);
         }
+    }
+
+    private void applyNewIdsToResources(Element elem, Map<String, String> newIds) {
+        String id = getId(elem);
+        if (id == null) { return; }
+
+        String newId = newIds.get(id);
+        if (newId == null) { return; }
+
+        config.out.println("Changed declared id: " + id + " => " + newId);
+        setId(elem, newId);
     }
 
     private void applyNewIdsToProperties(List<Element> list
@@ -226,43 +246,92 @@ public class RecordDomProcessor {
                     continue;
                 }
 
-                log("Changed reference: " + ref + " => " + newId);
+                config.out.println("Changed reference: " + ref + " => " + newId);
                 setReference(prop, newId);
             }
         }
     }
 
 
-    private void processAggregations(NodeList list) {
+    private void processAggregations(List<Element> list) {
         if (list == null) {
             return;
         }
 
-        for (int i = 0; i < list.getLength(); i++) {
-            Element aggr = (Element) list.item(i);
-            fixWebResourceURLs(aggr.getElementsByTagNameNS(EDM.NS, EDM.isShownAt));
-            fixWebResourceURLs(aggr.getElementsByTagNameNS(EDM.NS, EDM.object));
-            fixWebResourceURLs(aggr.getElementsByTagNameNS(EDM.NS, EDM.isShownBy));
-            fixWebResourceURLs(aggr.getElementsByTagNameNS(EDM.NS, EDM.hasView));
-            fixWebResourceURLs(aggr.getElementsByTagNameNS(EDM.NS, EDM.preview));
+        List<Element> props = new ArrayList<>();
+        for (Element aggr : list ) {
+            append(aggr.getElementsByTagNameNS(EDM.NS, EDM.isShownAt), props);
+            append(aggr.getElementsByTagNameNS(EDM.NS, EDM.object), props);
+            append(aggr.getElementsByTagNameNS(EDM.NS, EDM.isShownBy), props);
+            append(aggr.getElementsByTagNameNS(EDM.NS, EDM.hasView), props);
+            append(aggr.getElementsByTagNameNS(EDM.NS, EDM.preview), props);
+        }
+        fixWebResourceURLs(props);
+    }
+
+    /* 
+     * only fixes some web resource URLs for which the data URI was prepended by mistake
+     */
+    private void fixWebResourceURLs(List<Element> list) {
+        for (Element prop : list) {
+
+            String attr;
+
+            attr = getId(prop);
+            if (attr != null && attr.startsWith(PREFIX_ITEM)) { 
+                String uri = attr.replace(PREFIX_ITEM, "");
+                if ( !isFullURI(uri) ) { continue; }
+
+                config.out.println("Fixed webresource URI: " + attr + " => " + uri);
+                setId(prop, uri);
+                continue;
+            }
+
+            attr = getReference(prop);
+            if (attr != null && attr.startsWith(PREFIX_ITEM)) { 
+                String uri = attr.replace(PREFIX_ITEM, "");
+                if ( !isFullURI(uri) ) { continue; }
+
+                config.out.println("Fixed webresource reference: " + attr + " => " + uri);
+                setReference(prop, uri);
+                continue;
+            }
+
         }
     }
 
-    private void fixWebResourceURLs(NodeList list) {
+    private void recursiveFixURIs(NodeList list) {
         for (int i = 0; i < list.getLength(); i++) {
-            Element prop = (Element) list.item(i);
-            String attr = getReference(prop);
-            if (attr == null) {
+            Node n = list.item(i);
+            if ( !(n instanceof Element) ) { continue; }
+
+            Element e = (Element)n;
+
+            String ref = getReference(e);
+            if ( ref != null && isMalformed(ref) ) {
+                String nref = fixMalformed(ref);
+                config.out.println("Fix malformed reference: " + ref + " => " + nref);
+                setReference(e, nref);
                 continue;
             }
 
-            if (!attr.startsWith(PREFIX_ITEM)) {
-                continue;
+            String id = getId(e);
+            if ( id != null && isMalformed(id) ) {
+                String nid = fixMalformed(id);
+                config.out.println("Fix malformed id: " + id + " => " + nid);
+                setId(e, nid);
             }
 
-            log("Fixed webresource reference: " + attr);
-            setReference(prop, attr.replace(PREFIX_ITEM, ""));
+            recursiveFixURIs(e.getChildNodes());
         }
+    }
+
+    private boolean isMalformed(String uri) {
+        return uri.contains(" ");
+    }
+
+    private String fixMalformed(String uri) {
+        return uri.replace(" ", "%20");
     }
 
     private List<String> getHasViews(NodeList list, List<String> views) {
@@ -283,6 +352,52 @@ public class RecordDomProcessor {
             }
         }
         return views;
+    }
+
+    private String getRecordID(String uri) {
+        int i = uri.lastIndexOf('/');
+        if (i <= 0) {
+            return null;
+        }
+        i = uri.lastIndexOf('/', i - 1);
+        return (i < 0 ? null : uri.substring(i));
+    }
+
+
+    // general DOM utility methods
+
+    private List<Element> getElements(Element elem, String ns, String qname) {
+        return toList(elem.getElementsByTagNameNS(ns, qname));
+    }
+
+    private List<Element> getElements(List<Element> list, String ns, String qname) {
+        List<Element> ret = new ArrayList();
+        for ( Element elem : list ) {
+            append(elem.getElementsByTagNameNS(ns, qname), ret);
+        }
+        return ret;
+    }
+
+    private List<Element> append(NodeList nodeList, List<Element> list) {
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            list.add((Element) nodeList.item(i));
+        }
+        return list;
+    }
+
+    private List<Element> toList(NodeList nodeList) {
+        return append(nodeList, new ArrayList());
+    }
+
+    private Collection<String> getIds(List<Element> list
+            , Collection<String> ids) {
+        for (Element e : list) {
+            String uri = getId(e);
+            if (uri != null) {
+                ids.add(uri);
+            }
+        }
+        return ids;
     }
 
     private String getURI(NodeList list) {
@@ -321,13 +436,21 @@ public class RecordDomProcessor {
         prop.setAttributeNS(RDF.NS, RDF.PREFIX + ":" + RDF.resource, uri);
     }
 
+    private boolean hasLanguage(Element prop) {
+        String attr = prop.getAttributeNS(XMLConstants.XML_NS_URI, "lang");
+        return StringUtils.isNotBlank(attr);
+    }
+
     private boolean canBecomeReference(Element prop) {
-        return (!prop.getLocalName().equals(DC.identifier));
+        String name = prop.getLocalName();
+        return (!name.equals(DC.identifier) 
+             && !name.equals(EDM.year)
+             && !name.equals(EDM.language) );
     }
 
     private void upgradeToReference(Element prop) {
         String str = prop.getTextContent();
-        log("Upgrading reference: " + str);
+        config.out.println("Upgrading reference: " + str);
 
         while (prop.hasChildNodes()) {
             prop.removeChild(prop.getFirstChild());
@@ -341,14 +464,6 @@ public class RecordDomProcessor {
         setReference(prop, str);
     }
 
-    private String getRecordID(String uri) {
-        int i = uri.lastIndexOf('/');
-        if (i <= 0) {
-            return null;
-        }
-        i = uri.lastIndexOf('/', i - 1);
-        return (i < 0 ? null : uri.substring(i));
-    }
 
     public static class Result {
         public Document doc;
@@ -360,23 +475,5 @@ public class RecordDomProcessor {
             this.uri = uri;
             this.views = views;
         }
-    }
-
-    public static final void main(String[] args) throws Throwable {
-        File src = new File("C:\\Work\\incoming\\Record v3\\source\\urn_imss_indepth_100177.xml");
-        Transformer t = TransformerFactory.newInstance().newTransformer();
-        DOMResult result = new DOMResult();
-        t.transform(new StreamSource(src), result);
-        Result res = new RecordDomProcessor().process((Document) result.getNode());
-        t.transform(new DOMSource(result.getNode()), new StreamResult(System.out));
-
-        Model m = ModelFactory.createDefaultModel();
-
-        DOM2Model dom2Model = DOM2Model.createD2M(res.uri, m);
-        dom2Model.setProperty("allowBadURIs", "true");
-        dom2Model.load(result.getNode());
-
-        m.write(System.out, "RDF/XML");
-
     }
 }

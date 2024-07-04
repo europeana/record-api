@@ -22,13 +22,14 @@ import static eu.europeana.api.record.model.ModelConstants.ContextualEntity;
         , discriminatorKey = RDF.type)
 public abstract class ContextualEntity implements EDMClass
 {
-    @Id
-    protected ObjectId    objID;
+//    @Id
+//    protected ObjectId    objID;
 
+    @Id
     @JenaId
     @JsonProperty(ModelConstants.id)
-    @Indexed(options = @IndexOptions(name="idx_id", unique = true))
-    @Property(ModelConstants.id)
+//    @Indexed(options = @IndexOptions(name="idx_id", unique = true))
+//    @Property(ModelConstants.id)
     protected String id;
 
     @JenaProperty(ns = SKOS.NS, localName = SKOS.prefLabel)
@@ -46,7 +47,9 @@ public abstract class ContextualEntity implements EDMClass
 
     public ContextualEntity(String id) { this.id = id; }
 
-    public ObjectId getObjectID() { return objID; }
+//    public ObjectId getObjectID() { return objID; }
+
+//    public void setObjectID(ObjectId objID) { this.objID= objID ; }
 
     public String getID() { return id; }
 

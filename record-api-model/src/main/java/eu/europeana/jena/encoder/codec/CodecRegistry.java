@@ -43,6 +43,7 @@ public class CodecRegistry {
         addCodec(JenaCollectionCodec.INSTANCE);
         addCodec(JenaEnumCodec.INSTANCE);
         addCodec(JenaBooleanCodec.INSTANCE);
+        addCodec(JenaStringCodec.INSTANCE);
         JenaNumericCodec.addToRegistry(this);
         addCodec(JenaDateCodec.INSTANCE);
         JenaTimeCodec.addToRegistry(this);

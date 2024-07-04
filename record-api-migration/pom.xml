@@ -17,12 +17,89 @@
 		<spring.boot.mainclass>eu.europeana.api.record.migration.RunMigration</spring.boot.mainclass>
 	</properties>
 
+  <build>
+    <plugins>
+
+<!--
+      <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifest>
+                <mainClass>eu.europeana.api.record.migration.MigrationCommand</mainClass>
+              </manifest>
+            </archive>
+            <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+            </descriptorRefs>
+          </configuration>
+          <executions>
+            <execution>
+              <id>make-assembly</id> 
+              <phase>package</phase>
+              <goals>
+                <goal>single</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+-->
+
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>3.6.0</version>
+    <configuration>
+        <shadedArtifactAttached>false</shadedArtifactAttached>
+        <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <mainClass>eu.europeana.api.record.migration.MigrationCommand</mainClass>
+            </transformer>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+                <addHeader>false</addHeader>
+            </transformer>
+        </transformers>
+        <filters>
+            <filter>
+                <artifact>*:*</artifact>
+                <excludes>
+                    <exclude>**/Log4j2Plugins.dat</exclude>
+                </excludes>
+            </filter>
+        </filters>
+    </configuration>
+    <executions>
+        <execution>
+            <phase>package</phase>
+            <goals>
+                <goal>shade</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+
+      </plugins>
+
+    </build>
+
+            <!--
+    <filters>
+      <filter>
+        <artifact>*:*</artifact>
+        <excludes>
+          <exclude>**/Log4j2Plugins.dat</exclude>
+        </excludes>
+      </filter>
+    </filters>
+    -->
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter</artifactId>
 			<exclusions>
-				<!-- use log4j2 instead -->
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-logging</artifactId>

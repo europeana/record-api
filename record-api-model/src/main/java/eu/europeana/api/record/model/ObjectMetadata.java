@@ -176,9 +176,9 @@ public class ObjectMetadata
     // rights and provenance
 
     @JenaProperty(ns = DC.NS, localName = DC.rights)
-    @Property(ModelConstants.dcRights)
-    @JsonProperty(ModelConstants.dcRights)
-    private List<DataValue> dcRights;
+    @Property(DC.rights)
+    @JsonProperty(DC.rights)
+    private List<DataValue> rights;
 
     @JenaProperty(ns = DCTerms.NS, localName = DCTerms.provenance)
     @Property(DCTerms.provenance)
@@ -280,7 +280,7 @@ public class ObjectMetadata
     @JenaProperty(ns = EDM.NS, localName = EDM.isRepresentationOf)
     @Property(EDM.isRepresentationOf)
     @JsonProperty(EDM.isRepresentationOf)
-    private List<ObjectReference> isRepresentationOf;
+    private ObjectReference isRepresentationOf;
 
     @JenaProperty(ns = EDM.NS, localName = EDM.isSimilarTo)
     @Property(EDM.isSimilarTo)

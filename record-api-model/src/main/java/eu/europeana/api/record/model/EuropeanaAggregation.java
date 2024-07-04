@@ -16,7 +16,11 @@ import eu.europeana.api.record.model.data.ObjectReference;
 import eu.europeana.api.record.model.media.WebResource;
 import eu.europeana.jena.encoder.annotation.JenaProperty;
 import eu.europeana.jena.encoder.annotation.JenaResource;
-import static eu.europeana.api.record.model.ModelConstants.id;
+
+import static eu.europeana.api.record.model.ModelConstants.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Hugo
@@ -26,9 +30,9 @@ import static eu.europeana.api.record.model.ModelConstants.id;
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({ id, RDF.type
     , EDM.dataProvider, EDM.intermediateProvider, EDM.provider
-    , EDM.datasetName, EDM.country, EDM.language
+    , EDM.datasetName, EDM.country, metadataLanguage
     , EDM.object, EDM.preview, EDM.isShownAt, EDM.isShownBy, EDM.hasView
-    , EDM.rights, DC.rights, EDM.completeness, EDM.ugc, EDM.landingPage
+    , rightsStatement, DC.rights, EDM.completeness, EDM.ugc, EDM.landingPage
     , DCTerms.created, DCTerms.modified
     , DQV.hasQualityAnnotation, EDM.aggregatedCHO })
 @Entity(discriminator = EDM.EuropeanaAggregation, discriminatorKey = RDF.type)
@@ -48,8 +52,8 @@ public class EuropeanaAggregation extends Aggregation
     private Literal<String> country = null;
 
     @JenaProperty(ns = EDM.NS, localName = EDM.language)
-    @Property(EDM.language)
-    @JsonProperty(EDM.language)
+    @Property(metadataLanguage)
+    @JsonProperty(metadataLanguage)
     @JsonSerialize(using = CompactSerializer.class)    
     private Literal<String> language = null;
 
@@ -62,7 +66,7 @@ public class EuropeanaAggregation extends Aggregation
     @JenaProperty(ns = EDM.NS, localName = EDM.preview)
     @JsonProperty(EDM.preview)
     @Property(EDM.preview)
-    private WebResource preview = null;
+    private List<WebResource> preview;
 
     @JenaProperty(ns = EDM.NS, localName = EDM.landingPage)
     @Property(EDM.landingPage)
@@ -101,12 +105,13 @@ public class EuropeanaAggregation extends Aggregation
         this.language = language;
     }
 
-    public WebResource getPreview() { 
-        return this.preview;
+    public List<WebResource> getPreview() {
+        return ( preview != null ? preview
+                                : (preview = new ArrayList<WebResource>()) );
     }
 
-    public void setPreview(WebResource preview) {
-        this.preview = preview;
+    public void addPreview(WebResource preview) {
+        getPreview().add(preview);
     }
 
     public ObjectReference getLandingPage() { 

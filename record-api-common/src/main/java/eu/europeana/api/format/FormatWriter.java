@@ -20,7 +20,7 @@ public interface FormatWriter<T> {
 
     /**
      * Method for serialising list of values
-     * @param value list of value to be formatted
+     * @param value list of objects to be serialised
      * @param out output stream
      * @throws IOException
      */

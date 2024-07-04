@@ -8,6 +8,8 @@ import org.apache.jena.rdf.model.RDFNode;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 
 /**
@@ -36,7 +38,7 @@ public abstract class JenaTimeCodec<T extends Temporal> implements JenaCodec<T>
     public void encode(Model m, T value, EncoderContext context) {
         Property property = context.getProperty();
         if ( property == null ) { return; }
-        context.getResource().addLiteral(property, value.toString());
+        context.getResource().addLiteral(property, encode(value));
     }
 
     @Override
@@ -46,15 +48,28 @@ public abstract class JenaTimeCodec<T extends Temporal> implements JenaCodec<T>
 
     protected abstract T parse(Object obj);
 
+    protected abstract Object encode(T obj);
+    
+
 
     public static class InstantCodec extends JenaTimeCodec<Instant> {
+
+        private static DateTimeFormatter DATETIME_FORMAT
+            = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSS'Z'")
+                           .withZone(ZoneOffset.UTC);
 
         @Override
         public Class<Instant> getSupportedClass() { return Instant.class; }
 
+        @Override
         public Instant parse(Object obj) {
             return ( obj instanceof Instant ? ((Instant)obj) 
                                             : Instant.parse(obj.toString()) );
+        }
+
+        @Override
+        protected Object encode(Instant obj) {
+            return DATETIME_FORMAT.format(obj);
         }
     }
 
@@ -63,9 +78,15 @@ public abstract class JenaTimeCodec<T extends Temporal> implements JenaCodec<T>
         @Override
         public Class<LocalDate> getSupportedClass() { return LocalDate.class; }
 
+        @Override
         public LocalDate parse(Object obj) {
             return ( obj instanceof LocalDate ? ((LocalDate)obj)
                                               : LocalDate.parse(obj.toString()) );
+        }
+
+        @Override
+        protected Object encode(LocalDate obj) {
+            return obj.toString();
         }
     }
 

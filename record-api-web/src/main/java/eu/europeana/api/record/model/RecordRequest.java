@@ -1,6 +1,9 @@
 package eu.europeana.api.record.model;
 
+import java.util.Collection;
+
 import eu.europeana.api.format.RdfFormat;
+import eu.europeana.api.record.profile.ViewProfileRegistry.Profile;
 
 public class RecordRequest {
 
@@ -12,10 +15,13 @@ public class RecordRequest {
     // complete record Id
     private String about;
 
+    private Collection<Profile> profiles;
+
     private RdfFormat rdfFormat;
 
     // if the localID had extension like .json or .rdf
     private boolean hasExtension;
+
 
     public String getDatasetId() {
         return datasetId;
@@ -47,6 +53,14 @@ public class RecordRequest {
 
     public void setRdfFormat(RdfFormat rdfFormat) {
         this.rdfFormat = rdfFormat;
+    }
+
+    public Collection<Profile> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(Collection<Profile> profiles) {
+        this.profiles = profiles;
     }
 
     public boolean hasExtension() {

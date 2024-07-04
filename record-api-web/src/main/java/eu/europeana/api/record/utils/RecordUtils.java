@@ -2,16 +2,21 @@ package eu.europeana.api.record.utils;
 
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.model.RecordRequest;
+import eu.europeana.api.record.profile.ViewProfileRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.Charset;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import eu.europeana.api.record.profile.ViewProfileRegistry.Profile;
+
 import static eu.europeana.api.record.utils.RecordConstants.BASE_URL;
+
 public class RecordUtils {
 
     private RecordUtils(){
@@ -49,7 +54,7 @@ public class RecordUtils {
         }
         return url;
     }
-    public static RecordRequest getRecordRequest(String datasetId, String localIdWithExtension, HttpServletRequest request) {
+    public static RecordRequest getRecordRequest(String datasetId, String localIdWithExtension, String profile, HttpServletRequest request) {
        RecordRequest recordRequest = new RecordRequest();
        RdfFormat format = null;
        if (idHasExtension(localIdWithExtension)) {
@@ -72,6 +77,9 @@ public class RecordUtils {
        }
        recordRequest.setAbout(buildRecordId(datasetId, recordRequest.getLocalId()));
        recordRequest.setRdfFormat(format);
+
+       Collection<Profile> profiles = ViewProfileRegistry.parseProfiles(profile);
+       recordRequest.setProfiles(profiles);
        return recordRequest;
     }
 

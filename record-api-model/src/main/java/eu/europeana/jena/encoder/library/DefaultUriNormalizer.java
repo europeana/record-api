@@ -21,16 +21,21 @@ public class DefaultUriNormalizer implements ResourceUriNormalizer {
 
         if ( StringUtils.equals(uri, base) ) { return uri; }
 
-        return uri.substring(base.length());
+        uri = uri.substring(base.length());
+        if ( uri.startsWith("#") || uri.startsWith("./") ) { return uri; }
+
+        if ( uri.startsWith("/") ) { return "." + uri; }
+        return "./" + uri;
     }
 
     @Override
     public String expand(String uri, String base) {
         if ( base == null ) { return uri; }
 
-        if ( uri.startsWith("#") || uri.startsWith("/") ) {
-            return base + uri;
-        }
+        if ( uri.startsWith("#") ) { return base + uri; }
+
+        if ( uri.startsWith("./") ) { return base + uri.substring(2); }
+
         return uri;
     }
 }

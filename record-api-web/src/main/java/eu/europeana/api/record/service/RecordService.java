@@ -1,5 +1,7 @@
 package eu.europeana.api.record.service;
 
+import dev.morphia.internal.DatastoreHolder;
+import dev.morphia.query.FindOptions;
 import dev.morphia.query.MorphiaCursor;
 import eu.europeana.api.record.config.AppConfig;
 import eu.europeana.api.record.config.RecordApiConfiguration;
@@ -24,6 +26,10 @@ public class RecordService {
         this.recordApiConfiguration = recordApiConfiguration;
     }
 
+    public void init() {
+        DatastoreHolder.holder.set(recordRepository.getDatastore());
+    }
+
     public ProvidedCHO saveRecord(ProvidedCHO providedCHO) {
         return recordRepository.save(providedCHO);
     }
@@ -32,8 +38,17 @@ public class RecordService {
         return Optional.ofNullable(recordRepository.findById(about));
     }
 
+    public Optional<ProvidedCHO> getRecord(String about, FindOptions opts) {
+        return Optional.ofNullable(recordRepository.findById(about, opts));
+    }
+
     public MorphiaCursor<ProvidedCHO> retrieveMultipleByRecordIds(List<String> recordIds) {
         return recordRepository.findByRecordIds(recordIds);
+    }
+
+    public MorphiaCursor<ProvidedCHO> retrieveMultipleByRecordIds(List<String> recordIds
+                                                                , FindOptions opts) {
+        return recordRepository.findByRecordIds(recordIds, opts);
     }
 
     public boolean existsByID(String about) {

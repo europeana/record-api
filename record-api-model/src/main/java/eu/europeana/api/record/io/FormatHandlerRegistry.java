@@ -4,6 +4,8 @@ import eu.europeana.api.format.FormatWriter;
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.io.json.JsonLdWriter;
 import eu.europeana.api.record.io.xml.XmlRecordWriter;
+import eu.europeana.api.record.model.ProvidedCHO;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -19,7 +21,7 @@ import static eu.europeana.api.config.AppConfigConstants.*;
  */
 @Configuration
 @Import(JsonLdWriter.class)
-public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter> {
+public class FormatHandlerRegistry extends HashMap<RdfFormat, FormatWriter<ProvidedCHO>> {
 
     public FormatHandlerRegistry(@Qualifier(BEAN_FORMAT_WRITER_JSONLD) JsonLdWriter jsonLdWriter
                                , @Qualifier(BEAN_FORMAT_WRITER_XML) XmlRecordWriter xmlRecordWriter
