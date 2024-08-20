@@ -14,7 +14,7 @@ spec:
         - name: record-api-v3
           imagePullPolicy: Always
           env:
-            - name: CATALINA_OPTS
+            - name: JAVA_TOOL_OPTIONS
               value: "-javaagent:/usr/local/elastic-apm-agent.jar
                       -Delastic.apm.application_packages=${ELASTIC_APP_PACKAGES}
                       -Delastic.apm.server_urls=${ELASTIC_APM_SERVERS}
