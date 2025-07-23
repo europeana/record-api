@@ -3,10 +3,12 @@ package eu.europeana.api.record.service;
 import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.MorphiaCursor;
+import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.record.config.AppConfig;
 import eu.europeana.api.record.config.RecordApiConfiguration;
 import eu.europeana.api.record.model.ProvidedCHO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import eu.europeana.api.record.db.repository.RecordRepository;
 
@@ -18,12 +20,11 @@ public class RecordService {
 
     private final RecordRepository recordRepository;
 
-    final RecordApiConfiguration recordApiConfiguration;
-
     @Autowired
-    public RecordService(RecordRepository recordRepository, RecordApiConfiguration recordApiConfiguration) {
-        this.recordRepository = recordRepository;
-        this.recordApiConfiguration = recordApiConfiguration;
+    public RecordService(
+            @Qualifier(value = AppConfigConstants.BEAN_RECORD_REPO) 
+            RecordRepository repo) {
+        this.recordRepository = repo;
     }
 
     public void init() {
@@ -43,16 +44,16 @@ public class RecordService {
     }
 
     public MorphiaCursor<ProvidedCHO> retrieveMultipleByRecordIds(List<String> recordIds) {
-        return recordRepository.findByRecordIds(recordIds);
+        return recordRepository.findByIds(recordIds);
     }
 
     public MorphiaCursor<ProvidedCHO> retrieveMultipleByRecordIds(List<String> recordIds
                                                                 , FindOptions opts) {
-        return recordRepository.findByRecordIds(recordIds, opts);
+        return recordRepository.findByIds(recordIds, opts);
     }
 
     public boolean existsByID(String about) {
-        return recordRepository.existsByRecordId(about);
+        return recordRepository.exists(about);
     }
 
 }

@@ -25,7 +25,7 @@ public class LocalReference implements ObjectReference
 
     @JsonUnwrapped
     @Property(ModelConstants.object)
-    protected EDMClass object;
+    protected SharedObject object;
 
     public LocalReference() {}
 
@@ -48,7 +48,7 @@ public class LocalReference implements ObjectReference
 
     public boolean isDereferenced() { return this.object != null; }
 
-    public EDMClass getDereferencedObject() { return this.object; }
+    public SharedObject getDereferencedObject() { return this.object; }
 
     public String toString() { return ("<" + id + ">"); }
 
@@ -60,5 +60,10 @@ public class LocalReference implements ObjectReference
     @PostLoad
     public void postLoad(Document doc) {
         if ( this.object != null ) { this.id = this.object.getID(); }
+    }
+
+    @Override
+    public void setDereferencedObject(SharedObject obj) {
+        this.object = obj;
     }
 }

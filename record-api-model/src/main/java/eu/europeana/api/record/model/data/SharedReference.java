@@ -24,13 +24,13 @@ public class SharedReference implements ObjectReference {
 
     private static final Logger LOGGER = LogManager.getLogger(SharedReference.class);
 
-    public static ThreadLocal<ObjectRepository> repo = new ThreadLocal<>();
+    public static ThreadLocal<SharedReferenceHandler> handler = new ThreadLocal<>();
 
     @Property(ModelConstants.id)
     protected String id;
 
     @Reference(value = ModelConstants.object, lazy = true)
-    protected EDMClass object;
+    protected SharedObject object;
 
 
     public SharedReference() {}
@@ -58,11 +58,12 @@ public class SharedReference implements ObjectReference {
      */
     public boolean isDereferenced() { return (this.object != null); }
 
-    public EDMClass getDereferencedObject() {
-        EDMClass obj = this.object;
+    public SharedObject getDereferencedObject() {
+        SharedObject obj = this.object;
+        //explain why there is a if with MorphiaProxy
         if ( obj instanceof MorphiaProxy ) { 
             try {
-                obj = (EDMClass)((MorphiaProxy)obj).unwrap();
+                obj = (SharedObject)((MorphiaProxy)obj).unwrap();
             }
             catch (ReferenceException e) {
                 LOGGER.warn("Could not dereference: " + this.id);
@@ -72,28 +73,30 @@ public class SharedReference implements ObjectReference {
         return obj;
     }
 
+    public void setDereferencedObject(SharedObject obj) {
+        this.object = obj;
+    }
+
     public String toString() { return ("<" + id + ">"); }
 
     @PrePersist
     public void prePersist(Document doc, Datastore ds) {
         if ( this.object != null ) {
-            ObjectRepository repo = this.repo.get();
-            repo.save(this.object);
+            SharedReferenceHandler handler = this.handler.get();
+            if ( handler != null ) { handler.saveShared(this.object); }
         }
     }
 
     @PostLoad
-    public void postLoad(Document document, Datastore ds)
-    {
+    public void postLoad(Document document, Datastore ds) {
+        
+        if ( this.object != null ) {
+            SharedReferenceHandler handler = this.handler.get();
+            if ( handler != null ) { handler.loadShared(this); }
+        }
         // TODO:
         // Consider again removing the id field since the reference is now based
         // on that. The challenge will be getting the id from the reference without
         // forcing a load from the db.
-        
-        //OUTDATED:
-        // when lazy loading the object still comes with an "artificial" value, for which,
-        // the check against null passes and the call to getID() forces the effective load of the object
-        // which effectively breaks the lazy loading. We need to find a better way to do this!
-        //if ( this.object != null ) { this.id = this.object.getID(); }
     }
 }

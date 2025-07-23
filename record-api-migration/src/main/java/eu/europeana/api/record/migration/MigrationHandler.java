@@ -3,7 +3,7 @@ package eu.europeana.api.record.migration;
 import dev.morphia.query.filters.Filters;
 import eu.europeana.api.edm.EDM;
 import eu.europeana.api.format.RdfFormat;
-import eu.europeana.api.record.db.repository.RecordRepository;
+import eu.europeana.api.record.db.repository.OptimisedRecordRepositoryCopy;
 import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.migration.RecordDomProcessor.Result;
 import eu.europeana.api.record.model.*;
@@ -68,14 +68,14 @@ public class MigrationHandler {
 
     private final FormatHandlerRegistry registry;
 
-    private final RecordRepository migrationRepository;
+    private final OptimisedRecordRepositoryCopy migrationRepository;
 
     private final TemplateLibrary library;
 
     @Autowired
     public MigrationHandler(MigrationSettings settings
                           , FormatHandlerRegistry registry
-                          , RecordRepository migrationRepository
+                          , OptimisedRecordRepositoryCopy migrationRepository
                           , @Qualifier(BEAN_RECORD_TEMPLATE_LIBRARY) TemplateLibrary library) {
         this.settings = settings;
         this.registry = registry;
