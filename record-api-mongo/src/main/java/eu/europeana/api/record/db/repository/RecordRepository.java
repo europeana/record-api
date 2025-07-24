@@ -34,7 +34,7 @@ public class RecordRepository implements ObjectRepository<ProvidedCHO>
 
     private static final Logger LOGGER = LogManager.getLogger(RecordRepository.class);
 
-    @Resource(name = AppConfigConstants.BEAN_RECORD_DATA_STORE)
+//    @Resource(name = AppConfigConstants.BEAN_RECORD_DATA_STORE)
     protected Datastore datastore;
 
     public RecordRepository(Datastore ds) {

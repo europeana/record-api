@@ -21,7 +21,6 @@ import dev.morphia.query.MorphiaCursor;
 import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.profile.ViewProfileRegistry;
-import eu.europeana.api.record.db.repository.OptimisedRecordRepositoryCopy;
 import eu.europeana.api.record.db.repository.RecordRepository;
 import eu.europeana.api.record.io.FormatHandlerRegistry;
 import eu.europeana.api.record.io.FormatHandlerRegistryV2;
