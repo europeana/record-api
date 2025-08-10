@@ -3,6 +3,7 @@ package eu.europeana.api.record.io.jena;
 import dev.morphia.mapping.codec.references.MorphiaProxy;
 import eu.europeana.api.record.model.EDMClass;
 import eu.europeana.api.record.model.data.ObjectReference;
+import eu.europeana.api.record.model.data.SharedObject;
 import eu.europeana.jena.encoder.JenaObjectDecoder.DecoderContext;
 import eu.europeana.jena.encoder.JenaObjectEncoder.EncoderContext;
 import eu.europeana.jena.encoder.codec.JenaCodec;
@@ -32,7 +33,7 @@ public class ObjectReferenceCodec implements JenaCodec<ObjectReference> {
         //Good example to test this is: /221/URN_NBN_SI_DOC_0CEKTP4N
         if ( ref.isDereferenced() ) {
             //TODO: review how to best work with lazy loading
-            EDMClass o = ref.getDereferencedObject();
+            SharedObject o = ref.getDereferencedObject();
             // the object may be null when it has not been stored before and 
             // should be covered on the dereferenced
             if ( o != null ) { 

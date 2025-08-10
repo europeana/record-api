@@ -18,6 +18,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import dev.morphia.query.filters.Filters;
 import dev.morphia.query.MorphiaCursor;
+import eu.europeana.api.config.AppConfigConstants;
 import eu.europeana.api.format.RdfFormat;
 import eu.europeana.api.record.profile.ViewProfileRegistry;
 import eu.europeana.api.record.db.repository.RecordRepository;
@@ -52,19 +53,23 @@ public class RecordApp extends SpringBootServletInitializer {
                 LOG.info("No args provided to application. Starting web server");
                 ConfigurableApplicationContext ctx = SpringApplication.run(RecordApp.class, args);
 
-/*
-                RecordRepository repo = ctx.getBean(RecordRepository.class);
+
+                RecordRepository repo = (RecordRepository)ctx.getBean(AppConfigConstants.BEAN_RECORD_REPO);
 
                 ViewProfileRegistry vr = new ViewProfileRegistry();
 
-                try ( MorphiaCursor<ProvidedCHO> cursor = repo.findAll(
-//                       Filters.eq("proxies.proxyIn.datasetName", "9200515_NL_Photographs_Serbia")
-                      , vr.getProjection("media.full"))) {
+                long time = System.currentTimeMillis();
+                
+                try ( MorphiaCursor<ProvidedCHO> cursor = repo.findByFilter(
+                       Filters.eq("id", "http://data.europeana.eu/item/142/UEDIN_214")
+                      // Filters.eq("proxies.proxyIn.datasetName", "9200515_NL_Photographs_Serbia")
+                      //, vr.getProjection("media.full")
+                       )) {
 
                     FormatHandlerRegistry reg = ctx.getBean(FormatHandlerRegistry.class);
     //                reg.get(RdfFormat.JSONLD).write(cho, System.out);
     
-                    File dir = new File("C:\\Work\\incoming\\Record v3\\formats");
+                    File dir = new File("C:\\Work\\incoming\\Record v3\\test");
                     RdfFormat[] formats = { RdfFormat.XML };
                     for ( RdfFormat format : formats ) {
                         File file = new File(dir, "records." +  format.getExtension());
@@ -74,8 +79,12 @@ public class RecordApp extends SpringBootServletInitializer {
                         }
                     }
                     //new JsonV2Writer().write(cho, System.out);
+                    //14719
                 }
-*/
+
+                long elapsed = System.currentTimeMillis() - time;
+                System.out.println("Time: " + elapsed);
+
         }
 
 

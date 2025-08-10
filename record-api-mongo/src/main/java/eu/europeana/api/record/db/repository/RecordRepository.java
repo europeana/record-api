@@ -1,103 +1,50 @@
 package eu.europeana.api.record.db.repository;
 
 import dev.morphia.Datastore;
-import dev.morphia.InsertOptions;
 import dev.morphia.UpdateOptions;
-import dev.morphia.internal.DatastoreHolder;
 import dev.morphia.query.FindOptions;
 import dev.morphia.query.MorphiaCursor;
 import dev.morphia.query.filters.Filter;
 import dev.morphia.query.filters.Filters;
 import dev.morphia.query.updates.SetEntityOperator;
 import eu.europeana.api.config.AppConfigConstants;
-import eu.europeana.api.record.model.EDMClass;
 import eu.europeana.api.record.model.ModelConstants;
 import eu.europeana.api.record.model.ProvidedCHO;
-import eu.europeana.api.record.model.data.ObjectRepository;
 import eu.europeana.api.record.model.data.SharedObject;
 import eu.europeana.api.record.model.data.SharedReference;
+import eu.europeana.api.record.model.data.SharedReferenceHandler;
 import eu.europeana.api.record.model.entity.ContextualEntity;
+import eu.europeana.api.repository.ObjectRepository;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bson.BsonObjectId;
-import org.springframework.stereotype.Repository;
-
-import com.mongodb.client.result.UpdateResult;
 
 import javax.annotation.Resource;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 
 /**
  * Record repository to storing and retrieving record data
  * @author srishti singh
  * @since 4 August 2023
  */
-@Repository(AppConfigConstants.BEAN_RECORD_REPO)
-public class RecordRepository implements ObjectRepository {
+//@Repository(AppConfigConstants.BEAN_RECORD_REPO)
+public class RecordRepository implements ObjectRepository<ProvidedCHO>
+                                        , SharedReferenceHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(RecordRepository.class);
 
-    private static ThreadLocal<List<ContextualEntity>> 
-        bulkEntity = new ThreadLocal<>();
+//    @Resource(name = AppConfigConstants.BEAN_RECORD_DATA_STORE)
+    protected Datastore datastore;
 
-    @Resource(name = AppConfigConstants.BEAN_RECORD_DATA_STORE)
-    private Datastore datastore;
-
-    /**
-     * Saves the given record to the database.
-     *
-     * @param record record to save
-     * @return saved record
-     */
-    public ProvidedCHO save(ProvidedCHO record) {
-        UpdateOptions upsert = new UpdateOptions().upsert(true);
-        Filter idf = Filters.eq("id", record.getID());
-
-        
-        SharedReference.repo.set(this);
-        try {
-            List<ContextualEntity> col = new ArrayList();
-            bulkEntity.set(col);
-
-            UpdateResult result = 
-                    datastore.find(ProvidedCHO.class).filter(idf)
-                             .update(upsert, new SetEntityOperator(record));
-            //ProvidedCHO cho = datastore.save(record);
-
-            int count1 = col.size();
-
-            // note that this for loop using a cursor is necessary because
-            // new entities may be added while iterating when an entity refers to 
-            // other entities that are not directly linked to the record
-            for ( int i = 0; i < col.size(); i++ ) {
-                saveInternal(col.get(i));
-            }
-
-            int count2 = col.size();
-            if ( count1 != count2 ) {
-                LOGGER.debug("Caught recursive entities: " + record.getID());
-            }
-            
-            return record;
-        }
-        catch (RuntimeException e) {
-            LOGGER.error("Error storing cho: " + record.getID(), e);
-            return null;
-        }
-        finally {
-            bulkEntity.remove();
-        }
+    public RecordRepository(Datastore ds) {
+        this.datastore = ds;
     }
 
 
     /** @return the total number of records in the database */
-    public long count() {
+    @Override
+    public long size() {
         return datastore.find(ProvidedCHO.class).count();
     }
 
@@ -107,7 +54,8 @@ public class RecordRepository implements ObjectRepository {
      * @param recordId ID of the dataset
      * @return true if yes, otherwise false
      */
-    public boolean existsByRecordId(String recordId) {
+    @Override
+    public boolean exists(String recordId) {
         return datastore
                 .find(ProvidedCHO.class)
                 .filter(Filters.eq(ModelConstants.id, recordId))
@@ -121,6 +69,7 @@ public class RecordRepository implements ObjectRepository {
      * @param recordId : Id of the record to be fetched
      * @return record matching record id
      */
+    @Override
     public ProvidedCHO findById(String recordId) {
         return findById(recordId, new FindOptions());
     }
@@ -132,7 +81,9 @@ public class RecordRepository implements ObjectRepository {
      * @param opts     : options for find
      * @return record matching record id
      */
+    @Override
     public ProvidedCHO findById(String recordId, FindOptions opts) {
+        SharedReference.handler.set(this);
         return datastore
                 .find(ProvidedCHO.class)
                 .filter(Filters.eq(ModelConstants.id, recordId))
@@ -145,8 +96,9 @@ public class RecordRepository implements ObjectRepository {
      * @param recordIds ids to be fetched
      * @return list of ProvidedCho(s)
      */
-    public MorphiaCursor<ProvidedCHO> findByRecordIds(List<String> recordIds) {
-        return findByRecordIds(recordIds, new FindOptions());
+    @Override
+    public MorphiaCursor<ProvidedCHO> findByIds(Collection<String> recordIds) {
+        return findByIds(recordIds, new FindOptions());
     }
 
     /**
@@ -155,8 +107,9 @@ public class RecordRepository implements ObjectRepository {
      * @param opts  : options for find
      * @return list of ProvidedCho(s)
      */
-    public MorphiaCursor<ProvidedCHO> findByRecordIds(List<String> recordIds
-                                                    , FindOptions opts) {
+    @Override
+    public MorphiaCursor<ProvidedCHO> findByIds(Collection<String> recordIds
+                                              , FindOptions opts) {
         return findByFilter(Filters.in(ModelConstants.id, recordIds), opts);
     }
 
@@ -165,6 +118,7 @@ public class RecordRepository implements ObjectRepository {
      * @param filter: filter to be used to select records
      * @return list of ProvidedCho(s)
      */
+    @Override
     public MorphiaCursor<ProvidedCHO> findByFilter(Filter filter) {
         return findByFilter(filter, new FindOptions());
     }
@@ -175,39 +129,44 @@ public class RecordRepository implements ObjectRepository {
      * @param opts  : options for find
      * @return list of ProvidedCho(s)
      */
+    @Override
     public MorphiaCursor<ProvidedCHO> findByFilter(Filter filter
                                                  , FindOptions opts) {
+        SharedReference.handler.set(this);
         return datastore
                 .find(ProvidedCHO.class)
                 .filter(filter)
                 .iterator(opts);
     }
 
-    /**
-     * Fetches records based on a filter
-     * @param filter: filter to be used to select records
-     * @return list of ProvidedCho(s)
-     */
-    public MorphiaCursor<ProvidedCHO> findAll() {
-        return findAll(new FindOptions());
-    }
 
     /**
-     * Fetches records based on a filter
-     * @param filter: filter to be used to select records
-     * @param opts  : options for find
-     * @return list of ProvidedCho(s)
+     * Saves the given record to the database.
+     *
+     * @param record record to save
+     * @return saved record
      */
-    public MorphiaCursor<ProvidedCHO> findAll(FindOptions opts) {
-        return datastore
-                .find(ProvidedCHO.class)
-                .iterator(opts);
+    @Override
+    public ProvidedCHO save(ProvidedCHO record) {
+        UpdateOptions upsert = new UpdateOptions().upsert(true);
+        Filter idf = Filters.eq(ModelConstants.id, record.getID());
+
+        try {
+            datastore.find(ProvidedCHO.class).filter(idf)
+                     .update(upsert, new SetEntityOperator(record));
+            
+            return record;
+        }
+        catch (RuntimeException e) {
+            LOGGER.error("Error storing cho: " + record.getID(), e);
+            return null;
+        }
     }
 
-    public Datastore getDatastore() {
-        return datastore;
+    @Override
+    public void loadShared(SharedReference ref) {
+        ref.setDereferencedObject(findEntityById(ref.getID()));
     }
-
 
     /*
      * There is a problem with cycle references where this method is called 
@@ -216,71 +175,29 @@ public class RecordRepository implements ObjectRepository {
      * The best solution is to change the ID of entities to be the URI and not ObjectId
      */
     @Override
-    public void save(SharedObject obj) {
-        if ( obj instanceof ContextualEntity ) {
-            List<ContextualEntity> list = bulkEntity.get();
-            ContextualEntity e = (ContextualEntity)obj;
-            if ( !list.contains(e) ) { list.add(e); }
-        }
-
-        /*
-        try {
-        EDMClass o = ref.getDereferencedObject();
-            Filter idf = Filters.eq("_id", o.getID());
-            long count = datastore.find(o.getClass()).filter(idf).count();
-            if ( count > 0 ) { return; }
-
-            datastore.save(o);
-
-            UpdateOptions upsert = new UpdateOptions().upsert(true);
-            Filter idf = Filters.eq(ModelConstants.id, o.getID());
-            UpdateResult result = 
-                datastore.find(o.getClass()).filter(idf)
-                         .update(upsert, new SetEntityOperator(o));
-
-            BsonObjectId objID = (BsonObjectId)result.getUpsertedId();
-            if ( objID != null ) {
-                ContextualEntity ce = (ContextualEntity)o;
-                ce.setObjectID(objID.getValue());
-                return;
-            }
-    
-            EDMClass o2 = datastore.find(o.getClass()).filter(idf).first();
-            if ( o2 != null ) {
-                ref.setDereferencedObject(o2);
-            }
-        }
-        catch (RuntimeException e) {
-            LOGGER.error("Error storing entity: " + o.getID());
-            throw e;
-        }
-            */
-
-        
-//      (UpdateOperators.set(ModelConstants.id, o.getID())).execute(new ModifyOptions()
-//      .returnDocument(ReturnDocument.AFTER));
-//  ds.getMapper().getCollection(o.getClass());
-
-//  ds.find(o.getClass()).filter(Filters.eq(ModelConstants.id, o.getID())).ficount();
-//  if ( count  > 0 ) { return; }
-    }
-
-    //    public void save(EDMClass o)
-//    {
-//        if ( o != null ) {
-//            long count = datastore.find(o.getClass()).filter(Filters.eq(ModelConstants.id, o.getID())).count();
-//            if ( count  > 0 ) { return; }
-//
-//            datastore.save(o);
-//        }
-//    }
-
-    private void saveInternal(ContextualEntity entity) {
-        Filter idf = Filters.eq("_id", entity.getID());
-        long count = datastore.find(entity.getClass()).filter(idf).count();
+    public void saveShared(SharedObject obj) {
+        Filter idf = Filters.eq("_id", obj.getID());
+        long count = datastore.find(obj.getClass()).filter(idf).count();
         if ( count > 0 ) { return; }
 
-        datastore.save(entity);
+        datastore.save(obj);
     }
 
+    public Datastore getDatastore() {
+        return datastore;
+    }
+
+    protected ContextualEntity findEntityById(String id) {
+        return datastore
+                .find(ContextualEntity.class)
+                .filter(Filters.eq(ModelConstants.id, id))
+                .iterator(new FindOptions())
+                .tryNext();
+    }
+
+    protected MorphiaCursor<ContextualEntity> findEntitiesByIds(Collection<String> ids) {
+        Filter filter = Filters.in("_id", ids);
+        return datastore.find(ContextualEntity.class)
+                        .filter(filter).iterator();
+    }
 }

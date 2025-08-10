@@ -1,12 +1,20 @@
 package eu.europeana.api.record.config;
 
+import javax.annotation.Resource;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+
+import dev.morphia.Datastore;
+import eu.europeana.api.config.AppConfigConstants;
+import eu.europeana.api.record.db.repository.OptimisedRecordRepository;
+import eu.europeana.api.record.db.repository.RecordRepository;
 
 @Configuration
 @PropertySources({
@@ -19,6 +27,9 @@ public class RecordApiConfiguration implements InitializingBean {
 
     private static final Logger LOG = LogManager.getLogger(RecordApiConfiguration.class);
 
+    @Resource(name = AppConfigConstants.BEAN_RECORD_DATA_STORE)
+    private Datastore datastore;
+
     @Value("${europeana.apikey.jwttoken.signaturekey}")
     private String apiKeyPublicKey;
 
@@ -30,6 +41,9 @@ public class RecordApiConfiguration implements InitializingBean {
 
     @Value("${auth.write.enabled: true}")
     private boolean authWriteEnabled;
+
+    @Value("${repository.optimised: true}")
+    private boolean repoOptimised;
 
     public String getApiKeyUrl() {
         return apiKeyUrl;
@@ -50,5 +64,12 @@ public class RecordApiConfiguration implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         // TODO add validation of required properties
+    }
+
+    @Bean(name = AppConfigConstants.BEAN_RECORD_REPO)
+    public RecordRepository getRepository() {
+        RecordRepository ret = ( repoOptimised ? new OptimisedRecordRepository(datastore)
+                               : new RecordRepository(datastore) );
+        return ret;
     }
 }
